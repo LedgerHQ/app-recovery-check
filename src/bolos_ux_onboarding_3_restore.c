@@ -262,7 +262,7 @@ screen_onboarding_3_restore_2_button(unsigned int button_mask,
                                                           .hslider3_current];
 
         // start recovery of the first word
-        PRINTF("CHOICE: %d\n", G_bolos_ux_context.onboarding_kind);
+        //PRINTF("CHOICE: %d\n", G_bolos_ux_context.onboarding_kind);
         screen_onboarding_4_restore_word_init(1);
         break;
     }
@@ -309,7 +309,7 @@ extern unsigned char app_stack_canary;
 void screen_onboarding_3_restore_init(void) {
 
     app_stack_canary = 222;
-    PRINTF("START! %d\n", app_stack_canary);
+    //PRINTF("START! %d\n", app_stack_canary);
     
 
     // elements to be displayed
