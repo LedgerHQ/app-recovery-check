@@ -72,7 +72,6 @@ static void sample_main(void) {
     uint8_t flags;
 
     for (;;) {
-
     }
 
 return_to_dashboard:
@@ -176,7 +175,6 @@ __attribute__((section(".boot"))) int main(void) {
     BEGIN_TRY {
         TRY {
             io_seproxyhal_init();
-
             //ui_idle();
             ui_idle_init();
             sample_main();

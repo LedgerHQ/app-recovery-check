@@ -31,7 +31,6 @@ APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1
 
 # Build configuration
 
-
 DEFINES += APPVERSION=\"$(APPVERSION)\"
 
 DEFINES += OS_IO_SEPROXYHAL IO_SEPROXYHAL_BUFFER_SIZE_B=128
@@ -64,7 +63,6 @@ APP_SOURCE_PATH += src src_common
 #SDK_SOURCE_PATH += lib_stusb lib_stusb_impl
 
 # Main rules
-
 
 load: all
 	python -m ledgerblue.loadApp $(APP_LOAD_PARAMS)
