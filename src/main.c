@@ -72,6 +72,9 @@ static void sample_main(void) {
     uint8_t flags;
 
     for (;;) {
+        io_exchange(CHANNEL_APDU | flags, 0);
+
+        flags |= IO_ASYNCH_REPLY;
     }
 
 return_to_dashboard:
