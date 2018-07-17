@@ -16,7 +16,7 @@ const ux_menu_entry_t menu_about_nanos[] = {
     UX_MENU_END}; 
 
 const ux_menu_entry_t ui_idle_mainmenu_nanos[] = {
-  {NULL, screen_onboarding_3_restore_init, 0, &C_badge, "Check your", "seed", 32, 10},
+  {NULL, screen_onboarding_3_restore_init, 0, &C_badge, "Start check", NULL, 32, 10},
   //{/*menu_settings_nanos*/NULL, NULL, 0, NULL, "Settings", NULL, 0, 0},
   {menu_about_nanos, NULL, 0, NULL, "About", NULL, 0, 0},
   {NULL, os_sched_exit, 0, &C_icon_dashboard, "Quit app", NULL, 50, 29},
