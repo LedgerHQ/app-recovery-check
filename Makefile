@@ -24,7 +24,7 @@ all: default
 
 # Main app configuration
 
-APPNAME = "Recovery check"
+APPNAME = "Recovery Check"
 APPVERSION = 1.0.0
 ICONNAME = icon.gif
 APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1 --path ""
