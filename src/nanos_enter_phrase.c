@@ -15,17 +15,9 @@
 *  limitations under the License.
 ********************************************************************************/
 
-#include "os.h"
-#include "cx.h"
+#include "ui.h"
 
-#include "os_io_seproxyhal.h"
-#include "string.h"
-
-#include "bolos_ux_common.h"
-
-#include "glyphs.h"
-
-//#ifdef OS_IO_SEPROXYHAL
+#ifdef TARGET_NANOS
 
 const bagl_element_t *
 screen_onboarding_4_restore_word_before_element_display_callback(
@@ -640,9 +632,8 @@ unsigned int screen_onboarding_4_restore_word_invalid_button(
 }
 
 
-void foo(void)
+void compare_recovery_phrase(void)
 {
-    //PRINTF("HELLO\n");
     G_bolos_ux_context.processing = 0;
 
     io_seproxyhal_general_status();
@@ -660,7 +651,7 @@ void foo(void)
     const char key[] = "Bitcoin seed";
 
     cx_hmac_sha512_init(&ctx, key, sizeof(key));
-    cx_hmac(&ctx,CX_LAST, buffer, 64, buffer);
+    cx_hmac(&ctx,CX_LAST, buffer, 64, buffer, 64);
     //PRINTF("Root key from input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
@@ -815,4 +806,4 @@ void screen_onboarding_4_restore_word_init(unsigned int firstWord)
     UX_DISPLAY(screen_onboarding_4_restore_word_intro, screen_onboarding_4_restore_word_before_element_display_callback);
 }
 
-//#endif // OS_IO_SEPROXYHAL
+#endif

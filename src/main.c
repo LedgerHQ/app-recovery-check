@@ -19,6 +19,7 @@
 #include "cx.h"
 
 #include "os_io_seproxyhal.h"
+#include "ui.h"
 
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
@@ -30,7 +31,15 @@ extern enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
 
 extern enum UI_STATE uiState;
 
+#ifdef TARGET_NANOX
+#include "ux.h"
+#include "bolos_ux_nanox.h"
+//ux_state_t G_ux;
+//bolos_ux_params_t G_ux_params;
+#else
+#include "bolos_ux_nanos.h"
 ux_state_t ux;
+#endif
 
 static unsigned char display_text_part(void);
 
@@ -103,7 +112,6 @@ static unsigned char display_text_part() {
     return 1;
 }
 
-#include "bolos_ux.h"
 
 unsigned char io_event(unsigned char channel) {
     // nothing done with the event, throw an error on the transport layer if
@@ -120,31 +128,31 @@ unsigned char io_event(unsigned char channel) {
         break;
 
     case SEPROXYHAL_TAG_DISPLAY_PROCESSED_EVENT:
+#if defined(TARGET_NANOS)
         if ((uiState == UI_TEXT) &&
             (os_seph_features() & SEPROXYHAL_TAG_SESSION_START_EVENT_FEATURE_SCREEN_BIG)) {
                 UX_REDISPLAY();
             }
         else {
-            if(G_bolos_ux_context.processing == 1)
-            {
-                UX_DISPLAYED_EVENT(foo(););
+            if(G_bolos_ux_context.processing == 1){
+                UX_DISPLAYED_EVENT(compare_recovery_phrase(););
             }
-            else
-            {
+            else {
                 UX_DISPLAYED_EVENT();
             }
         }
+#elif defined(TARGET_NANOX)
+        UX_DISPLAYED_EVENT({});
+#endif
         break;
 
     case SEPROXYHAL_TAG_TICKER_EVENT:
-        #ifdef TARGET_NANOS
             UX_TICKER_EVENT(G_io_seproxyhal_spi_buffer, {
                 // defaulty retrig very soon (will be overriden during
                 // stepper_prepro)
                 UX_CALLBACK_SET_INTERVAL(500);
                 UX_REDISPLAY();
             });
-        #endif 
         break;
 
     // unknown events are acknowledged

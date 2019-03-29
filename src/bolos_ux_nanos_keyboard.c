@@ -14,14 +14,16 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 ********************************************************************************/
-
 #include "os.h"
+
+#ifdef TARGET_NANOS
+
 #include "cx.h"
 
 #include "os_io_seproxyhal.h"
 #include "string.h"
 
-#include "bolos_ux.h"
+#include "bolos_ux_nanos.h"
 #include "bolos_ux_common.h"
 
 #include "glyphs.h"
@@ -301,4 +303,4 @@ void screen_common_keyboard_init(unsigned int stack_slot,
 
 }
 
-//#endif
+#endif

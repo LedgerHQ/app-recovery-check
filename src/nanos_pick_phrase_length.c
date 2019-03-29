@@ -14,16 +14,9 @@
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
 ********************************************************************************/
+#include "ui.h"
 
-#include "os.h"
-#include "cx.h"
-
-#include "os_io_seproxyhal.h"
-#include "string.h"
-
-#include "bolos_ux_common.h"
-
-//#ifdef OS_IO_SEPROXYHAL
+#ifdef TARGET_NANOS
 
 const bagl_element_t screen_onboarding_3_restore_0[] = {
     // erase
@@ -317,4 +310,4 @@ void screen_onboarding_3_restore_init(void) {
 
 }
 
-//#endif // OS_IO_SEPROXYHAL
+#endif

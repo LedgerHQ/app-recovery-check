@@ -16,6 +16,9 @@
 ********************************************************************************/
 
 #include "os.h"
+
+#ifdef TARGET_NANOS
+
 #include "cx.h"
 
 #include "os_io_seproxyhal.h"
@@ -311,4 +314,4 @@ void bolos_ux_hslider3_previous(void) {
 
 
 
-//#endif // OS_IO_SEPROXYHAL
+#endif 
