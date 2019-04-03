@@ -1,7 +1,7 @@
 
 #include "os.h"
 
-#ifdef TARGOT_NANOX
+#ifdef TARGET_NANOX
 
 #include "cx.h"
 
