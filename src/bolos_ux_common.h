@@ -34,9 +34,6 @@
 
 #define CONSENT_INTERVAL_MS 3000
 
-#define ARRAYLEN(array) (sizeof(array)/sizeof(array[0]))
-#define INARRAY(elementptr, array) ((unsigned int)elementptr >= (unsigned int)array && (unsigned int)elementptr < ((unsigned int)array)+sizeof(array))
-
 extern bolos_ux_context_t G_bolos_ux_context;
 
 extern const unsigned char hex_digits[];
@@ -91,10 +88,12 @@ void screen_random_boarding_init(void);
 void screen_onboarding_0_welcome_init(void);
 void screen_onboarding_1_2_pin_init(unsigned int step);
 void screen_onboarding_3_new_init(void);
-void screen_onboarding_4_confirm_init(void);
+void screen_onboarding_4_confirm_init(unsigned int feilword);
 
 void screen_onboarding_3_restore_init(void);
-void screen_onboarding_4_restore_word_init(unsigned int firstWord);
+#define RESTORE_WORD_ACTION_REENTER_WORD 0
+#define RESTORE_WORD_ACTION_FIRST_WORD 1
+void screen_onboarding_4_restore_word_init(unsigned int action);
 
 void screen_onboarding_5_passphrase_init(void);
 

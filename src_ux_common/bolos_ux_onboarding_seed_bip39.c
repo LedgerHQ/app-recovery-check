@@ -76,7 +76,7 @@ void bolos_ux_mnemonic_to_seed(unsigned char *mnemonic, unsigned int mnemonicLen
 
   os_memmove(passphrase, BIP39_MNEMONIC, BIP39_MNEMONIC_LENGTH);
 
-  cx_pbkdf2_sha512(mnemonic, mnemonicLength, passphrase, BIP39_MNEMONIC_LENGTH + 4/*for round index, set in pbkdf2*/, BIP39_PBKDF2_ROUNDS, seed, 64);
+  cx_pbkdf2_sha512(mnemonic, mnemonicLength, passphrase, BIP39_MNEMONIC_LENGTH, BIP39_PBKDF2_ROUNDS, seed, 64);
 
   // what happen to the second block for a very short seed ?
 }

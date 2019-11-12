@@ -19,385 +19,149 @@
 
 #ifdef TARGET_NANOS
 
-const bagl_element_t *
-screen_onboarding_4_restore_word_before_element_display_callback(
-    const bagl_element_t *element);
 
-// show intro
-const bagl_element_t screen_onboarding_4_restore_word_intro[] = {
-    // erase
-    {{BAGL_RECTANGLE, 0x00, 0, 0, 128, 32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF,
-      0, 0},
-     NULL,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
+// allow to edit back any entered word
+#define RESTORE_WORD_MAX_BACKWARD_STEPS 24
 
-    {{BAGL_LABELINE, 0x31, 0, 12, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
-      BAGL_FONT_OPEN_SANS_REGULAR_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
-     "Enter first letters",
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-    {{BAGL_LABELINE, 0x32, 0, 12, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
-      BAGL_FONT_OPEN_SANS_REGULAR_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
-     "Next, enter letters",
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-    {{BAGL_LABELINE, 0x33, 0, 12, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
-      BAGL_FONT_OPEN_SANS_REGULAR_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
-     "Finally, enter letters",
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-    {{BAGL_LABELINE, 0x30, 0, 26, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
-      BAGL_FONT_OPEN_SANS_REGULAR_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
-     G_bolos_ux_context.string_buffer,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-};
 
-// word selection + word clear
-const bagl_element_t screen_onboarding_4_restore_word_select[] = {
-    // erase
-    {{BAGL_RECTANGLE, 0x00, 0, 0, 128, 32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF,
-      0, 0},
-     NULL,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
+const bagl_element_t* screen_onboarding_4_restore_word_before_element_display_callback(const bagl_element_t* element);
 
-    {{BAGL_LABELINE, 0x21, 0, 12, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
-      BAGL_FONT_OPEN_SANS_REGULAR_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
-     G_bolos_ux_context.string_buffer,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-    {{BAGL_LABELINE, 0x20, 0, 26, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
-      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
-     G_bolos_ux_context.string_buffer,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
+void screen_onboarding_4_restore_word_display_auto_complete(void);
+UX_STEP_CB(
+  restore_4_intro_1,
+  nn,
+  screen_onboarding_4_restore_word_display_auto_complete();,
+  {
+    "Enter", 
+    G_ux.string_buffer
+  });
 
-    {{BAGL_ICON, 0x24, 23, 9, 14, 14, 0, 0, 0, 0xFFFFFF, 0x000000, 0,
-      BAGL_GLYPH_ICON_CROSS_BADGE},
-     NULL,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-    {{BAGL_LABELINE, 0x24, 43, 19, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
-      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px, 0},
-     "Clear word",
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
+UX_FLOW(
+  restore_4_intro,
+  &restore_4_intro_1
+  );
 
-    // left/rights icons
-    {{BAGL_ICON, 0x22, 3, 12, 4, 7, 0, 0, 0, 0xFFFFFF, 0x000000, 0,
-      BAGL_GLYPH_ICON_LEFT},
-     NULL,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-    {{BAGL_ICON, 0x23, 121, 12, 4, 7, 0, 0, 0, 0xFFFFFF, 0x000000, 0,
-      BAGL_GLYPH_ICON_RIGHT},
-     NULL,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-};
+UX_STEP_CB(
+  restore_4_invalid_1,
+  pbb,
+  screen_onboarding_3_restore_init();,
+  {
+    &C_icon_warning,
+    "Recovery", 
+    "phrase invalid"
+  });
 
-// recovery phrase error
-const bagl_element_t screen_onboarding_4_restore_word_invalid[] = {
-    // erase
-    {{BAGL_RECTANGLE, 0x00, 0, 0, 128, 32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF,
-      0, 0},
-     NULL,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
+UX_FLOW(
+  restore_4_invalid,
+  &restore_4_invalid_1);
 
-    {{BAGL_ICON, 0x00, 6, 9, 14, 14, 0, 0, 0, 0xFFFFFF, 0x000000, 0,
-      BAGL_GLYPH_ICON_CROSS_BADGE},
-     NULL,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-    {{BAGL_LABELINE, 0x00, 27, 12, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
-      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px, 0},
-     "Recovery phrase",
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-    {{BAGL_LABELINE, 0x00, 27, 26, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
-      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px, 0},
-     "is not valid",
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-};
+UX_STEP_CB(
+    step_final_nomatch,
+    pbb,
+    os_sched_exit(0);,
+    {
+        &C_icon_crossmark,
+        "Recovery",
+        "does not match"
+    });
 
-// seed comparison result
-const bagl_element_t screen_onboarding_4_restore_word_final_compare[] = {
-    // erase
-    {{BAGL_RECTANGLE, 0x00, 0, 0, 128, 32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF,
-      0, 0},
-     NULL,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
+UX_FLOW(flow_final_nomatch, &step_final_nomatch);
 
-    {{BAGL_ICON, 0x01, 6, 9, 14, 14, 0, 0, 0, 0xFFFFFF, 0x000000, 0,
-      BAGL_GLYPH_ICON_CROSS_BADGE},
-     NULL,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-     {{BAGL_ICON, 0x02, 6, 9, 14, 14, 0, 0, 0, 0xFFFFFF, 0x000000, 0,
-      BAGL_GLYPH_ICON_CHECK_BADGE},
-     NULL,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-    {{BAGL_LABELINE, 0x00, 10, 12, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
-      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
-     "Recovery phrase",
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-    {{BAGL_LABELINE, 0x00, 10, 26, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
-      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER, 0},
-     G_bolos_ux_context.string_buffer,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
-};
+UX_STEP_CB(
+    step_final_match,
+    pbb,
+    os_sched_exit(0);,
+    {
+        &C_icon_validate_14,
+        "Recovery",
+        "matches"
+    });
 
-// processing warning
+UX_FLOW(flow_final_match, &step_final_match);
 
-const bagl_element_t screen_onboarding_4_processing[] = {
-    // erase
-    {{BAGL_RECTANGLE, 0x00, 0, 0, 128, 32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF,
-      0, 0},
-     NULL,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
 
-    {{BAGL_ICON, 0x01, 11, 9, 14, 14, 0, 0, 0, 0xFFFFFF, 0x000000, 0,
-      BAGL_GLYPH_ICON_LOADING_BADGE},
-     NULL,
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL},
+void screen_processing_postinit(unsigned int stack_slot) {
+  // ensure when pin is modal over the processing screen( at end of install) the processing screen gives back the hand to the calling code
+  G_ux.stack[stack_slot].exit_code_after_elements_displayed = BOLOS_UX_OK;
+}
 
-    {{BAGL_LABELINE, 0x00, 10, 20, 128, 32, 0, 0, 0, 0xFFFFFF, 0x000000,
-      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER | BAGL_FONT_ALIGNMENT_MIDDLE, 0},
-     "Processing...",
-     0,
-     0,
-     0,
-     NULL,
-     NULL,
-     NULL}
-};
+UX_STEP_NOCB_POSTINIT(
+  processing_step,
+  pb,
+  screen_processing_postinit(stack_slot),
+  {
+    &C_icon_loader,
+    "Processing",
+  });
 
-unsigned int screen_onboarding_4_restore_word_select_button(
-    unsigned int button_mask, unsigned int button_mask_counter);
+UX_FLOW(processing_flow,
+  &processing_step);
 
-#define ITEMS (G_bolos_ux_context.string_buffer + 32)
+void screen_processing_init(void) {
+  ux_flow_init(0, processing_flow, NULL);
+}
 
-const bagl_element_t *
-screen_onboarding_4_restore_word_keyboard_callback(unsigned int event,
-                                                   unsigned int value);
+unsigned int screen_onboarding_4_restore_word_select_button(unsigned int button_mask, unsigned int button_mask_counter);
 
-void screen_onboarding_4_restore_word_display_auto_complete(void)
-{
-    unsigned int auto_complete_count =
-        bolos_ux_bip39_get_word_next_letters_starting_with(
-            (unsigned char *)G_bolos_ux_context.string_buffer + 16,
-            strlen(G_bolos_ux_context.string_buffer + 16),
-            (unsigned char *)G_bolos_ux_context.string_buffer + 32);
+#define ITEMS (G_ux.string_buffer+32)
+
+const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigned int event, unsigned int value);
+
+void screen_onboarding_4_restore_word_display_auto_complete(void) {
+  unsigned int auto_complete_count = bolos_ux_bip39_get_word_next_letters_starting_with((unsigned char*)G_ux.string_buffer+16, 
+                                                                                 strlen(G_ux.string_buffer+16), 
+                                                                                 (unsigned char*)G_ux.string_buffer+32);
     // display added letter and refresh slider
-    screen_common_keyboard_init(
-        0, 0, /*always restart from the first element in the list*/
+  screen_common_keyboard_init(0, 
+                              0, /*always restart from the first element in the list*/ 
+                              //(strlen(G_ux.string_buffer+16)?0:cx_rng_u8()%auto_complete_count), /* start from a random element in the list for the word start letter, else keep the order */
         // recompute alphabet and set the number of elements in the keyboard
-        auto_complete_count + (strlen(G_bolos_ux_context.string_buffer + 16)
-                                   ? 1
-                                   : 0) /* backspace */,
+                              auto_complete_count
+                              + (strlen(G_ux.string_buffer+16)?1:0) /* backspace if already a stem enetered, else no backspace */, 
         screen_onboarding_4_restore_word_keyboard_callback);
-    // append the special backspace to allow for easier dispatch in the keyboard
-    // callback
-    ((unsigned char *)(G_bolos_ux_context.string_buffer +
-                       32))[auto_complete_count] = '\b';
+  // append the special backspace to allow for easier dispatch in the keyboard callback
+  ((unsigned char*)(G_ux.string_buffer+32))[auto_complete_count] = '\b'; 
 }
 
-void screen_onboarding_4_restore_word_display_word_selection(void)
-{
-    /*screen_state_init(0);
-    G_bolos_ux_context.screen_stack[0].button_push_callback =
-        screen_onboarding_4_restore_word_select_button;
-    G_bolos_ux_context.screen_stack[0].element_arrays[0].element_array =
-        screen_onboarding_4_restore_word_select_elements;
-    G_bolos_ux_context.screen_stack[0].element_arrays[0].element_array_count =
-        ARRAYLEN(screen_onboarding_4_restore_word_select_elements);
-    G_bolos_ux_context.screen_stack[0].element_arrays_count = 1;
-    G_bolos_ux_context.screen_stack[0].screen_before_element_display_callback =
-        screen_onboarding_4_restore_word_before_element_display_callback;
-    screen_display_init(0);*/
-
-    UX_DISPLAY(screen_onboarding_4_restore_word_select, screen_onboarding_4_restore_word_before_element_display_callback);
+void screen_onboarding_4_restore_word_display_word_selection(void) {
+  ux_stack_init(0);
+  G_ux.stack[0].button_push_callback = screen_onboarding_4_restore_word_select_button;
+  G_ux.stack[0].element_arrays[0].element_array = screen_onboarding_word_list_elements;
+  G_ux.stack[0].element_arrays[0].element_array_count = sizeof(screen_onboarding_word_list_elements)/sizeof(screen_onboarding_word_list_elements[0]);
+  G_ux.stack[0].element_arrays_count = 1;
+  G_ux.stack[0].screen_before_element_display_callback = screen_onboarding_4_restore_word_before_element_display_callback;
+  ux_stack_display(0); 
 }
 
-const bagl_element_t * 
-screen_onboarding_4_processing_before_element_display_callback(const bagl_element_t *element) 
-{
-    // copy element to be displayed
-    os_memmove(&G_bolos_ux_context.tmp_element, PIC(element),
-               sizeof(G_bolos_ux_context.tmp_element));
-
-    if(element->component.userid == 0x01)
-    {
-        G_bolos_ux_context.tmp_element.component.width =
-            C_badge_loading_v2.width;
-        
-        G_bolos_ux_context.tmp_element.component.y = 9;
-        G_bolos_ux_context.tmp_element.component.height =
-            C_badge_loading_v2.height;
-        G_bolos_ux_context.tmp_element.component.type = BAGL_ICON;
-        G_bolos_ux_context.tmp_element.component.icon_id = 0;
-        G_bolos_ux_context.tmp_element.text =
-            (const char *)&C_badge_loading_v2;
-    }
-    // update element display
-    return &G_bolos_ux_context.tmp_element;
-}
-
-const bagl_element_t *
-screen_onboarding_4_restore_word_keyboard_callback(unsigned int event,
-                                                   unsigned int value)
-{
-    //PRINTF("Z %d %d\n", event, value);
-    switch (event)
-    {
+const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigned int event, unsigned int value) {
+  switch(event) {
     case KEYBOARD_ITEM_VALIDATED:
         // depending on the chosen class, interpret the click
-        if (G_bolos_ux_context.string_buffer[32 + value] == '\b')
-        {
-            if (strlen(G_bolos_ux_context.string_buffer + 16))
-            {
-                G_bolos_ux_context.string_buffer
-                    [16 + strlen(G_bolos_ux_context.string_buffer + 16) - 1] =
-                    0;
+      if (G_ux.string_buffer[32+value] == '\b') {
+        if (strlen(G_ux.string_buffer+16)) {
+          G_ux.string_buffer[16+strlen(G_ux.string_buffer+16)-1] = 0;
                 screen_onboarding_4_restore_word_display_auto_complete();
             }
         }
-        else
-        {
-            unsigned int nb_words_matching_stem;
+      else {
             // validate next letter of the word
-            G_bolos_ux_context
-                .string_buffer[16 +
-                               strlen(G_bolos_ux_context.string_buffer + 16)] =
-                G_bolos_ux_context
-                    .string_buffer[32 + G_bolos_ux_context.hslider3_current];
+        G_ux.string_buffer[16+strlen(G_ux.string_buffer+16)] = G_ux.string_buffer[32+G_bolos_ux_context.hslider3_current];
 
             // continue displaying until less than X words matches the stem
-            nb_words_matching_stem =
-                bolos_ux_bip39_get_word_count_starting_with(
-                    (unsigned char *)G_bolos_ux_context.string_buffer + 16,
-                    strlen(G_bolos_ux_context.string_buffer + 16));
-            if (nb_words_matching_stem > ONBOARDING_WORD_COMPLETION_MAX_ITEMS)
-            {
-                // too much words for slider word completion, await another
-                // letter
+        G_bolos_ux_context.onboarding_words_checked = bolos_ux_bip39_get_word_count_starting_with((unsigned char*)G_ux.string_buffer+16, strlen(G_ux.string_buffer+16));
+        if (G_bolos_ux_context.onboarding_words_checked > ONBOARDING_WORD_COMPLETION_MAX_ITEMS) {
+          // too much words for slider word completion, await another letter
                 screen_onboarding_4_restore_word_display_auto_complete();
             }
-            else
-            {
+        else {
                 // always init stem count
                 // index of the first word matching the stem
-                G_bolos_ux_context.onboarding_index =
-                    bolos_ux_bip39_get_word_idx_starting_with(
-                        (unsigned char *)G_bolos_ux_context.string_buffer + 16,
-                        strlen(G_bolos_ux_context.string_buffer + 16));
+          G_bolos_ux_context.onboarding_index = bolos_ux_bip39_get_word_idx_starting_with((unsigned char*)G_ux.string_buffer+16, strlen(G_ux.string_buffer+16));
 
                 // multiple possibilities
                 // update te slider's possible words
-                // account for the extra "last" (clear) item
-                bolos_ux_hslider3_init(nb_words_matching_stem + 1);
+          // account for the extra clear word, and clear any previous word items (go back in the onboarding process)
+          bolos_ux_hslider3_init(G_bolos_ux_context.onboarding_words_checked+MIN(G_bolos_ux_context.onboarding_step+1, RESTORE_WORD_MAX_BACKWARD_STEPS));
                 screen_onboarding_4_restore_word_display_word_selection();
             }
             return NULL;
@@ -405,232 +169,67 @@ screen_onboarding_4_restore_word_keyboard_callback(unsigned int event,
         break;
 
     case KEYBOARD_RENDER_ITEM:
-        if (G_bolos_ux_context.string_buffer[32 + value] == '\b')
-        {
+      if (G_ux.string_buffer[32+value] == '\b') {
             /*
             x:57 w:14
             iconw: 11
             */
-            value = 3;
-            G_bolos_ux_context.tmp_element.component.width =
-                C_icon_backspace.width;
-            G_bolos_ux_context.tmp_element.component.x +=
-                1 + G_bolos_ux_context.tmp_element.component.width / 2 -
-                C_icon_backspace.width / 2;
-            // G_bolos_ux_context.tmp_element.component.y +=
-            // screen_settings_passphrase_classes_icons[value]->height/2 -
-            // G_bolos_ux_context.tmp_element.component.height/2;
-            G_bolos_ux_context.tmp_element.component.y = 5;
-            G_bolos_ux_context.tmp_element.component.height =
-                C_icon_backspace.height;
-            G_bolos_ux_context.tmp_element.component.type = BAGL_ICON;
-            G_bolos_ux_context.tmp_element.component.icon_id = 0;
-            G_bolos_ux_context.tmp_element.text =
-                (const char *)&C_icon_backspace;
+        G_ux.tmp_element.component.width = C_icon_backspace.width;
+        G_ux.tmp_element.component.x += 1 + G_ux.tmp_element.component.width/2 - C_icon_backspace.width/2;
+        G_ux.tmp_element.component.y = 5;
+        G_ux.tmp_element.component.height = C_icon_backspace.height;
+        G_ux.tmp_element.component.type = BAGL_ICON;
+        G_ux.tmp_element.component.icon_id = 0;
+        // if current selected, then display the inversed digit (as in a pin digit)
+        G_ux.tmp_element.text = (const char*)&C_icon_backspace;
         }
-        else
-        {
-            G_bolos_ux_context.string_buffer[0] =
-                G_bolos_ux_context.string_buffer[32 + value] - 'a' +
-                'A'; // render as uppercase, always
-            G_bolos_ux_context.string_buffer[1] = 0;
-            G_bolos_ux_context.tmp_element.text =
-                G_bolos_ux_context.string_buffer;
+      else {
+        //G_ux.string_buffer[0] = G_ux.string_buffer[32+value]-'a'+'A'; // render as uppercase, always
+        G_ux.string_buffer[0] = G_ux.string_buffer[32+value]; // render as lowercase, always
+        G_ux.string_buffer[1] = 0;
+        G_ux.tmp_element.text = G_ux.string_buffer;
         }
         break;
-    case KEYBOARD_RENDER_WORD:
-    {
-        unsigned int l = strlen(G_bolos_ux_context.string_buffer + 16);
+    case KEYBOARD_RENDER_WORD: {
+      unsigned int l = strlen(G_ux.string_buffer+16);
 
-        if (value < 8)
-        {
-            G_bolos_ux_context.tmp_element.component.x += 5;
+      if (value < 8) {
+        G_ux.tmp_element.component.x += 5;
+        // prefix word stem with "%d:" with the current word index
+        snprintf(G_ux.string_buffer+2, 5, "#%d ", G_bolos_ux_context.onboarding_step + 1);
             // ensure font is left aligned
-            G_bolos_ux_context.tmp_element.text =
-                G_bolos_ux_context.string_buffer;
-            G_bolos_ux_context.string_buffer[1] = 0;
-            if (l < 8)
-            {
-                if (l > value)
-                {
-                    G_bolos_ux_context.string_buffer[0] =
-                        G_bolos_ux_context.string_buffer[16 + value];
+        G_ux.tmp_element.text = G_ux.string_buffer;
+        G_ux.string_buffer[1] = 0;
+        if (value<strlen(G_ux.string_buffer+2)) {
+          G_ux.string_buffer[0] = G_ux.string_buffer[2+value];
                 }
-                else
-                {
-                    G_bolos_ux_context.string_buffer[0] = '_';
+        else if (value<l+strlen(G_ux.string_buffer+2)) {
+          G_ux.string_buffer[0] = G_ux.string_buffer[16+value-strlen(G_ux.string_buffer+2)];
                 }
+        else {
+          G_ux.string_buffer[0] = '_';
             }
-            else
-            {
-                // first char is '...' to notify continuing
-                if (value == 0)
-                {
-                    G_bolos_ux_context.string_buffer[0] = '.';
-                    G_bolos_ux_context.string_buffer[1] = '.';
-                    G_bolos_ux_context.string_buffer[2] = '.';
-                    G_bolos_ux_context.string_buffer[3] = 0;
-                }
-                else
-                {
-                    G_bolos_ux_context.string_buffer[0] =
-                        (G_bolos_ux_context.string_buffer + 16 + l + 1 -
-                         8)[value];
-                }
-            }
+        // will never occur on word stem, autocomplete always happen before that
+        // else {
+        //   // first char is '...' to notify continuing
+        //   if (value == 0) {
+        //     G_ux.string_buffer[0] = '.';
+        //     G_ux.string_buffer[1] = '.';
+        //     G_ux.string_buffer[2] = '.';
+        //     G_ux.string_buffer[3] = 0;
+        //   }
+        //   else {
+        //     G_ux.string_buffer[0] = (G_ux.string_buffer+16+l+1-8)[value];
+        //   }
+        // }
             break;
         }
         return NULL;
     }
     }
     // update element display
-    return &G_bolos_ux_context.tmp_element;
+  return &G_ux.tmp_element;
 }
-
-unsigned int screen_onboarding_4_restore_word_final_compare_button(
-    unsigned int button_mask, unsigned int button_mask_counter)
-{
-    UNUSED(button_mask_counter);
-    switch (button_mask)
-    {
-    case BUTTON_EVT_RELEASED | BUTTON_LEFT | BUTTON_RIGHT:
-        os_sched_exit(0);
-        break;
-    }
-    return 0;
-}
-
-const bagl_element_t *
-screen_onboarding_4_restore_word_final_compare_before_element_display_callback(
-    const bagl_element_t *element)
-{
-     switch (element->component.userid)
-    {
-    case 0x01:
-        if(!G_bolos_ux_context.input_seed_is_identical)
-        {
-            SPRINTF(G_bolos_ux_context.string_buffer, "doesn't match!");
-        }
-        else
-        {
-            return NULL; // don't display
-        }
-        break;
-    case 0x02:
-        if(G_bolos_ux_context.input_seed_is_identical)
-        {
-            SPRINTF(G_bolos_ux_context.string_buffer, "matches");
-        }
-        else
-        {
-            return NULL; // don't display
-        }
-        break;
-    }
-
-    return element;
-}
-
-const bagl_element_t *
-screen_onboarding_4_restore_word_before_element_display_callback(
-    const bagl_element_t *element)
-{
-    switch (element->component.userid)
-    {
-    case 0x30:
-        // word index
-        SPRINTF(G_bolos_ux_context.string_buffer, "of word #%d",
-                G_bolos_ux_context.onboarding_step + 1);
-        break;
-
-    case 0x31:
-        if (G_bolos_ux_context.onboarding_step != 0)
-        {
-            return NULL; // don't display
-        }
-        break;
-    case 0x32:
-        if (G_bolos_ux_context.onboarding_step == 0 ||
-            G_bolos_ux_context.onboarding_step ==
-                G_bolos_ux_context.onboarding_kind - 1)
-        {
-            return NULL; // don't display
-        }
-        break;
-    case 0x33:
-        if (G_bolos_ux_context.onboarding_step !=
-            G_bolos_ux_context.onboarding_kind - 1)
-        {
-            return NULL; // don't display
-        }
-        break;
-
-    case 0x20:
-        // display matching word from the slider's current index
-        bolos_ux_bip39_idx_strcpy(
-            G_bolos_ux_context.onboarding_index +
-                G_bolos_ux_context.hslider3_current,
-            (unsigned char *)G_bolos_ux_context.string_buffer);
-        goto not_on_last_item;
-
-    case 0x21:
-        SPRINTF(G_bolos_ux_context.string_buffer, "Select word #%d",
-                G_bolos_ux_context.onboarding_step + 1);
-        goto not_on_last_item;
-
-    case 0x22:
-        // no left button on first item
-        if (G_bolos_ux_context.hslider3_current == 0)
-        {
-            return NULL;
-        }
-        break;
-    not_on_last_item:
-    case 0x23:
-        // no right button on last item
-        if (G_bolos_ux_context.hslider3_total == 0 ||
-            G_bolos_ux_context.hslider3_current ==
-                G_bolos_ux_context.hslider3_total - 1)
-        {
-            return NULL;
-        }
-        break;
-
-    case 0x24:
-        if (G_bolos_ux_context.hslider3_total == 0 ||
-            G_bolos_ux_context.hslider3_current !=
-                G_bolos_ux_context.hslider3_total - 1)
-        {
-            return NULL;
-        }
-        break;
-    }
-
-    // display other elements only if screen setup, else, only redraw words
-    // value
-    return element;
-}
-
-
-unsigned int screen_onboarding_4_processing_button(
-    unsigned int button_mask, unsigned int button_mask_counter){
-        // No interaction here
-    }
-
-unsigned int screen_onboarding_4_restore_word_invalid_button(
-    unsigned int button_mask, unsigned int button_mask_counter)
-{
-    UNUSED(button_mask_counter);
-    switch (button_mask)
-    {
-    case BUTTON_EVT_RELEASED | BUTTON_LEFT | BUTTON_RIGHT:
-        // enter a new recovery phrase
-        screen_onboarding_3_restore_init();
-        break;
-    }
-    return 0;
-}
-
 
 void compare_recovery_phrase(void)
 {
@@ -662,76 +261,117 @@ void compare_recovery_phrase(void)
     //PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
     // compare both rootkey
-    G_bolos_ux_context.input_seed_is_identical = os_secure_memcmp(buffer, buffer_device, 64) ? 0:1;
-
-
-    UX_DISPLAY(screen_onboarding_4_restore_word_final_compare, screen_onboarding_4_restore_word_final_compare_before_element_display_callback);
+    if(os_secure_memcmp(buffer, buffer_device, 64)) {
+        ux_flow_init(0, flow_final_nomatch, NULL);
+    }
+    else {
+        ux_flow_init(0, flow_final_match, NULL);
+    }
 }
 
 
-void screen_onboarding_4_restore_word_validate(void)
-{
-    bolos_ux_bip39_idx_strcpy(
-        G_bolos_ux_context.onboarding_index +
-            G_bolos_ux_context.hslider3_current,
-        (unsigned char *)(G_bolos_ux_context.words_buffer +
-                          G_bolos_ux_context.words_buffer_length));
-    G_bolos_ux_context.words_buffer_length =
-        strlen(G_bolos_ux_context.words_buffer);
+const bagl_element_t* screen_onboarding_4_restore_word_before_element_display_callback(const bagl_element_t* element) {
+  switch(element->component.userid) {
+
+    case 0x01:
+      if (G_bolos_ux_context.hslider3_total == 0 || G_bolos_ux_context.hslider3_current >= G_bolos_ux_context.onboarding_words_checked) {
+        return NULL;
+      }
+      SPRINTF(G_ux.string_buffer, "Word #%d", G_bolos_ux_context.onboarding_step + 1);
+      break;
+
+    case 0x02:
+      if (G_bolos_ux_context.hslider3_total == 0 || G_bolos_ux_context.hslider3_current >= G_bolos_ux_context.onboarding_words_checked) {
+        return NULL;
+      }
+      // display matching word from the slider's current index
+      bolos_ux_bip39_idx_strcpy(G_bolos_ux_context.onboarding_index + G_bolos_ux_context.hslider3_current, (unsigned char*)G_ux.string_buffer);
+      break;
+
+    case 0x03:
+      // no left button on first item
+      if (G_bolos_ux_context.hslider3_current == 0) {
+        return NULL;
+      }
+      break;
+    
+    case 0x04:
+      // no right button on last item
+      if (G_bolos_ux_context.hslider3_total == 0 || G_bolos_ux_context.hslider3_current >= G_bolos_ux_context.hslider3_total-1) {
+        return NULL;
+      }
+      break;
+
+    case 0x05:
+      if (G_bolos_ux_context.hslider3_total == 0 || G_bolos_ux_context.hslider3_current < G_bolos_ux_context.onboarding_words_checked) {
+        return NULL;
+      }
+      break;
+    case 0x06:
+      if (G_bolos_ux_context.hslider3_total == 0 || G_bolos_ux_context.hslider3_current < G_bolos_ux_context.onboarding_words_checked) {
+        return NULL;
+      }
+      SPRINTF(G_ux.string_buffer, "word #%d", G_bolos_ux_context.hslider3_total - G_bolos_ux_context.hslider3_current);
+      break;
+  }
+
+  // display other elements only if screen setup, else, only redraw words value
+  return element;
+}
+
+
+void screen_onboarding_4_restore_word_validate(void) {
+  bolos_ux_bip39_idx_strcpy(G_bolos_ux_context.onboarding_index + G_bolos_ux_context.hslider3_current, (unsigned char*)(G_bolos_ux_context.words_buffer+G_bolos_ux_context.words_buffer_length));
+  G_bolos_ux_context.words_buffer_length=strlen(G_bolos_ux_context.words_buffer);
 
     // a word has been added
     G_bolos_ux_context.onboarding_step++;
 
-    if (G_bolos_ux_context.onboarding_step ==
-        G_bolos_ux_context.onboarding_kind )//|| 1)
-    {
+  if (G_bolos_ux_context.onboarding_step == G_bolos_ux_context.onboarding_kind) {
         unsigned char valid;
 
-        valid = bolos_ux_mnemonic_check(
-            (unsigned char *)G_bolos_ux_context.words_buffer,
-            G_bolos_ux_context.words_buffer_length);
-
-            //valid = 1;
-
-        if (!valid)
-        {
-            UX_DISPLAY(screen_onboarding_4_restore_word_invalid, NULL);
+#ifdef HAVE_ELECTRUM    
+    // if we've entered all the words, then check the phrase
+    if (G_bolos_ux_context.onboarding_algorithm == BOLOS_UX_ONBOARDING_ALGORITHM_ELECTRUM) {
+      valid = bolos_ux_electrum_mnemonic_check(ELECTRUM_SEED_PREFIX_STANDARD, (unsigned char*)G_bolos_ux_context.words_buffer, G_bolos_ux_context.words_buffer_length);
         }
-        else
-        {
-            // allright, the recovery phrase looks ok, compare it to onboarded seed
-
-            //Display processing warning to user
-            UX_DISPLAY(screen_onboarding_4_processing, screen_onboarding_4_processing_before_element_display_callback);
-            G_bolos_ux_context.processing = 1;
+    else {
+      valid = bolos_ux_mnemonic_check((unsigned char*)G_bolos_ux_context.words_buffer, G_bolos_ux_context.words_buffer_length);
 
             
         }
+#else
+    valid = bolos_ux_mnemonic_check((unsigned char*)G_bolos_ux_context.words_buffer, G_bolos_ux_context.words_buffer_length);
+#endif    
+    if ( !valid  ) {
+      ux_flow_init(0, restore_4_invalid, NULL);
     }
-    else
-    {
+    else {
+      // allright, the recovery phrase looks ok, finish onboarding
+            //Display processing warning to user
+            screen_processing_init();
+            G_bolos_ux_context.processing = 1;
+    }
+  }
+  else {
         // add a space before next word
-        G_bolos_ux_context
-            .words_buffer[G_bolos_ux_context.words_buffer_length++] = ' ';
+    G_bolos_ux_context.words_buffer[G_bolos_ux_context.words_buffer_length++] = ' ';
 
         // enter the next word
-        screen_onboarding_4_restore_word_init(0);
+    /*indexes have been preincremented, it's therefore the next word we're reentering*/
+    screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_REENTER_WORD);
     }
 }
 
 
-unsigned int screen_onboarding_4_restore_word_select_button(
-    unsigned int button_mask, unsigned int button_mask_counter)
-{
+unsigned int screen_onboarding_4_restore_word_select_button(unsigned int button_mask, unsigned int button_mask_counter) {
     UNUSED(button_mask_counter);
-    switch (button_mask)
-    {
+  switch(button_mask) {
     case BUTTON_EVT_FAST | BUTTON_LEFT:
     case BUTTON_EVT_RELEASED | BUTTON_LEFT:
 
         // not a rotating list
-        if (G_bolos_ux_context.hslider3_current == 0)
-        {
+      if (G_bolos_ux_context.hslider3_current == 0) {
             return 0;
         }
         bolos_ux_hslider3_previous();
@@ -740,9 +380,7 @@ unsigned int screen_onboarding_4_restore_word_select_button(
     case BUTTON_EVT_FAST | BUTTON_RIGHT:
     case BUTTON_EVT_RELEASED | BUTTON_RIGHT:
         // not a rotating list
-        if (G_bolos_ux_context.hslider3_current ==
-            G_bolos_ux_context.hslider3_total - 1)
-        {
+      if (G_bolos_ux_context.hslider3_current == G_bolos_ux_context.hslider3_total-1) {
             return 0;
         }
         bolos_ux_hslider3_next();
@@ -752,58 +390,70 @@ unsigned int screen_onboarding_4_restore_word_select_button(
         break;
 
     case BUTTON_EVT_RELEASED | BUTTON_LEFT | BUTTON_RIGHT:
-        if (G_bolos_ux_context.hslider3_current ==
-            G_bolos_ux_context.hslider3_total - 1)
-        {
-            // clear current word
-            screen_onboarding_4_restore_word_init(0);
-        }
-        else
-        {
+      if (G_bolos_ux_context.hslider3_current < G_bolos_ux_context.onboarding_words_checked) {
             // confirm word, and prepare entering a new one or validate the seed
             screen_onboarding_4_restore_word_validate();
         }
-        break;
+      else if (G_bolos_ux_context.hslider3_current == G_bolos_ux_context.onboarding_words_checked) {
+        // clear current word
+        screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_REENTER_WORD);
     }
+      else {
+        // current word IS NOT already stored. need to wipe one less word
+        // example selecting word #2: 0         1         2         3
+        //                            prop1     prop2     edit #2   edit #1
+        //                                                delete=0  delete=1
+        unsigned int word_to_delete = G_bolos_ux_context.hslider3_current - G_bolos_ux_context.onboarding_words_checked;
+        // remove x words
+        while (word_to_delete--) {
+          if (G_bolos_ux_context.onboarding_step && G_bolos_ux_context.words_buffer_length) {
+            // remove the last space and up to the previous space (but keep the previous space)
+            do {
+              G_bolos_ux_context.words_buffer[G_bolos_ux_context.words_buffer_length-1] = 0;
+              G_bolos_ux_context.words_buffer_length--;
+}
+            // until a previous word exists!
+            while(G_bolos_ux_context.words_buffer_length && G_bolos_ux_context.words_buffer[G_bolos_ux_context.words_buffer_length-1] != ' ');
+
+            // decrement onboarding_step (current word #)
+            G_bolos_ux_context.onboarding_step--;
+    }
+    }
+        // log_debug(G_bolos_ux_context.words_buffer);
+
+        // clear previous word
+        screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_REENTER_WORD);
+      }
+      break;
+  }
     return 0;
 }
 
-unsigned int screen_onboarding_4_restore_word_intro_button(
-    unsigned int button_mask, unsigned int button_mask_counter)
-{
-    UNUSED(button_mask_counter);
-    switch (button_mask)
-    {
-    case BUTTON_EVT_RELEASED | BUTTON_LEFT | BUTTON_RIGHT:
-    {
-        screen_onboarding_4_restore_word_display_auto_complete();
-        break;
-    }
-    }
-    return 0;
-}
-
-void screen_onboarding_4_restore_word_init(unsigned int firstWord)
-{
-    if (firstWord)
-    {
+void screen_onboarding_4_restore_word_init(unsigned int action) {
+  switch(action) {
+    case RESTORE_WORD_ACTION_FIRST_WORD:
         // start by restore first word (+1 when displayed)
         G_bolos_ux_context.onboarding_step = 0;
 
         // flush the words first
-        os_memset(G_bolos_ux_context.words_buffer, 0,
-                  sizeof(G_bolos_ux_context.words_buffer));
+      os_memset(G_bolos_ux_context.words_buffer, 0, sizeof(G_bolos_ux_context.words_buffer));
         G_bolos_ux_context.words_buffer_length = 0;
+      break;
+
+    case RESTORE_WORD_ACTION_REENTER_WORD:
+      // don't change anything (the currently edited word has not been copied to the word buffer)
+      break;
     }
 
-    os_memset(G_bolos_ux_context.string_buffer, 0,
-              sizeof(G_bolos_ux_context.string_buffer));
+  os_memset(G_ux.string_buffer, 0, sizeof(G_ux.string_buffer));
     // offset 0: the display buffer for various placement
     // offset 16: the entered stem for the current word restoration
-    // offset 32: array of next letters possible after the current word's stem
-    // in the dictionary (word completion possibilities)
+  // offset 32: array of next letters possible after the current word's stem in the dictionary (word completion possibilities)
 
-    UX_DISPLAY(screen_onboarding_4_restore_word_intro, screen_onboarding_4_restore_word_before_element_display_callback);
+  // elements to be displayed
+  SPRINTF(G_ux.string_buffer, "word #%d", G_bolos_ux_context.onboarding_step + 1);
+
+  ux_flow_init(0, restore_4_intro, NULL);
 }
 
 #endif

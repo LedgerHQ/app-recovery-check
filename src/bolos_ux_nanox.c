@@ -13,9 +13,6 @@
 
 #ifdef OS_IO_SEPROXYHAL
 
-ux_state_t G_ux;
-bolos_ux_params_t G_ux_params;
-
 bolos_ux_context_t G_bolos_ux_context;
 
 

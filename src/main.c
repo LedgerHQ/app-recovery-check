@@ -34,12 +34,12 @@ extern enum UI_STATE uiState;
 #ifdef TARGET_NANOX
 #include "ux.h"
 #include "bolos_ux_nanox.h"
-//ux_state_t G_ux;
-//bolos_ux_params_t G_ux_params;
 #else
 #include "bolos_ux_nanos.h"
-ux_state_t ux;
 #endif
+
+ux_state_t G_ux;
+bolos_ux_params_t G_ux_params;
 
 static unsigned char display_text_part(void);
 

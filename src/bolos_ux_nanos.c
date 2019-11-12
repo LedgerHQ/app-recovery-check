@@ -38,124 +38,6 @@ unsigned short io_timeout(unsigned short last_timeout) {
     return 1;
 }
 
-// check to process keyboard callback before screen generic callback
-const bagl_element_t *
-screen_display_element_callback(const bagl_element_t *element) {
-    const bagl_element_t *el;
-    if (G_bolos_ux_context.screen_stack_count) {
-        if (G_bolos_ux_context
-                .screen_stack[G_bolos_ux_context.screen_stack_count - 1]
-                .screen_before_element_display_callback) {
-            el = G_bolos_ux_context
-                     .screen_stack[G_bolos_ux_context.screen_stack_count - 1]
-                     .screen_before_element_display_callback(element);
-            if (!el) {
-                return 0;
-            }
-            if ((unsigned int)el != 1) {
-                element = el;
-            }
-        }
-    }
-    // consider good to be displayed by default
-    return element;
-}
-
-// return true (stack slot +1) if an element
-unsigned int
-screen_stack_is_element_array_present(const bagl_element_t *element_array) {
-    unsigned int i, j;
-    for (i = 0;
-         i < /*ARRAYLEN(G_bolos_ux_context.screen_stack)*/ G_bolos_ux_context
-                 .screen_stack_count;
-         i++) {
-        for (j = 0; j < G_bolos_ux_context.screen_stack[i].element_arrays_count;
-             j++) {
-            if (G_bolos_ux_context.screen_stack[i]
-                    .element_arrays[j]
-                    .element_array == element_array) {
-                return i + 1;
-            }
-        }
-    }
-    return 0;
-}
-unsigned int screen_stack_push(void) {
-    // only push if an available slot exists
-    if (G_bolos_ux_context.screen_stack_count <
-        ARRAYLEN(G_bolos_ux_context.screen_stack)) {
-        os_memset(&G_bolos_ux_context
-                       .screen_stack[G_bolos_ux_context.screen_stack_count],
-                  0, sizeof(G_bolos_ux_context.screen_stack[0]));
-        G_bolos_ux_context.screen_stack_count++;
-    }
-    // return the stack top index
-    return G_bolos_ux_context.screen_stack_count - 1;
-}
-unsigned int screen_stack_pop(void) {
-    unsigned int exit_code = BOLOS_UX_OK;
-    // only pop if more than two stack entry (0 and 1,top is an index not a
-    // count)
-    if (G_bolos_ux_context.screen_stack_count > 0) {
-        G_bolos_ux_context.screen_stack_count--;
-        exit_code = G_bolos_ux_context
-                        .screen_stack[G_bolos_ux_context.screen_stack_count]
-                        .exit_code_after_elements_displayed;
-        // wipe popped slot
-        os_memset(&G_bolos_ux_context
-                       .screen_stack[G_bolos_ux_context.screen_stack_count],
-                  0, sizeof(G_bolos_ux_context.screen_stack[0]));
-    }
-
-    // prepare output code when popping the last stack screen
-    if (G_bolos_ux_context.screen_stack_count == 0) {
-        G_bolos_ux_context.exit_code = exit_code;
-    }
-
-    // ask for a complete redraw (optimisation due to blink must be avoided as
-    // we're returning from a modal, and within the bolos ux screen stack)
-    G_bolos_ux_context.screen_redraw = 1;
-    // return the stack top index
-    return G_bolos_ux_context.screen_stack_count - 1;
-}
-
-void screen_stack_remove(unsigned int stack_slot) {
-    if (stack_slot > ARRAYLEN(G_bolos_ux_context.screen_stack) - 1) {
-        stack_slot = ARRAYLEN(G_bolos_ux_context.screen_stack) - 1;
-    }
-
-    // removing something not in stack
-    if (stack_slot >= G_bolos_ux_context.screen_stack_count) {
-        return;
-    }
-
-    // before: | screenz | removed screen | other screenz |
-    // after:  | screenz | other screenz |
-
-    if (stack_slot != ARRAYLEN(G_bolos_ux_context.screen_stack) - 1) {
-        os_memmove(
-            &G_bolos_ux_context.screen_stack[stack_slot],
-            &G_bolos_ux_context.screen_stack[stack_slot + 1],
-            (ARRAYLEN(G_bolos_ux_context.screen_stack) - (stack_slot + 1)) *
-                sizeof(G_bolos_ux_context.screen_stack[0]));
-    }
-
-    // wipe last slot
-    screen_stack_pop();
-}
-
-void screen_display_element(const bagl_element_t *element) {
-    const bagl_element_t *el = screen_display_element_callback(element);
-    if (!el) {
-        return;
-    }
-    if ((unsigned int)el != 1) {
-        element = el;
-    }
-    // display current element
-    io_seproxyhal_display(element);
-}
-
 const unsigned char const C_app_empty_colors[] = {
     0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
 };
@@ -312,6 +194,23 @@ void bolos_ux_hslider3_previous(void) {
     }
 }
 
+const bagl_element_t screen_onboarding_word_list_elements[] = {
+  // erase
+  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
+
+  {{BAGL_LABELINE                       , 0x01,   0,  12, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, G_ux.string_buffer },
+  {{BAGL_RECTANGLE                      , 0x02,  32,  16,  64,  14, 0, 4, BAGL_FILL, 0xFFFFFF, 0x000000, 0, 0}, NULL},
+  {{BAGL_LABELINE                       , 0x02,   0,  26, 128,  32, 0, 0, 0        , 0x000000, 0xFFFFFF, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, G_ux.string_buffer },
+
+  // left/rights icons
+  {{BAGL_ICON                           , 0x03,   3,  12,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0}, (const char*)&C_icon_left },
+  {{BAGL_ICON                           , 0x04, 121,  12,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0}, (const char*)&C_icon_right },
+
+  // supplementary static entry
+  {{BAGL_ICON                           , 0x05,  16,   9,  14,  14, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0}, (const char*)&C_icon_back },
+  {{BAGL_LABELINE                       , 0x05,  41,  12, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px, 0  }, "Restart from" },
+  {{BAGL_LABELINE                       , 0x06,  41,  26, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px, 0  }, G_ux.string_buffer },
+};
 
 
 #endif 

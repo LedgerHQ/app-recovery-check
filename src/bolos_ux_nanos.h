@@ -261,6 +261,9 @@ void bolos_ux_electrum_mnemonic_to_seed(unsigned char *mnemonic,
  */
 void bolos_ux_main(void);
 
+extern const bagl_element_t screen_onboarding_word_list_elements[9];
+
+
 #endif // HAVE_BOLOS_UX
 
 #endif // BOLOS_UX_H
