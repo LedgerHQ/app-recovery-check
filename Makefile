@@ -25,7 +25,7 @@ all: default
 # Main app configuration
 
 APPNAME = "Recovery Check"
-APPVERSION = 1.0.1
+APPVERSION = 1.0.3
 APP_LOAD_PARAMS = --appFlags 0x210 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1 --path ""
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
