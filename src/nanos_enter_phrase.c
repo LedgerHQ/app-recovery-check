@@ -55,17 +55,36 @@ UX_FLOW(
   restore_4_invalid,
   &restore_4_invalid_1);
 
-UX_STEP_CB(
-    step_final_nomatch,
+UX_STEP_NOCB(
+    ux_nomatch_step_1,
     pbb,
-    os_sched_exit(0);,
     {
-        &C_icon_crossmark,
-        "Recovery",
-        "does not match"
+      &C_icon_warning,
+      "Phrase",
+      "doesn't match"
+    });
+UX_STEP_NOCB(
+    ux_nomatch_step_2,
+    nn,
+    {
+      "Check length",
+      "order and spelling",
+    });
+UX_STEP_VALID(
+    ux_nomatch_step_3,
+    pb,
+    ui_idle_init(),
+    {
+      &C_icon_back_x,
+      "Return to menu"
     });
 
-UX_FLOW(flow_final_nomatch, &step_final_nomatch);
+UX_FLOW(
+  flow_final_nomatch,
+  &ux_nomatch_step_1,
+  &ux_nomatch_step_2,
+  &ux_nomatch_step_3
+);
 
 UX_STEP_CB(
     step_final_match,
@@ -73,8 +92,8 @@ UX_STEP_CB(
     os_sched_exit(0);,
     {
         &C_icon_validate_14,
-        "Recovery",
-        "matches"
+        "Phrase",
+        "is correct"
     });
 
 UX_FLOW(flow_final_match, &step_final_match);

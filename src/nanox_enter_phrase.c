@@ -61,11 +61,40 @@ UX_STEP_VALID(
     os_sched_exit(-1),
     {
       &C_icon_crossmark,
-      "Recovery phrase",
-      "is invalid, please retry",
+      "Recovery",
+      "phrase invalid",
     });
 UX_FLOW(ux_wrong_seed_flow,
   &ux_wrong_seed_step
+);
+
+UX_STEP_NOCB(
+    ux_failed_check_step_1,
+    pbb,
+    {
+      &C_icon_warning,
+      "Phrase",
+      "doesn't match"
+    });
+UX_STEP_NOCB(
+    ux_failed_check_step_2,
+    nn,
+    {
+      "Check length",
+      "order and spelling",
+    });
+UX_STEP_VALID(
+    ux_failed_check_step_3,
+    pb,
+    ui_idle_init(),
+    {
+      &C_icon_back_x,
+      "Return to menu"
+    });
+UX_FLOW(ux_failed_check_flow,
+  &ux_failed_check_step_1,
+  &ux_failed_check_step_2,
+  &ux_failed_check_step_3
 );
 
 UX_STEP_VALID(
@@ -74,24 +103,11 @@ UX_STEP_VALID(
     os_sched_exit(-1),
     {
       &C_icon_validate_14,
-      "Recovery phrase",
-      "is identical"
+      "Phrase",
+      "is correct"
     });
 UX_FLOW(ux_succesfull_check_flow,
   &ux_success_step
-);
-
-UX_STEP_VALID(
-    ux_warning_step,
-    pbb,
-    os_sched_exit(-1),
-    {
-      &C_icon_warning,
-      "Recovery phrase",
-      "is different !"
-    });
-UX_FLOW(ux_failed_check_flow,
-  &ux_warning_step
 );
 
 unsigned int screen_onboarding_4_restore_word_select_button(unsigned int button_mask, unsigned int button_mask_counter);
