@@ -88,7 +88,7 @@ unsigned int bolos_ux_electrum_new_mnemonic(unsigned int version, unsigned char 
 
 unsigned int bolos_ux_electrum_mnemonic_check(unsigned int version, unsigned char *mnemonic, unsigned int mnemonicLength) {
   unsigned char tmp[64];
-  cx_hmac_sha512(ELECTRUM_SEED_VERSION, ELECTRUM_SEED_VERSION_LENGTH, mnemonic, mnemonicLength, tmp, 64);
+  cx_hmac_sha512(ELECTRUM_SEED_VERSION, ELECTRUM_SEED_VERSION_LENGTH, mnemonic, mnemonicLength, tmp);
   return (tmp[0] == version);
 }
 

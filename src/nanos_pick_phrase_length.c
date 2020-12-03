@@ -295,13 +295,13 @@ screen_onboarding_3_restore_0_button(unsigned int button_mask,
     return 0;
 }
 
-extern unsigned char app_stack_canary;
+// extern unsigned char app_stack_canary;
 
 
 
 void screen_onboarding_3_restore_init(void) {
 
-    app_stack_canary = 222;
+    // app_stack_canary = 222;
     //PRINTF("START! %d\n", app_stack_canary);
     
 

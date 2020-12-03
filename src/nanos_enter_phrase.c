@@ -651,7 +651,7 @@ void compare_recovery_phrase(void)
     const char key[] = "Bitcoin seed";
 
     cx_hmac_sha512_init(&ctx, key, sizeof(key));
-    cx_hmac(&ctx,CX_LAST, buffer, 64, buffer, 64);
+    cx_hmac(&ctx,CX_LAST, buffer, 64, buffer);
     //PRINTF("Root key from input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
@@ -662,7 +662,7 @@ void compare_recovery_phrase(void)
     //PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
     // compare both rootkey
-    G_bolos_ux_context.input_seed_is_identical = os_secure_memcmp(buffer, buffer_device, 64) ? 0:1;
+    G_bolos_ux_context.input_seed_is_identical = os_memcmp(buffer, buffer_device, 64) ? 0:1;
 
 
     UX_DISPLAY(screen_onboarding_4_restore_word_final_compare, screen_onboarding_4_restore_word_final_compare_before_element_display_callback);
