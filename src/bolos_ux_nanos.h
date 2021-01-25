@@ -19,6 +19,7 @@
 #define BOLOS_UX_H
 
 #include "os_io_seproxyhal.h"
+#include "ux.h"
 
 #define HAVE_BOLOS_UX
 #ifdef HAVE_BOLOS_UX
