@@ -27,7 +27,7 @@ static unsigned int current_text_pos; // parsing cursor in the text to display
 static unsigned int text_y;           // current location of the displayed text
 
 // UI currently displayed
-extern enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
+enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
 
 extern enum UI_STATE uiState;
 
@@ -38,14 +38,16 @@ extern enum UI_STATE uiState;
 #include "bolos_ux_nanos.h"
 #endif
 
+#ifdef TARGET_NANOX
+uint8_t compare_recovery_phrase(void);
+#endif
+
+#ifdef TARGET_NANOS
+void compare_recovery_phrase(void);
+#endif
+
 ux_state_t G_ux;
 bolos_ux_params_t G_ux_params;
-
-static unsigned char display_text_part(void);
-
-#define MAX_CHARS_PER_LINE 49
-
-static char lineBuffer[50];
 
 unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len) {
     switch (channel & ~(IO_FLAGS)) {
@@ -78,42 +80,17 @@ static void sample_main(void) {
     // next timer callback in 500 ms
     //UX_CALLBACK_SET_INTERVAL(500);
 
-    uint8_t flags;
+    uint8_t flags = 0;
 
     for (;;) {
         io_exchange(CHANNEL_APDU | flags, 0);
 
         flags |= IO_ASYNCH_REPLY;
     }
-
-return_to_dashboard:
     return;
 }
 
-
-// Pick the text elements to display
-static unsigned char display_text_part() {
-    unsigned int i;
-    WIDE char *text = (char*) G_io_apdu_buffer + 5;
-    if (text[current_text_pos] == '\0') {
-        return 0;
-    }
-    i = 0;
-    while ((text[current_text_pos] != 0) && (text[current_text_pos] != '\n') &&
-           (i < MAX_CHARS_PER_LINE)) {
-        lineBuffer[i++] = text[current_text_pos];
-        current_text_pos++;
-    }
-    if (text[current_text_pos] == '\n') {
-        current_text_pos++;
-    }
-    lineBuffer[i] = '\0';
-
-    return 1;
-}
-
-
-unsigned char io_event(unsigned char channel) {
+unsigned char io_event(unsigned char channel __attribute__((unused))) {
     // nothing done with the event, throw an error on the transport layer if
     // needed
 

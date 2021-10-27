@@ -30,7 +30,6 @@ unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(unsigned char* p
 
 unsigned int bolos_ux_electrum_new_mnemonic(unsigned int version, unsigned char *out, unsigned int outLength);
 unsigned int bolos_ux_electrum_mnemonic_check(unsigned int version, unsigned char *mnemonic, unsigned int mnemonicLength);
-void bolos_ux_electrum_mnemonic_to_seed(unsigned char *mnemonic, unsigned int mnemonicLength, unsigned char *seed);
 
 #endif
 

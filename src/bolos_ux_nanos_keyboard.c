@@ -70,7 +70,7 @@ const bagl_element_t screen_common_keyboard_elements[] = {
 const bagl_element_t* screen_common_keyboard_before_element_display_callback(const bagl_element_t* element) {
   const bagl_element_t* e;
     // copy element to be displayed
-  os_memmove(&G_ux.tmp_element, PIC(element), sizeof(G_ux.tmp_element));
+  memcpy(&G_ux.tmp_element, PIC(element), sizeof(G_ux.tmp_element));
 
 
     switch (element->component.userid) {

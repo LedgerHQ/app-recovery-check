@@ -16,6 +16,7 @@
 ********************************************************************************/
 
 #include "ui.h"
+#include "bolos_ux_common.h"
 
 #ifdef TARGET_NANOS
 
@@ -268,15 +269,14 @@ void compare_recovery_phrase(void)
     cx_hmac_sha512_t ctx;
     const char key[] = "Bitcoin seed";
 
-    cx_hmac_sha512_init(&ctx, key, sizeof(key));
-    cx_hmac(&ctx,CX_LAST, buffer, 64, buffer, 64);
+    cx_hmac_sha512_init(&ctx, (const uint8_t *) key, sizeof(key));
+    cx_hmac((cx_hmac_t *) &ctx,CX_LAST, buffer, 64, buffer, 64);
     //PRINTF("Root key from input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
     uint8_t buffer_device[64];
-    const unsigned int path = "";
 
-    os_perso_derive_node_bip32(CX_CURVE_256K1, path, 0, buffer_device, buffer_device+32);
+    os_perso_derive_node_bip32(CX_CURVE_256K1, NULL, 0, buffer_device, buffer_device+32);
     //PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
     // compare both rootkey
@@ -347,7 +347,7 @@ void screen_onboarding_4_restore_word_validate(void) {
     G_bolos_ux_context.onboarding_step++;
 
   if (G_bolos_ux_context.onboarding_step == G_bolos_ux_context.onboarding_kind) {
-        unsigned char valid;
+        unsigned int valid;
 
 #ifdef HAVE_ELECTRUM    
     // if we've entered all the words, then check the phrase
@@ -455,7 +455,7 @@ void screen_onboarding_4_restore_word_init(unsigned int action) {
         G_bolos_ux_context.onboarding_step = 0;
 
         // flush the words first
-      os_memset(G_bolos_ux_context.words_buffer, 0, sizeof(G_bolos_ux_context.words_buffer));
+      memset(G_bolos_ux_context.words_buffer, 0, sizeof(G_bolos_ux_context.words_buffer));
         G_bolos_ux_context.words_buffer_length = 0;
       break;
 
@@ -464,7 +464,7 @@ void screen_onboarding_4_restore_word_init(unsigned int action) {
       break;
     }
 
-  os_memset(G_ux.string_buffer, 0, sizeof(G_ux.string_buffer));
+  memset(G_ux.string_buffer, 0, sizeof(G_ux.string_buffer));
     // offset 0: the display buffer for various placement
     // offset 16: the entered stem for the current word restoration
   // offset 32: array of next letters possible after the current word's stem in the dictionary (word completion possibilities)

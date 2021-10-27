@@ -16,10 +16,10 @@ unsigned int bolos_ux_mnemonic_from_data(unsigned char *in, unsigned int inLengt
   cx_hash_sha256(in, inLength, bits, 32);
 
   bits[inLength] = bits[0];
-  os_memmove(bits, in, inLength);
+  memcpy(bits, in, inLength);
   offset = 0;
   for (i = 0; i < mlen; i++) {
-    unsigned char wordLength;
+    size_t wordLength;
     idx = 0;    
     for (j = 0; j < 11; j++) {
       idx <<= 1;
@@ -29,7 +29,7 @@ unsigned int bolos_ux_mnemonic_from_data(unsigned char *in, unsigned int inLengt
     if ((offset + wordLength) > outLength) {
       THROW (INVALID_PARAMETER);      
     }
-    os_memmove(out + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx], wordLength);
+    memcpy(out + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx], wordLength);
     offset += wordLength;
     if (i < mlen - 1) {
       if (offset > outLength) {
@@ -40,25 +40,6 @@ unsigned int bolos_ux_mnemonic_from_data(unsigned char *in, unsigned int inLengt
   }
   return offset;
 }
-
-#if 0
-unsigned int bolos_ux_mnemonic_indexes_to_words(unsigned char *indexes, unsigned char *words) {
-  unsigned char i;
-  unsigned int offset = 0;
-  for (i=0; i<24; i++) {
-    unsigned char wordLength;
-    unsigned int idx = ((*indexes) << 8) | (*(indexes + 1));
-    wordLength = BIP39_WORDLIST_OFFSETS[idx + 1] - BIP39_WORDLIST_OFFSETS[idx];
-    os_memmove(words + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx], wordLength);
-    offset += wordLength;
-    if (i != 23) {
-      words[offset++] = ' ';
-    }
-    indexes += 2;
-  }
-  return offset;
-}
-#endif
 
 // separated function to lower the stack usage when jumping into pbkdf algorithm
 unsigned int bolos_ux_mnemonic_to_seed_hash_length128(unsigned char *mnemonic, unsigned int mnemonicLength) {
@@ -74,7 +55,7 @@ void bolos_ux_mnemonic_to_seed(unsigned char *mnemonic, unsigned int mnemonicLen
   unsigned char passphrase[BIP39_MNEMONIC_LENGTH + 4];
   mnemonicLength = bolos_ux_mnemonic_to_seed_hash_length128(mnemonic, mnemonicLength);
 
-  os_memmove(passphrase, BIP39_MNEMONIC, BIP39_MNEMONIC_LENGTH);
+  memcpy(passphrase, BIP39_MNEMONIC, BIP39_MNEMONIC_LENGTH);
   cx_pbkdf2_sha512(mnemonic, mnemonicLength, passphrase, BIP39_MNEMONIC_LENGTH, BIP39_PBKDF2_ROUNDS, seed, 64);
 
   // what happen to the second block for a very short seed ?
@@ -104,19 +85,6 @@ unsigned int bolos_ux_get_word_ptr(unsigned char ** word, unsigned int max_lengt
   return word_length;
 }
 
-#if 0
-unsigned char bolos_ux_word_check(unsigned char *word, unsigned int wordLength) {
-  unsigned int i;
-  for (i=0; i<BIP39_WORDLIST_OFFSETS_LENGTH - 1; i++) {
-    if ((unsigned int)(BIP39_WORDLIST_OFFSETS[i + 1] - BIP39_WORDLIST_OFFSETS[i]) == wordLength
-      && os_memcmp(word, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[i], wordLength) == 0) {
-      return 1;
-    }
-  }
-  return 0;
-}
-#endif
-
 unsigned int bolos_ux_mnemonic_check(unsigned char *mnemonic, unsigned int mnemonicLength) {  
   unsigned int i, n = 0;
   unsigned int bi;
@@ -132,7 +100,7 @@ unsigned int bolos_ux_mnemonic_check(unsigned char *mnemonic, unsigned int mnemo
   if (n != 12 && n != 18 && n != 24) {
     return 0;   
   }
-  os_memset(bits, 0, sizeof(bits));
+  memset(bits, 0, sizeof(bits));
   i = 0;
   bi = 0;
   while (i < mnemonicLength) {
@@ -154,7 +122,7 @@ unsigned int bolos_ux_mnemonic_check(unsigned char *mnemonic, unsigned int mnemo
     }
     current_word_size++;
     for (k=0; k<BIP39_WORDLIST_OFFSETS_LENGTH - 1; k++) {
-      if ((os_memcmp(current_word, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[k], current_word_size) == 0) &&
+      if ((memcmp(current_word, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[k], current_word_size) == 0) &&
           ((unsigned int)(BIP39_WORDLIST_OFFSETS[k + 1] - BIP39_WORDLIST_OFFSETS[k]) == current_word_size)) {
         for (ki = 0; ki < 11; ki++) {
           if (k & (1 << (10 - ki))) {
@@ -193,19 +161,10 @@ unsigned int bolos_ux_mnemonic_check(unsigned char *mnemonic, unsigned int mnemo
   return 1;
 }
 
-#if 0
-unsigned char bolos_ux_get_random_bip39_word(unsigned char *word) {
-  unsigned int index = bolos_ux_rng_u8_modulo(BIP39_WORDLIST_OFFSETS_LENGTH-1);
-  unsigned char wordLength = BIP39_WORDLIST_OFFSETS[index + 1] - BIP39_WORDLIST_OFFSETS[index];
-  os_memmove(word, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[index], wordLength);
-  return wordLength;
-}
-#endif
-
 unsigned int bolos_ux_bip39_idx_strcpy(unsigned int index, unsigned char* buffer) {
   if (index < BIP39_WORDLIST_OFFSETS_LENGTH-1 && buffer) {
-    unsigned char wordLength = BIP39_WORDLIST_OFFSETS[index + 1] - BIP39_WORDLIST_OFFSETS[index];
-    os_memmove(buffer, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[index], wordLength);
+    size_t wordLength = BIP39_WORDLIST_OFFSETS[index + 1] - BIP39_WORDLIST_OFFSETS[index];
+    memcpy(buffer, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[index], wordLength);
     buffer[wordLength] = 0; // EOS
     return wordLength;
   }

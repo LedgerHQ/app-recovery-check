@@ -50,7 +50,7 @@ void screen_keyboard_validate_entered_text(void) {
   // last keycode is \n
   G_ux_params.u.keyboard.keycode = '\n';
   // copy output text
-  os_memmove(G_ux_params.u.keyboard.entered_text, G_bolos_ux_context.keyboard_user_buffer, sizeof(G_ux_params.u.keyboard.entered_text));
+  memcpy(G_ux_params.u.keyboard.entered_text, G_bolos_ux_context.keyboard_user_buffer, sizeof(G_ux_params.u.keyboard.entered_text));
   // pop the screen
   ux_stack_pop();
   ux_stack_redisplay();

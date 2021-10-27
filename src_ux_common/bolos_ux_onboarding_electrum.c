@@ -7,8 +7,6 @@
 
 #include "bolos_ux_common.h"
 
-extern unsigned int bolos_ux_mnemonic_to_seed_hash_length128(unsigned char *mnemonic, unsigned int mnemonicLength);
-
 int cx_math_shiftr_11(unsigned char  *r,  unsigned int len) {
   unsigned int j,b11;
   b11 = r[len-1] | ((r[len-2]&7)<<8);
@@ -22,24 +20,11 @@ int cx_math_shiftr_11(unsigned char  *r,  unsigned int len) {
   return b11;
 }
 
-#if 0
-void cx_math_pushr_11(unsigned char  *r,  unsigned int len, unsigned int b11) {
-  unsigned int j;
-
-  for (j = 0; j<len-2; j++) {
-    r[j] = (r[j+1]<<3) | (r[j+2]>>5);
-  }
-  r[len-2]  = (r[len-1]<<3) | (b11>>8);
-  r[len-1]  = b11 & 0xFF;
-  
-}
-#endif
-
-unsigned int bolos_ux_electrum_mnemonic_encode(unsigned char *seed17, unsigned char *out, unsigned int outLength) {
+static unsigned int bolos_ux_electrum_mnemonic_encode(const uint8_t *seed17, uint8_t *out, size_t outLength) {
   unsigned char tmp[17];
   unsigned int i;
   unsigned int offset = 0;
-  os_memmove(tmp, seed17, sizeof(tmp));
+  memcpy(tmp, seed17, sizeof(tmp));
   for (i=0; i<12; i++) {
     unsigned char wordLength;
     unsigned int idx = cx_math_shiftr_11(tmp, sizeof(tmp));
@@ -47,7 +32,7 @@ unsigned int bolos_ux_electrum_mnemonic_encode(unsigned char *seed17, unsigned c
     if ((offset + wordLength) > outLength) {
       THROW (INVALID_PARAMETER);      
     }
-    os_memmove(out + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx], wordLength);
+    memcpy(out + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx], wordLength);
     offset += wordLength;
     if (i < 11) {
       if (offset > outLength) {
@@ -91,14 +76,5 @@ unsigned int bolos_ux_electrum_mnemonic_check(unsigned int version, unsigned cha
   cx_hmac_sha512(ELECTRUM_SEED_VERSION, ELECTRUM_SEED_VERSION_LENGTH, mnemonic, mnemonicLength, tmp, 64);
   return (tmp[0] == version);
 }
-
-void bolos_ux_electrum_mnemonic_to_seed(unsigned char *mnemonic, unsigned int mnemonicLength, unsigned char *seed) {  
-  unsigned char passphrase[ELECTRUM_MNEMONIC_LENGTH + 4];
-  mnemonicLength = bolos_ux_mnemonic_to_seed_hash_length128(mnemonic, mnemonicLength);
-
-  os_memmove(passphrase, ELECTRUM_MNEMONIC, ELECTRUM_MNEMONIC_LENGTH);
-  cx_pbkdf2_sha512(mnemonic, mnemonicLength, passphrase, ELECTRUM_MNEMONIC_LENGTH + 4/*for round index, set in pbkdf2*/, ELECTRUM_PBKDF2_ROUNDS, seed, 64);
-}
-
 
 #endif

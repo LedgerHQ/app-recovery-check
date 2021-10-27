@@ -38,11 +38,11 @@ unsigned short io_timeout(unsigned short last_timeout) {
     return 1;
 }
 
-const unsigned char const C_app_empty_colors[] = {
+const unsigned char C_app_empty_colors[] = {
     0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
 };
 
-const unsigned char const C_app_empty_bitmap[] = {
+const unsigned char C_app_empty_bitmap[] = {
     // color index table
     0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
 
@@ -67,7 +67,7 @@ void screen_prepare_masked_icon(unsigned char *icon_bitmap,
     // prepare the icon_details content
     icon_details->bpp = C_app_empty_bitmap[0];
     // use color table from the const
-    icon_details->colors = (unsigned int *)C_app_empty_colors;
+    icon_details->colors = (const unsigned int *) C_app_empty_colors;
     icon_details->bitmap = bitmap;
 
     // when first color of the bitmap is not 0, then, must inverse the icon's
@@ -93,7 +93,7 @@ void screen_prepare_masked_icon(unsigned char *icon_bitmap,
 }
 
 void io_seproxyhal_display(const bagl_element_t *element) {
-    io_seproxyhal_display_default((bagl_element_t *)element);
+    io_seproxyhal_display_default(element);
 }
 
 void bolos_ux_hslider3_init(unsigned int total_count) {

@@ -250,10 +250,6 @@ unsigned int bolos_ux_electrum_new_mnemonic(unsigned int version,
 unsigned int bolos_ux_electrum_mnemonic_check(unsigned int version,
                                               unsigned char *mnemonic,
                                               unsigned int mnemonicLength);
-void bolos_ux_electrum_mnemonic_to_seed(unsigned char *mnemonic,
-                                        unsigned int mnemonicLength,
-                                        unsigned char *seed);
-
 #endif
 
 /**

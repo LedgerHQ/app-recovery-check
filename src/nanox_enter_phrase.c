@@ -8,7 +8,7 @@
 #include "os_io_seproxyhal.h"
 #include "string.h"
 
-#include "bolos_ux_common.h"
+#include "ui.h"
 
 #include "glyphs.h"
 
@@ -18,30 +18,29 @@ const bagl_element_t* screen_onboarding_4_restore_word_before_element_display_ca
 // show intro
 const bagl_element_t screen_onboarding_4_restore_word_intro_elements[] = {
   // erase
-  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  64, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL, 0, 0, 0, NULL, NULL, NULL},
+  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  64, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
 
-  {{BAGL_LABELINE                       , 0x31,   0,  12, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, "Enter first letters", 0, 0, 0, NULL, NULL, NULL },
-  {{BAGL_LABELINE                       , 0x32,   0,  12, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, "Next, enter letters", 0, 0, 0, NULL, NULL, NULL },
-  {{BAGL_LABELINE                       , 0x33,   0,  12, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, "Finally, enter letters", 0, 0, 0, NULL, NULL, NULL },
-  {{BAGL_LABELINE                       , 0x30,   0,  26, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, G_ux.string_buffer, 0, 0, 0, NULL, NULL, NULL },
+  {{BAGL_LABELINE                       , 0x31,   0,  12, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, "Enter first letters"},
+  {{BAGL_LABELINE                       , 0x32,   0,  12, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, "Next, enter letters"},
+  {{BAGL_LABELINE                       , 0x33,   0,  12, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, "Finally, enter letters"},
+  {{BAGL_LABELINE                       , 0x30,   0,  26, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, G_ux.string_buffer},
 };
 
 
 // word selection + word clear
 const bagl_element_t screen_onboarding_4_restore_word_select_elements[] = {
   // erase
-  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  64, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL, 0, 0, 0, NULL, NULL, NULL},
+  {{BAGL_RECTANGLE                      , 0x00,   0,   0, 128,  64, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
 
-  //{{BAGL_LABELINE                       , 0x25,   0,  18, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, G_ux.string_buffer, 0, 0, 0, NULL, NULL, NULL },
-  {{BAGL_LABELINE                       , 0x21,   0,  29, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, G_ux.string_buffer, 0, 0, 0, NULL, NULL, NULL },
-  {{BAGL_LABELINE                       , 0x20,   0,  43, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, G_ux.string_buffer, 0, 0, 0, NULL, NULL, NULL },
+  {{BAGL_LABELINE                       , 0x21,   0,  29, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_REGULAR_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, G_ux.string_buffer},
+  {{BAGL_LABELINE                       , 0x20,   0,  43, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, G_ux.string_buffer},
 
-  {{BAGL_ICON                           , 0x24,  (128-14)/2,   17,  14,  14, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, &C_icon_clear, 0, 0, 0, NULL, NULL, NULL },
-  {{BAGL_LABELINE                       , 0x24,   0,  43, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, "Clear word", 0, 0, 0, NULL, NULL, NULL },
+  {{BAGL_ICON                           , 0x24,  (128-14)/2,   17,  14,  14, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, (const char *) &C_icon_clear},
+  {{BAGL_LABELINE                       , 0x24,   0,  43, 128,  32, 0, 0, 0        , 0xFFFFFF, 0x000000, BAGL_FONT_OPEN_SANS_EXTRABOLD_11px|BAGL_FONT_ALIGNMENT_CENTER, 0  }, "Clear word"},
 
   // left/rights icons
-  {{BAGL_ICON                           , 0x22,   2,  28,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, (const char*)&C_icon_left, 0, 0, 0, NULL, NULL, NULL },
-  {{BAGL_ICON                           , 0x23, 122,  28,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, (const char*)&C_icon_right, 0, 0, 0, NULL, NULL, NULL },
+  {{BAGL_ICON                           , 0x22,   2,  28,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, (const char*)&C_icon_left},
+  {{BAGL_ICON                           , 0x23, 122,  28,   4,   7, 0, 0, 0        , 0xFFFFFF, 0x000000, 0, 0  }, (const char*)&C_icon_right},
 };
 
 UX_STEP_NOCB(
@@ -327,15 +326,14 @@ uint8_t compare_recovery_phrase(void)
     cx_hmac_sha512_t ctx;
     const char key[] = "Bitcoin seed";
 
-    cx_hmac_sha512_init(&ctx, key, sizeof(key));
-    cx_hmac(&ctx,CX_LAST, buffer, 64, buffer, 64);
+    cx_hmac_sha512_init(&ctx, (const uint8_t *) key, sizeof(key));
+    cx_hmac((cx_hmac_t *) &ctx,CX_LAST, buffer, 64, buffer, 64);
     //PRINTF("Root key from input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
     uint8_t buffer_device[64];
-    const unsigned int path = "";
 
-    os_perso_derive_node_bip32(CX_CURVE_256K1, path, 0, buffer_device, buffer_device+32);
+    os_perso_derive_node_bip32(CX_CURVE_256K1, NULL, 0, buffer_device, buffer_device+32);
     //PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
     // compare both rootkey
@@ -446,11 +444,11 @@ void screen_onboarding_4_restore_word_init(unsigned int firstWord) {
     G_bolos_ux_context.onboarding_step = 0;
 
     // flush the words first
-    os_memset(G_bolos_ux_context.words_buffer, 0, sizeof(G_bolos_ux_context.words_buffer));
+    memset(G_bolos_ux_context.words_buffer, 0, sizeof(G_bolos_ux_context.words_buffer));
     G_bolos_ux_context.words_buffer_length = 0;
   }
 
-  os_memset(G_ux.string_buffer, 0, sizeof(G_ux.string_buffer));
+  memset(G_ux.string_buffer, 0, sizeof(G_ux.string_buffer));
   // offset 0: the display buffer for various placement
   // offset 16: the entered stem for the current word restoration
   // offset 32: array of next letters possible after the current word's stem in the dictionary (word completion possibilities)

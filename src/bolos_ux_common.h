@@ -113,6 +113,8 @@ void screen_settings_passphrase_temporary_1_init(void);
 void screen_settings_passphrase_type_and_review_init(unsigned int kind);
 void screen_settings_erase_all_init(void);
 
+void screen_common_keyboard_init(unsigned int stack_slot, unsigned int current_element, unsigned int nb_elements, keyboard_callback_t callback);
+
 #define COMMON_KEYBOARD_INDEX_UNCHANGED (-1UL)
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
@@ -149,7 +151,6 @@ void screen_consent_set_interval(unsigned int interval_ms);
 
 void screen_common_pin_init(unsigned int stack_slot, pin_callback_t end_callback);
 
-void screen_common_keyboard_init(unsigned int stack_slot, unsigned int current_element, unsigned int nb_elements, keyboard_callback_t callback);
 void screen_keyboard_init(char* buffer, unsigned int maxsize, appmain_t validation_callback);
 
 void debug(unsigned int id, unsigned char* msg);
