@@ -1,7 +1,7 @@
 
 #include "os.h"
 
-#ifdef TARGET_NANOX
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
 #include "cx.h"
 

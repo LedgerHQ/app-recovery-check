@@ -31,7 +31,7 @@ extern enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
 
 extern enum UI_STATE uiState;
 
-#ifdef TARGET_NANOX
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 #include "ux.h"
 #include "bolos_ux_nanox.h"
 #else
@@ -141,7 +141,7 @@ unsigned char io_event(unsigned char channel) {
                 UX_DISPLAYED_EVENT();
             }
         }
-#elif defined(TARGET_NANOX)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
         UX_DISPLAYED_EVENT({});
 #endif
         break;

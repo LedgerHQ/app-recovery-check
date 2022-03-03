@@ -7,7 +7,7 @@
 
 #if defined(TARGET_NANOS)
     #include "bolos_ux_nanos.h"
-#elif defined(TARGET_NANOX)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
     #include "bolos_ux_nanox.h"
 #endif
 
@@ -115,7 +115,7 @@ void screen_settings_erase_all_init(void);
 
 #define COMMON_KEYBOARD_INDEX_UNCHANGED (-1UL)
 
-#if defined(TARGET_NANOX)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 // to be included into all flow that needs to go back to the dashboard
 extern const ux_flow_step_t          ux_ob_goto_dashboard_step;
 

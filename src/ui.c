@@ -36,7 +36,7 @@ UX_FLOW(ux_idle_flow,
   &ux_idle_flow_4_step
 );
 
-#elif defined(TARGET_NANOX)
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
 //////////////////////////////////////////////////////////////////////
 

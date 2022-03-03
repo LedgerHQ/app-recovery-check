@@ -28,10 +28,10 @@ APPNAME = "Recovery Check"
 APPVERSION = 1.0.7
 APP_LOAD_PARAMS = --appFlags 0x210 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1 --path ""
 
-ifeq ($(TARGET_NAME),TARGET_NANOX)
-	ICONNAME=nanox_app_recovery_check.gif
-else
+ifeq ($(TARGET_NAME),TARGET_NANOS)
 	ICONNAME=nanos_app_recovery_check.gif
+else
+	ICONNAME=nanox_app_recovery_check.gif
 endif
 
 # Build configuration
@@ -46,7 +46,7 @@ DEFINES += IO_USB_MAX_ENDPOINTS=4 IO_HID_EP_LENGTH=64
 
 DEFINES	      += HAVE_UX_FLOW
 
-ifeq ($(TARGET_NAME),TARGET_NANOX)
+ifneq ($(TARGET_NAME),TARGET_NANOS)
 DEFINES       += HAVE_GLO096 HAVE_BOLOS_UX
 DEFINES       += HAVE_BAGL BAGL_WIDTH=128 BAGL_HEIGHT=64
 DEFINES       += HAVE_BAGL_ELLIPSIS # long label truncation feature
@@ -63,10 +63,10 @@ ifneq ($(DEBUG),0)
 
         DEFINES +=   HAVE_BOLOS_NOT_SHUFFLED_RESTORE
 
-        ifeq ($(TARGET_NAME),TARGET_NANOX)
-                DEFINES   += HAVE_PRINTF PRINTF=mcu_usb_printf
-        else
+        ifeq ($(TARGET_NAME),TARGET_NANOS)
                 DEFINES   += HAVE_PRINTF PRINTF=screen_printf
+        else
+                DEFINES   += HAVE_PRINTF PRINTF=mcu_usb_printf
         endif
 else
         DEFINES   += PRINTF\(...\)=
@@ -104,7 +104,7 @@ include $(BOLOS_SDK)/Makefile.glyphs
 
 APP_SOURCE_PATH += src src_ux_common
 
-ifeq ($(TARGET_NAME),TARGET_NANOX)
+ifneq ($(TARGET_NAME),TARGET_NANOS)
 SDK_SOURCE_PATH  += lib_ux
 endif
 
