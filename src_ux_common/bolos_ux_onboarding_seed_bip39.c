@@ -108,7 +108,7 @@ unsigned int bolos_ux_mnemonic_check(unsigned char *mnemonic, unsigned int mnemo
     unsigned int current_word_size = 0;
     unsigned int j, k, ki;
     j = 0;
-    while (mnemonic[i] != ' ' && i < mnemonicLength) {
+    while (i < mnemonicLength && mnemonic[i] != ' ') {
       if (j >= sizeof(current_word)) {
         return 0;
       }
