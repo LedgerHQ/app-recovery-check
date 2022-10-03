@@ -38,7 +38,7 @@ extern enum UI_STATE uiState;
 #include "bolos_ux_nanos.h"
 #endif
 
-#ifdef TARGET_NANOX
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 uint8_t compare_recovery_phrase(void);
 #endif
 

@@ -2,13 +2,13 @@
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
-#include "cx.h"
-#include "ux.h"
+#include <cx.h>
+#include <ux.h>
 
-#include "os_io_seproxyhal.h"
-#include "string.h"
+#include <os_io_seproxyhal.h>
+#include <string.h>
 
-#include "bolos_ux_common.h"
+#include <bolos_ux_common.h>
 #include "glyphs.h"
 
 #ifdef OS_IO_SEPROXYHAL
@@ -25,11 +25,11 @@ unsigned short io_timeout(unsigned short last_timeout) {
 
 
 void screen_hex_identifier_string_buffer (const unsigned char * buffer, unsigned int total) {
-  SPRINTF(G_ux.string_buffer, 
-            "%.*H...%.*H", 
-            BOLOS_UX_HASH_LENGTH/2, 
-            buffer, 
-            BOLOS_UX_HASH_LENGTH/2, 
+  SPRINTF(G_ux.string_buffer,
+            "%.*H...%.*H",
+            BOLOS_UX_HASH_LENGTH/2,
+            buffer,
+            BOLOS_UX_HASH_LENGTH/2,
             buffer
               +total
               -BOLOS_UX_HASH_LENGTH/2);
@@ -58,7 +58,7 @@ void screen_keyboard_validate_entered_text(void) {
 
 
 void bolos_ux_hslider3_init(unsigned int total_count) {
-  G_bolos_ux_context.hslider3_total = total_count; 
+  G_bolos_ux_context.hslider3_total = total_count;
   switch (total_count) {
     case 0:
       G_bolos_ux_context.hslider3_before = BOLOS_UX_HSLIDER3_NONE;
@@ -103,14 +103,14 @@ void bolos_ux_hslider3_next(void) {
     case 2:
       switch(G_bolos_ux_context.hslider3_current) {
         case 0:
-          G_bolos_ux_context.hslider3_before = 0;  
+          G_bolos_ux_context.hslider3_before = 0;
           G_bolos_ux_context.hslider3_current = 1;
-          G_bolos_ux_context.hslider3_after = BOLOS_UX_HSLIDER3_NONE;   
+          G_bolos_ux_context.hslider3_after = BOLOS_UX_HSLIDER3_NONE;
           break;
         case 1:
           G_bolos_ux_context.hslider3_before = BOLOS_UX_HSLIDER3_NONE;
           G_bolos_ux_context.hslider3_current = 0;
-          G_bolos_ux_context.hslider3_after = 1;        
+          G_bolos_ux_context.hslider3_after = 1;
           break;
       }
       break;
@@ -130,14 +130,14 @@ void bolos_ux_hslider3_previous(void) {
     case 2:
       switch(G_bolos_ux_context.hslider3_current) {
         case 0:
-          G_bolos_ux_context.hslider3_before = 0;  
+          G_bolos_ux_context.hslider3_before = 0;
           G_bolos_ux_context.hslider3_current = 1;
-          G_bolos_ux_context.hslider3_after = BOLOS_UX_HSLIDER3_NONE;   
+          G_bolos_ux_context.hslider3_after = BOLOS_UX_HSLIDER3_NONE;
           break;
         case 1:
           G_bolos_ux_context.hslider3_before = BOLOS_UX_HSLIDER3_NONE;
           G_bolos_ux_context.hslider3_current = 0;
-          G_bolos_ux_context.hslider3_after = 1;        
+          G_bolos_ux_context.hslider3_after = 1;
           break;
       }
       break;
@@ -175,14 +175,14 @@ unsigned int screen_consent_ticker(unsigned int ignored) {
 
 void screen_consent_set_interval(unsigned int interval_ms) {
   G_ux.stack[0].ticker_value = interval_ms;
-  G_ux.stack[0].ticker_interval = interval_ms; 
+  G_ux.stack[0].ticker_interval = interval_ms;
 }
 
 void screen_consent_ticker_init(unsigned int number_of_steps, unsigned int interval_ms, unsigned int check_pin_to_confirm) {
   UNUSED(check_pin_to_confirm);
   // register action callbacks
   G_ux.stack[0].ticker_value = interval_ms;
-  G_ux.stack[0].ticker_interval = interval_ms; 
+  G_ux.stack[0].ticker_interval = interval_ms;
   G_ux.stack[0].ticker_callback = screen_consent_ticker;
   /*if (!check_pin_to_confirm || ! os_perso_isonboarded() == BOLOS_UX_OK) { managed at bolos task level */
     G_ux.stack[0].button_push_callback = screen_consent_button;
@@ -200,4 +200,3 @@ void screen_consent_ticker_init(unsigned int number_of_steps, unsigned int inter
 #endif // OS_IO_SEPROXYHAL
 
 #endif
-

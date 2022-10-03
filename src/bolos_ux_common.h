@@ -162,6 +162,6 @@ void screen_boot_delay_init(void);
 void settings_general_version(appmain_t end_callback);
 void settings_general_regulatory(appmain_t end_callback);
 void settings_general_serial(appmain_t end_callback);
-#endif //TARGET_NANOX
+#endif //TARGET_NANOX || TARGET_NANOS2
 
 #endif // OS_IO_SEPROXYHAL

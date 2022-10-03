@@ -7,7 +7,7 @@ enum UI_STATE uiState;
 #if defined(TARGET_NANOS)
 
 UX_STEP_VALID(
-    ux_idle_flow_1_step, 
+    ux_idle_flow_1_step,
     pbb,
     screen_onboarding_3_restore_init();,
     {
@@ -16,8 +16,8 @@ UX_STEP_VALID(
       "recovery phrase",
     });
 UX_STEP_NOCB(
-    ux_idle_flow_3_step, 
-    bn, 
+    ux_idle_flow_3_step,
+    bn,
     {
       "Version",
       APPVERSION,
@@ -76,7 +76,7 @@ void number_of_words_selector(unsigned int idx) {
 //////////////////////////////////////////////////////////////////////
 
 UX_STEP_VALID(
-    ux_instruction_step, 
+    ux_instruction_step,
     nnn,
     ux_menulist_init(0, number_of_words_getter, number_of_words_selector),
     {
@@ -92,7 +92,7 @@ UX_FLOW(ux_instruction_flow,
 //////////////////////////////////////////////////////////////////////
 
 UX_STEP_VALID(
-    ux_idle_flow_1_step, 
+    ux_idle_flow_1_step,
     pbb,
     ux_flow_init(0, ux_instruction_flow, NULL),
     {
@@ -101,8 +101,8 @@ UX_STEP_VALID(
       "recovery phrase",
     });
 UX_STEP_NOCB(
-    ux_idle_flow_3_step, 
-    bn, 
+    ux_idle_flow_3_step,
+    bn,
     {
       "Version",
       APPVERSION,

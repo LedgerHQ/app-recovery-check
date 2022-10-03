@@ -114,8 +114,8 @@ unsigned int screen_onboarding_4_restore_word_select_button(unsigned int button_
 const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigned int event, unsigned int value);
 
 void screen_onboarding_4_restore_word_display_auto_complete(void) {
-  unsigned int auto_complete_count = bolos_ux_bip39_get_word_next_letters_starting_with((unsigned char*)G_ux.string_buffer+16, 
-                                                                                 strlen(G_ux.string_buffer+16), 
+  unsigned int auto_complete_count = bolos_ux_bip39_get_word_next_letters_starting_with((unsigned char*)G_ux.string_buffer+16,
+                                                                                 strlen(G_ux.string_buffer+16),
                                                                                  (unsigned char*)G_ux.string_buffer+32);
   // prepare title of the common keyboard component, after the list of possible letters
   snprintf(G_ux.string_buffer+32+auto_complete_count+1, sizeof(G_ux.string_buffer)-32-auto_complete_count-1, "Enter word #%d", G_bolos_ux_context.onboarding_step + 1);
@@ -123,18 +123,18 @@ void screen_onboarding_4_restore_word_display_auto_complete(void) {
   G_ux.string_buffer[32+auto_complete_count]= '\b';
   G_bolos_ux_context.common_label = G_ux.string_buffer+32+auto_complete_count+1;
   // display added letter and refresh slider
-  screen_common_keyboard_init(0, 
+  screen_common_keyboard_init(0,
 #ifdef HAVE_BOLOS_NOT_SHUFFLED_RESTORE
-                              0, /*always restart from the first element in the list*/ 
+                              0, /*always restart from the first element in the list*/
 #else // HAVE_BOLOS_NOT_SHUFFLED_RESTORE
                               (strlen(G_ux.string_buffer+16)?0:cx_rng_u8()%auto_complete_count), /* start from a random element in the list for the word start letter, else keep the order */
 #endif // HAVE_BOLOS_NOT_SHUFFLED_RESTORE
                               // recompute alphabet and set the number of elements in the keyboard
                               auto_complete_count
-                              + (strlen(G_ux.string_buffer+16)?1:0) /* backspace if a stem is already entered, else no backspace */, 
+                              + (strlen(G_ux.string_buffer+16)?1:0) /* backspace if a stem is already entered, else no backspace */,
                               screen_onboarding_4_restore_word_keyboard_callback);
   // append the special backspace to allow for easier dispatch in the keyboard callback
-  ((unsigned char*)(G_ux.string_buffer+32))[auto_complete_count] = '\b'; 
+  ((unsigned char*)(G_ux.string_buffer+32))[auto_complete_count] = '\b';
 }
 
 void screen_onboarding_4_restore_word_display_word_selection(void) {
@@ -144,7 +144,7 @@ void screen_onboarding_4_restore_word_display_word_selection(void) {
   G_ux.stack[0].element_arrays[0].element_array_count = ARRAYLEN(screen_onboarding_4_restore_word_select_elements);
   G_ux.stack[0].element_arrays_count = 1;
   G_ux.stack[0].screen_before_element_display_callback = screen_onboarding_4_restore_word_before_element_display_callback;
-  ux_stack_display(0); 
+  ux_stack_display(0);
 }
 
 const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigned int event, unsigned int value) {
@@ -317,7 +317,7 @@ uint8_t compare_recovery_phrase(void)
     // convert mnemonic to hex-seed
     uint8_t buffer[64];
 
-    bolos_ux_mnemonic_to_seed((unsigned char *)G_bolos_ux_context.words_buffer, 
+    bolos_ux_mnemonic_to_seed((unsigned char *)G_bolos_ux_context.words_buffer,
     G_bolos_ux_context.words_buffer_length,
     buffer);
     //PRINTF("Input seed:\n %.*H\n", 64, buffer);
@@ -349,7 +349,7 @@ void screen_onboarding_4_restore_word_validate(void) {
 
   if (G_bolos_ux_context.onboarding_step == G_bolos_ux_context.onboarding_kind) {
     unsigned char valid;
-#ifdef HAVE_ELECTRUM    
+#ifdef HAVE_ELECTRUM
     // if we've entered all the words, then check the phrase
     if (G_bolos_ux_context.onboarding_algorithm == BOLOS_UX_ONBOARDING_ALGORITHM_ELECTRUM) {
       valid = bolos_ux_electrum_mnemonic_check(ELECTRUM_SEED_PREFIX_STANDARD, (unsigned char*)G_bolos_ux_context.words_buffer, G_bolos_ux_context.words_buffer_length);
@@ -359,7 +359,7 @@ void screen_onboarding_4_restore_word_validate(void) {
     }
 #else
     valid = bolos_ux_mnemonic_check((unsigned char*)G_bolos_ux_context.words_buffer, G_bolos_ux_context.words_buffer_length);
-#endif    
+#endif
     if ( !valid  ) {
       // invalid recovery phrase
       ux_flow_init(0, ux_wrong_seed_flow, NULL);
@@ -367,7 +367,7 @@ void screen_onboarding_4_restore_word_validate(void) {
     else {
       // allright, the recovery phrase looks ok, compare it to onboarded seed
 
-      //Display loading icon to user      
+      //Display loading icon to user
       ux_flow_init(0, ux_load_flow, NULL);
       if(compare_recovery_phrase()){
         ux_flow_init(0, ux_succesfull_check_flow, NULL);
