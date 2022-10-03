@@ -95,7 +95,7 @@ void screen_onboarding_4_restore_word_display_auto_complete(void) {
         auto_complete_count +
             (strlen(G_ux.string_buffer + 16)
                  ? 1
-                 : 0) /* backspace if already a stem enetered, else no backspace */,
+                 : 0) /* backspace if already a stem entered, else no backspace */,
         screen_onboarding_4_restore_word_keyboard_callback);
     // append the special backspace to allow for easier dispatch in the keyboard callback
     ((unsigned char*) (G_ux.string_buffer + 32))[auto_complete_count] = '\b';
@@ -146,7 +146,7 @@ const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigne
                         strlen(G_ux.string_buffer + 16));
 
                     // multiple possibilities
-                    // update te slider's possible words
+                    // update the slider's possible words
                     // account for the extra clear word, and clear any previous word items (go back
                     // in the onboarding process)
                     bolos_ux_hslider3_init(G_bolos_ux_context.onboarding_words_checked +
@@ -348,7 +348,7 @@ void screen_onboarding_4_restore_word_validate(void) {
         if (!valid) {
             ux_flow_init(0, restore_4_invalid, NULL);
         } else {
-            // allright, the recovery phrase looks ok, finish onboarding
+            // alright, the recovery phrase looks ok, finish onboarding
             // Display processing warning to user
             screen_processing_init();
             G_bolos_ux_context.processing = 1;

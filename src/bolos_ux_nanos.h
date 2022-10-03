@@ -75,7 +75,7 @@ typedef struct bolos_ux_context {
     } screen_stack[4];
 
     unsigned int screen_stack_count;  // initialized @0 by the bolos ux initialize
-    // a screen pop occured, the underlaying screen must optimize its drawing as
+    // a screen pop occurred, the underlying screen must optimize its drawing as
     // we've probably trashed the whole screen
     unsigned int screen_redraw;
 
@@ -124,7 +124,7 @@ typedef struct bolos_ux_context {
     // after an int to make sure it's aligned
     char string_buffer[MAX(
         64,
-        sizeof(bagl_icon_details_t) + BOLOS_APP_ICON_SIZE_B - 1)];  // to store the seed wholy
+        sizeof(bagl_icon_details_t) + BOLOS_APP_ICON_SIZE_B - 1)];  // to store the seed wholly
 
     char words_buffer[257];  // 128 of words (215 => hashed to 64, or 128) +
                              // HMAC_LENGTH*2 = 256
@@ -246,7 +246,7 @@ unsigned int bolos_ux_electrum_mnemonic_check(unsigned int version,
 #endif
 
 /**
- * Bolos system app internal UX entry point (could be overriden by a further
+ * Bolos system app internal UX entry point (could be overridden by a further
  * loaded BOLOS_UX application)
  */
 void bolos_ux_main(void);

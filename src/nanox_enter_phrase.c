@@ -251,7 +251,7 @@ const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigne
                         strlen(G_ux.string_buffer + 16));
 
                     // multiple possibilities
-                    // update te slider's possible words
+                    // update the slider's possible words
                     // account for the extra "last" (clear) item
                     bolos_ux_hslider3_init(nb_words_matching_stem + 1);
                     screen_onboarding_4_restore_word_display_word_selection();
@@ -450,7 +450,7 @@ void screen_onboarding_4_restore_word_validate(void) {
             // invalid recovery phrase
             ux_flow_init(0, ux_wrong_seed_flow, NULL);
         } else {
-            // allright, the recovery phrase looks ok, compare it to onboarded seed
+            // alright, the recovery phrase looks ok, compare it to onboarded seed
 
             // Display loading icon to user
             ux_flow_init(0, ux_load_flow, NULL);

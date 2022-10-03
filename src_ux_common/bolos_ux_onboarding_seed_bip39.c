@@ -1,11 +1,11 @@
-/* @BANNER@ */ 
+/* @BANNER@ */
 
 #include "os.h"
 #include "cx.h"
 
 #include "bolos_ux_common.h"
 
-unsigned int bolos_ux_mnemonic_from_data(unsigned char *in, unsigned int inLength, unsigned char *out, unsigned int outLength) {  
+unsigned int bolos_ux_mnemonic_from_data(unsigned char *in, unsigned int inLength, unsigned char *out, unsigned int outLength) {
   unsigned char bits[32 + 1];
   unsigned int mlen = inLength * 3 / 4;
   unsigned int i, j, idx, offset;
@@ -20,14 +20,14 @@ unsigned int bolos_ux_mnemonic_from_data(unsigned char *in, unsigned int inLengt
   offset = 0;
   for (i = 0; i < mlen; i++) {
     size_t wordLength;
-    idx = 0;    
+    idx = 0;
     for (j = 0; j < 11; j++) {
       idx <<= 1;
       idx += (bits[(i * 11 + j) / 8] & (1 << (7 - ((i * 11 + j) % 8)))) > 0;
     }
     wordLength = BIP39_WORDLIST_OFFSETS[idx + 1] - BIP39_WORDLIST_OFFSETS[idx];
     if ((offset + wordLength) > outLength) {
-      THROW (INVALID_PARAMETER);      
+      THROW (INVALID_PARAMETER);
     }
     memcpy(out + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx], wordLength);
     offset += wordLength;
@@ -47,11 +47,11 @@ unsigned int bolos_ux_mnemonic_to_seed_hash_length128(unsigned char *mnemonic, u
     cx_hash_sha512(mnemonic, mnemonicLength, mnemonic, 64);
     // new mnemonic length
     mnemonicLength = 64;
-  }  
+  }
   return mnemonicLength;
 }
 
-void bolos_ux_mnemonic_to_seed(unsigned char *mnemonic, unsigned int mnemonicLength, unsigned char *seed) {  
+void bolos_ux_mnemonic_to_seed(unsigned char *mnemonic, unsigned int mnemonicLength, unsigned char *seed) {
   unsigned char passphrase[BIP39_MNEMONIC_LENGTH + 4];
   mnemonicLength = bolos_ux_mnemonic_to_seed_hash_length128(mnemonic, mnemonicLength);
 
@@ -85,11 +85,11 @@ unsigned int bolos_ux_get_word_ptr(unsigned char ** word, unsigned int max_lengt
   return word_length;
 }
 
-unsigned int bolos_ux_mnemonic_check(unsigned char *mnemonic, unsigned int mnemonicLength) {  
+unsigned int bolos_ux_mnemonic_check(unsigned char *mnemonic, unsigned int mnemonicLength) {
   unsigned int i, n = 0;
   unsigned int bi;
-  unsigned char bits[32 + 1];  
-  unsigned char mask;   
+  unsigned char bits[32 + 1];
+  unsigned char mask;
 
   for (i=0; i<mnemonicLength; i++) {
     if (mnemonic[i] == ' ') {
@@ -98,14 +98,14 @@ unsigned int bolos_ux_mnemonic_check(unsigned char *mnemonic, unsigned int mnemo
   }
   n++;
   if (n != 12 && n != 18 && n != 24) {
-    return 0;   
+    return 0;
   }
   memset(bits, 0, sizeof(bits));
   i = 0;
   bi = 0;
   while (i < mnemonicLength) {
     unsigned char current_word[10];
-    unsigned int current_word_size = 0;    
+    unsigned int current_word_size = 0;
     unsigned int j, k, ki;
     j = 0;
     while (mnemonic[i] != ' ' && i < mnemonicLength) {
@@ -129,7 +129,7 @@ unsigned int bolos_ux_mnemonic_check(unsigned char *mnemonic, unsigned int mnemo
             bits[bi / 8] |= 1 << (7 - (bi % 8));
           }
           bi++;
-        }        
+        }
         break;
       }
     }
@@ -141,7 +141,7 @@ unsigned int bolos_ux_mnemonic_check(unsigned char *mnemonic, unsigned int mnemo
     return 0;
   }
   bits[32] = bits[n * 4 / 3];
-  cx_hash_sha256(bits, n * 4 / 3, bits, 32);  
+  cx_hash_sha256(bits, n * 4 / 3, bits, 32);
   switch(n) {
     case 12:
       mask = 0xF0;
@@ -155,9 +155,9 @@ unsigned int bolos_ux_mnemonic_check(unsigned char *mnemonic, unsigned int mnemo
   }
   if ((bits[0] & mask) != (bits[32] & mask)) {
     return 0;
-  } 
+  }
 
-  // allright mnemonic is ok
+  // alright mnemonic is ok
   return 1;
 }
 
@@ -176,10 +176,10 @@ unsigned int bolos_ux_bip39_idx_strcpy(unsigned int index, unsigned char* buffer
 unsigned int bolos_ux_bip39_idx_startswith(unsigned int index, unsigned char* prefix, unsigned int prefixlength) {
   unsigned int j=0;
   if (index < BIP39_WORDLIST_OFFSETS_LENGTH-1) {
-    while (j < (unsigned int)(BIP39_WORDLIST_OFFSETS[index+1] - BIP39_WORDLIST_OFFSETS[index]) 
+    while (j < (unsigned int)(BIP39_WORDLIST_OFFSETS[index+1] - BIP39_WORDLIST_OFFSETS[index])
       && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[index]+j] == prefix[j]) {
       j++;
-    } 
+    }
     if (j == prefixlength) {
       return 1;
     }
@@ -191,7 +191,7 @@ unsigned int bolos_ux_bip39_get_word_idx_starting_with(unsigned char* prefix, un
   unsigned int i;
   for (i = 0 ; i < BIP39_WORDLIST_OFFSETS_LENGTH-1; i++) {
     unsigned int j=0;
-    while (j < (unsigned int)(BIP39_WORDLIST_OFFSETS[i+1] - BIP39_WORDLIST_OFFSETS[i]) 
+    while (j < (unsigned int)(BIP39_WORDLIST_OFFSETS[i+1] - BIP39_WORDLIST_OFFSETS[i])
       && j < prefixlength && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i]+j] == prefix[j]) {
       j++;
     }
@@ -208,7 +208,7 @@ unsigned int bolos_ux_bip39_get_word_count_starting_with(unsigned char* prefix, 
   unsigned int count=0;
   for (i = 0 ; i < BIP39_WORDLIST_OFFSETS_LENGTH-1; i++) {
     unsigned int j=0;
-    while (j < (unsigned int)(BIP39_WORDLIST_OFFSETS[i+1] - BIP39_WORDLIST_OFFSETS[i]) 
+    while (j < (unsigned int)(BIP39_WORDLIST_OFFSETS[i+1] - BIP39_WORDLIST_OFFSETS[i])
       && j < prefixlength && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i]+j] == prefix[j]) {
       j++;
     }
@@ -225,13 +225,13 @@ unsigned int bolos_ux_bip39_get_word_count_starting_with(unsigned char* prefix, 
 }
 
 // allocate at most 26 letters for next possibilities
-// alrogithm considers the bip39 words are alphabetically ordered in the wordlist
+// algorithm considers the bip39 words are alphabetically ordered in the wordlist
 unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(unsigned char* prefix, unsigned int prefixlength, unsigned char* next_letters_buffer) {
   unsigned int i;
   unsigned int letter_count=0;
   for (i = 0 ; i < BIP39_WORDLIST_OFFSETS_LENGTH-1; i++) {
     unsigned int j=0;
-    while (j < (unsigned int)(BIP39_WORDLIST_OFFSETS[i+1] - BIP39_WORDLIST_OFFSETS[i]) 
+    while (j < (unsigned int)(BIP39_WORDLIST_OFFSETS[i+1] - BIP39_WORDLIST_OFFSETS[i])
       && j < prefixlength && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i]+j] == prefix[j]) {
       j++;
     }

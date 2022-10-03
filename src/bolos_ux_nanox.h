@@ -39,7 +39,7 @@ typedef struct bolos_ux_context {
 #endif  // STATE_INITIALIZED
     unsigned int state;
 
-    // a screen pop occured, the underlaying screen must optimize its drawing as we've probably
+    // a screen pop occurred, the underlying screen must optimize its drawing as we've probably
     // trashed the whole screen
     unsigned int screen_redraw;
 
@@ -215,7 +215,7 @@ void bolos_ux_hslider3_previous(void);
 #define FAST_LIST_ACTION_CS    2
 
 /**
- * Bolos system app internal UX entry point (could be overriden by a further loaded BOLOS_UX
+ * Bolos system app internal UX entry point (could be overridden by a further loaded BOLOS_UX
  * application)
  */
 void bolos_ux_main(void);

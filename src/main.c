@@ -121,7 +121,7 @@ unsigned char io_event(unsigned char channel __attribute__((unused))) {
 
         case SEPROXYHAL_TAG_TICKER_EVENT:
             UX_TICKER_EVENT(G_io_seproxyhal_spi_buffer, {
-                // defaulty retrig very soon (will be overriden during
+                // default retrig very soon (will be overridden during
                 // stepper_prepro)
                 UX_CALLBACK_SET_INTERVAL(500);
                 UX_REDISPLAY();
