@@ -1,9 +1,10 @@
 /* @BANNER@ */
 
-#include "os.h"
-#include "cx.h"
+#include <os.h>
+#include <cx.h>
 
-#include "bolos_ux_common.h"
+#include "onboarding_seed_rom_variables.h"
+#include "common.h"
 
 unsigned int bolos_ux_mnemonic_from_data(unsigned char* in,
                                          unsigned int inLength,

@@ -1,6 +1,5 @@
 /*******************************************************************************
- *   Ledger Blue - Secure firmware
- *   (c) 2016, 2017 Ledger
+ *   (c) 2016-2022 Ledger SAS
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +15,6 @@
  ********************************************************************************/
 
 #include "ui.h"
-#include "bolos_ux_common.h"
 
 #ifdef TARGET_NANOS
 

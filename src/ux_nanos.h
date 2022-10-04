@@ -1,6 +1,5 @@
 /*******************************************************************************
- *   Ledger Blue - Secure firmware
- *   (c) 2016, 2017 Ledger
+ *   (c) 2016-2022 Ledger SAS
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,25 +17,21 @@
 #ifndef BOLOS_UX_H
 #define BOLOS_UX_H
 
-#include "os_io_seproxyhal.h"
-#include "ux.h"
-
-#define HAVE_BOLOS_UX
 #ifdef HAVE_BOLOS_UX
+
+#include "ux_common/common.h"
 
 typedef unsigned int (*callback_t)(unsigned int);
 
 #define KEYBOARD_ITEM_VALIDATED \
-    1  // callback is called with the entered item index, tmp_element is
-       // precharged with element to be displayed and using the common string
-       // buffer as string parameter
+    1  // callback is called with the entered item index, tmp_element is precharged with element to
+       // be displayed and using the common string buffer as string parameter
 #define KEYBOARD_RENDER_ITEM \
-    2  // callback is called the element index, tmp_element is precharged with
-       // element to be displayed and using the common string buffer as string
-       // parameter
+    2  // callback is called with the element index, tmp_element is precharged with element to be
+       // displayed and using the common string buffer as string parameter
 #define KEYBOARD_RENDER_WORD \
-    3  // callback is called with a -1 when requesting complete word, or the char
-       // index else, returnin 0 implies no char is to be displayed
+    3  // callback is called with a -1 when requesting complete word, or the char index else,
+       // returnin 0 implies no char is to be displayed
 typedef const bagl_element_t *(*keyboard_callback_t)(unsigned int event, unsigned int value);
 
 // bolos ux context (not mandatory if redesigning a bolos ux)
@@ -188,68 +183,18 @@ void bolos_ux_hslider3_previous(void);
 #define FAST_LIST_THRESHOLD_CS 8
 #define FAST_LIST_ACTION_CS    2
 
-unsigned int screen_stack_is_element_array_present(const bagl_element_t *element_array);
-unsigned int screen_stack_push(void);
-unsigned int screen_stack_pop(void);
-void screen_stack_remove(unsigned int stack_slot);
-
-// BIP39 helpers
-#include "bolos_ux_onboarding_seed_rom_variables.h"
-
-void bolos_ux_pbkdf2(unsigned char *password,
-                     unsigned int passwordlen,
-                     unsigned char *salt,
-                     unsigned int saltlen,
-                     unsigned int iterations,
-                     unsigned char *out,
-                     unsigned int outLength);
-unsigned char bolos_ux_get_random_bip39_word(unsigned char *word);
-// return 0 if mnemonic is invalid
-unsigned int bolos_ux_mnemonic_check(unsigned char *mnemonic, unsigned int mnemonicLength);
-unsigned char bolos_ux_word_check(unsigned char *word, unsigned int wordLength);
-
-unsigned int bolos_ux_get_word_ptr(unsigned char **word,
-                                   unsigned int max_length,
-                                   unsigned int word_index);
-
-// passphrase will be prefixed with "MNEMONIC" from BIP39, the passphrase
-// content shall start @ 8
-void bolos_ux_mnemonic_to_seed(unsigned char *mnemonic,
-                               unsigned int mnemonicLength,
-                               unsigned char *seed /*, unsigned char *workBuffer*/);
-unsigned int bolos_ux_mnemonic_indexes_to_words(unsigned char *indexes, unsigned char *words);
-unsigned int bolos_ux_mnemonic_from_data(unsigned char *in,
-                                         unsigned int inLength,
-                                         unsigned char *out,
-                                         unsigned int outLength);
-
-unsigned int bolos_ux_bip39_get_word_idx_starting_with(unsigned char *prefix,
-                                                       unsigned int prefixlength);
-unsigned int bolos_ux_bip39_idx_strcpy(unsigned int index, unsigned char *buffer);
-unsigned int bolos_ux_bip39_idx_startswith(unsigned int idx,
-                                           unsigned char *prefix,
-                                           unsigned int prefixlength);
-unsigned int bolos_ux_bip39_get_word_count_starting_with(unsigned char *prefix,
-                                                         unsigned int prefixlength);
-unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(unsigned char *prefix,
-                                                                unsigned int prefixlength,
-                                                                unsigned char *next_letters_buffer);
-
-#ifdef HAVE_ELECTRUM
-
-unsigned int bolos_ux_electrum_new_mnemonic(unsigned int version,
-                                            unsigned char *out,
-                                            unsigned int outLength);
-unsigned int bolos_ux_electrum_mnemonic_check(unsigned int version,
-                                              unsigned char *mnemonic,
-                                              unsigned int mnemonicLength);
-#endif
-
 /**
  * Bolos system app internal UX entry point (could be overridden by a further
  * loaded BOLOS_UX application)
  */
 void bolos_ux_main(void);
+
+void screen_common_keyboard_init(unsigned int stack_slot,
+                                 unsigned int current_element,
+                                 unsigned int nb_elements,
+                                 keyboard_callback_t callback);
+
+#include "ux_common/common_bip39.h"
 
 extern const bagl_element_t screen_onboarding_word_list_elements[9];
 

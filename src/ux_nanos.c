@@ -15,16 +15,16 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#include "os.h"
+#include <os.h>
 
 #ifdef TARGET_NANOS
 
-#include "cx.h"
+#include <cx.h>
 
-#include "os_io_seproxyhal.h"
-#include "string.h"
+#include <os_io_seproxyhal.h>
+#include <string.h>
 
-#include "bolos_ux_common.h"
+#include "ux_nanos.h"
 
 //#ifdef OS_IO_SEPROXYHAL
 

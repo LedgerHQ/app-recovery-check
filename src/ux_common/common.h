@@ -1,17 +1,30 @@
+/*******************************************************************************
+ *   (c) 2016-2022 Ledger SAS
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ********************************************************************************/
 
-#include "os.h"
-#include "cx.h"
+#ifndef COMMON_UX_H
+#define COMMON_UX_H
 
-#include "os_io_seproxyhal.h"
-#include "string.h"
+#include <os.h>
+#include <cx.h>
+#include <ux.h>
 
-#if defined(TARGET_NANOS)
-#include "bolos_ux_nanos.h"
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-#include "bolos_ux_nanox.h"
-#endif
+#include <os_io_seproxyhal.h>
+#include <string.h>
 
-#include "glyphs.h"
+#include "../glyphs.h"
 
 #ifdef OS_IO_SEPROXYHAL
 
@@ -32,8 +45,6 @@
 #define BOLOS_UX_HASH_LENGTH                 4  // as on the blue
 
 #define CONSENT_INTERVAL_MS 3000
-
-extern bolos_ux_context_t G_bolos_ux_context;
 
 extern const unsigned char hex_digits[];
 
@@ -112,69 +123,8 @@ void screen_settings_passphrase_temporary_1_init(void);
 void screen_settings_passphrase_type_and_review_init(unsigned int kind);
 void screen_settings_erase_all_init(void);
 
-void screen_common_keyboard_init(unsigned int stack_slot,
-                                 unsigned int current_element,
-                                 unsigned int nb_elements,
-                                 keyboard_callback_t callback);
-
 #define COMMON_KEYBOARD_INDEX_UNCHANGED (-1UL)
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-// to be included into all flow that needs to go back to the dashboard
-extern const ux_flow_step_t ux_ob_goto_dashboard_step;
-
-void ux_pairing_init(void);
-void ux_pairing_deinit(void);
-
-void ux_boot_menu_init(void);
-void ux_ob_onboarding_init(void);
-void screen_control_center_init(unsigned int);
-
-void screen_help_init(appmain_t help_ended_callback);
-
-void screen_processing_init(void);
-
-void screen_prepare_app_name(unsigned int appidx);
-
-bagl_icon_details_t* screen_prepare_bitmap_14x14(ux_icon_buffer_t* icon_buffer,
-                                                 const unsigned char* icon_bitmap,
-                                                 unsigned int masked_inverted);
-void screen_prepare_app_icon_14x14(ux_icon_buffer_t* icon_buffer,
-                                   const unsigned char* icon_bitmap,
-                                   unsigned int icon_bitmap_length,
-                                   unsigned int masked_inverted);
-void screen_prepare_app_icon(ux_icon_buffer_t* icon_buffer,
-                             unsigned char* icon_bitmap_buffer,
-                             unsigned int icon_bitmap_buffer_length,
-                             unsigned int appidx,
-                             unsigned int inverted);
-
-void screen_lock(void);
-
-#ifdef BOLOS_OS_UPGRADER
-void screen_os_upgrader(void);
-#endif  // BOLOS_OS_UPGRADER
-
-unsigned int screen_consent_button(unsigned int button_mask, unsigned int button_mask_counter);
-unsigned int screen_consent_ticker(unsigned int ignored);
-void screen_consent_ticker_init(unsigned int number_of_steps,
-                                unsigned int interval_ms,
-                                unsigned int check_pin_to_confirm);
-void screen_consent_set_interval(unsigned int interval_ms);
-
-void screen_common_pin_init(unsigned int stack_slot, pin_callback_t end_callback);
-
-void screen_keyboard_init(char* buffer, unsigned int maxsize, appmain_t validation_callback);
-
-void debug(unsigned int id, unsigned char* msg);
-
-void screen_mcu_upgrade_required_init(void);
-void screen_consent_run_app_init(void);
-void screen_boot_delay_init(void);
-
-void settings_general_version(appmain_t end_callback);
-void settings_general_regulatory(appmain_t end_callback);
-void settings_general_serial(appmain_t end_callback);
-#endif  // TARGET_NANOX || TARGET_NANOS2
-
 #endif  // OS_IO_SEPROXYHAL
+
+#endif  // COMMON_UX_H

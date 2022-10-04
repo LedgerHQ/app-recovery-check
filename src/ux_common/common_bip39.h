@@ -3,7 +3,7 @@
 #define COMMON_BIP39_H
 
 // BIP39 helpers
-#include "bolos_ux_onboarding_seed_rom_variables.h"
+#include "onboarding_seed_rom_variables.h"
 
 void bolos_ux_pbkdf2(unsigned char *password,
                      unsigned int passwordlen,
