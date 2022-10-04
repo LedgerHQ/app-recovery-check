@@ -22,7 +22,7 @@ jobs:
       - name: Lint
         uses: DoozyX/clang-format-lint-action@v0.11
         with:
-          source: './src'
+          source: 'src src_ux_common'
           extensions: 'h,c'
           clangFormatVersion: 11
 
