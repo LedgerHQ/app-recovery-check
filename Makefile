@@ -70,9 +70,11 @@ else
 endif
 
 DEBUG = 0
-ifneq ($(DEBUG),0)
+ifneq ($(DEBUG), 0)
+    DEFINES += HAVE_IO_USB HAVE_USB_APDU
+    SDK_SOURCE_PATH  += lib_stusb lib_stusb_impl
     DEFINES += HAVE_PRINTF
-    ifeq ($(TARGET_NAME),TARGET_NANOS)
+    ifeq ($(TARGET_NAME), TARGET_NANOS)
         DEFINES += PRINTF=screen_printf
     else
         DEFINES += PRINTF=mcu_usb_printf
