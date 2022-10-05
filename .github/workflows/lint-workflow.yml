@@ -6,9 +6,9 @@ on:
     branches:
       - master
   pull_request:
-    branches:
-      - master
-      - develop
+    paths-ignore:
+      - '.github/workflows/*.yml'
+      - 'tests/*'
 
 jobs:
   job_lint:
