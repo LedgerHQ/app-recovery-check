@@ -15,20 +15,11 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#include <os.h>
+#include "ux_nanos.h"
 
 #ifdef TARGET_NANOS
 
-#include <cx.h>
-
-#include <os_io_seproxyhal.h>
-#include <string.h>
-
-#include "ux_nanos.h"
-
 //#ifdef OS_IO_SEPROXYHAL
-
-#define ARRAYLEN(array) (sizeof(array) / sizeof(array[0]))
 
 bolos_ux_context_t G_bolos_ux_context;
 
@@ -36,100 +27,6 @@ unsigned short io_timeout(unsigned short last_timeout) {
     UNUSED(last_timeout);
     // infinite timeout
     return 1;
-}
-
-const unsigned char C_app_empty_colors[] = {
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0xFF,
-    0xFF,
-    0xFF,
-    0xFF,
-};
-
-const unsigned char C_app_empty_bitmap[] = {
-    // color index table
-    0x01,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0xFF,
-    0xFF,
-    0xFF,
-    0xFF,
-
-    // icon mask
-    0x00,
-    0x00,
-    0xF0,
-    0x0F,
-    0xFC,
-    0x3F,
-    0xFC,
-    0x3F,
-    0xFE,
-    0x7F,
-    0xFE,
-    0x7F,
-    0xFE,
-    0x7F,
-    0xFE,
-    0x7F,
-    0xFE,
-    0x7F,
-    0xFE,
-    0x7F,
-    0xFE,
-    0x7F,
-    0xFE,
-    0x7F,
-    0xFC,
-    0x3F,
-    0xFC,
-    0x3F,
-    0xF0,
-    0x0F,
-    0x00,
-    0x00,
-};
-
-// prepare the app icon as if it was a icon_detail_t encoded structure in the
-// string_buffer
-void screen_prepare_masked_icon(unsigned char *icon_bitmap, unsigned int icon_bitmap_length) {
-    unsigned int i, inversemode;
-    bagl_icon_details_t *icon_details = (bagl_icon_details_t *) G_bolos_ux_context.string_buffer;
-    unsigned char *bitmap =
-        (unsigned char *) G_bolos_ux_context.string_buffer + sizeof(bagl_icon_details_t);
-
-    icon_details->width = 16;
-    icon_details->height = 16;
-    // prepare the icon_details content
-    icon_details->bpp = C_app_empty_bitmap[0];
-    // use color table from the const
-    icon_details->colors = (const unsigned int *) C_app_empty_colors;
-    icon_details->bitmap = bitmap;
-
-    // when first color of the bitmap is not 0, then, must inverse the icon's
-    // bit to
-    // match the C_app_empty_bitmap bit value
-    inversemode = 0;
-    if (icon_bitmap[1] != 0 || icon_bitmap[2] != 0 || icon_bitmap[3] != 0 || icon_bitmap[4] != 0) {
-        inversemode = 1;
-    }
-
-    for (i = 1 + 8; i < sizeof(C_app_empty_bitmap) && i < icon_bitmap_length; i++) {
-        if (inversemode) {
-            bitmap[i - 1 - 8] = C_app_empty_bitmap[i] & (~icon_bitmap[i]);
-        } else {
-            bitmap[i - 1 - 8] = C_app_empty_bitmap[i] & icon_bitmap[i];
-        }
-    }
-
-    // the string buffer is now ready to be displayed as an icon details
-    // structure
 }
 
 void io_seproxyhal_display(const bagl_element_t *element) {

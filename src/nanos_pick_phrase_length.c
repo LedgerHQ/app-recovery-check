@@ -1,6 +1,5 @@
 /*******************************************************************************
- *   Ledger Blue - Secure firmware
- *   (c) 2016, 2017 Ledger
+ *   (c) 2016-2022 Ledger SAS
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,7 +18,7 @@
 
 #ifdef TARGET_NANOS
 
-UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = 24;
+UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
            screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
@@ -27,7 +26,7 @@ UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = 24;
                "with 24 words",
            });
 
-UX_STEP_CB(restore_3_1_2, bb, G_bolos_ux_context.onboarding_kind = 18;
+UX_STEP_CB(restore_3_1_2, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
            screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
@@ -35,7 +34,7 @@ UX_STEP_CB(restore_3_1_2, bb, G_bolos_ux_context.onboarding_kind = 18;
                "with 18 words",
            });
 
-UX_STEP_CB(restore_3_1_3, bb, G_bolos_ux_context.onboarding_kind = 12;
+UX_STEP_CB(restore_3_1_3, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
            screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {

@@ -28,6 +28,8 @@
 #include "ux_nanox.h"
 #endif
 
+#define ARRAYLEN(array) (sizeof(array) / sizeof(array[0]))
+
 void ui_idle_init(void);
 
 #endif

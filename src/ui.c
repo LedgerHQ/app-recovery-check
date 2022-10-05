@@ -48,15 +48,15 @@ const char* number_of_words_getter(unsigned int idx) {
 void number_of_words_selector(unsigned int idx) {
     switch (idx) {
         case 0:
-            G_bolos_ux_context.onboarding_kind = 12;
+            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
             screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
             break;
         case 1:
-            G_bolos_ux_context.onboarding_kind = 18;
+            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
             screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
             break;
         case 2:
-            G_bolos_ux_context.onboarding_kind = 24;
+            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
             screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
             break;
         default:
