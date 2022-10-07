@@ -237,7 +237,7 @@ void compare_recovery_phrase(void) {
     cx_hmac_sha512_t ctx;
     const char key[] = "Bitcoin seed";
 
-    cx_hmac_sha512_init(&ctx, (const uint8_t*) key, sizeof(key));
+    cx_hmac_sha512_init(&ctx, (const uint8_t*) key, strlen(key));
     cx_hmac((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64);
     PRINTF("Root key from input:\n%.*H\n", 64, buffer);
 
