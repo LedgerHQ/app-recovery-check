@@ -1,6 +1,116 @@
 #include <ux.h>
 #include "ui.h"
 
+#if defined(HAVE_NBGL)
+
+#include <nbgl_fonts.h>
+#include <nbgl_front.h>
+#include <nbgl_debug.h>
+#include <nbgl_page.h>
+
+nbgl_page_t* pageContext;
+
+void ui_menu_about();
+void recover_page();
+
+void releaseContext(void) {
+    if (pageContext != NULL) {
+        nbgl_pageRelease(pageContext);
+        pageContext = NULL;
+    }
+}
+
+enum { BACK_TOKEN = 0, INFO_TOKEN, NEXT_TOKEN, CANCEL_TOKEN, START_RECOVER_TOKEN, BACK_HOME_TOKEN, QUIT_APP_TOKEN };
+
+void pageTouchCallback(int token, uint8_t index) {
+    (void) index;
+    PRINTF("LOL");
+    if (token == QUIT_APP_TOKEN) {
+        releaseContext();
+        os_sched_exit(-1);
+    } else if (token == INFO_TOKEN) {
+        ui_menu_about();
+    } else if (token == START_RECOVER_TOKEN) {
+        recover_page();
+    } else if (token == BACK_HOME_TOKEN) {
+        releaseContext();
+        ui_idle_init();
+    }
+}
+
+// 'About' menu
+
+static const char* const infoTypes[] = {"Version", "Recovery Check"};
+static const char* const infoContents[] = {APPVERSION, "(c) 2022 Ledger"};
+
+void ui_menu_about() {
+    nbgl_pageContent_t content = {.title = "Recovery Check infos", .isTouchableTitle = false};
+    nbgl_pageNavigationInfo_t nav = {.activePage = 0,
+                                     .nbPages = 1,
+                                     .navType = NAV_WITH_BUTTONS,
+                                     .navWithButtons.quitButton = true,
+                                     .navWithButtons.navToken = BACK_HOME_TOKEN,
+                                     .tuneId = TUNE_TAP_CASUAL};
+    content.type = INFOS_LIST;
+    content.infosList.nbInfos = 2;
+    content.infosList.infoTypes = (const char**) infoTypes;
+    content.infosList.infoContents = (const char**) infoContents;
+
+    releaseContext();
+    pageContext = nbgl_pageDrawGenericContent(&pageTouchCallback, &nav, &content);
+    nbgl_refresh();
+}
+
+void recover_page() {
+
+    nbgl_layoutDescription_t layoutDescription = {
+        .modal = false, // not modal (so on plane 0)
+        .onActionCallback = NULL, // generic callback for all controls
+        .tapActionText = "Return", // A "tapable" main container is necessary, with this text
+        .tapActionToken = BACK_HOME_TOKEN, // token to be used when main container is touched
+        .ticker.tickerCallback = NULL // no ticker
+    };
+
+    nbgl_layoutProgressBar_t bar = {
+        .percentage = 50,
+        .text = "coucou lol",
+        .subText = "sub"
+    };
+
+    nbgl_layout_t *layout = nbgl_layoutGet(&layoutDescription);
+    nbgl_layoutAddKeyboard(layout, &bar);
+
+    releaseContext();
+    nbgl_layoutDraw(layout);
+    nbgl_refresh();
+}
+
+static void display_home_page() {
+    nbgl_pageInfoDescription_t home = {
+        /* .centeredInfo.icon = &C_fatstacks_app_recovery_check, */
+        .centeredInfo.icon = NULL,
+        .centeredInfo.text1 = "Recovery Check app",
+        .centeredInfo.text2 = NULL,
+        .centeredInfo.text3 = NULL,
+        .centeredInfo.style = LARGE_CASE_INFO,
+        .centeredInfo.offsetY = 32,
+        .topRightStyle = INFO_ICON,
+        .bottomButtonStyle = QUIT_ICON,
+        .topRightToken = INFO_TOKEN,
+        .bottomButtonToken = QUIT_APP_TOKEN,
+        .footerText = NULL,
+        .tapActionText = "Tap to check your mnemonic",
+        .tapActionToken = START_RECOVER_TOKEN,
+        .tuneId = TUNE_TAP_CASUAL
+    };
+    releaseContext();
+    pageContext = nbgl_pageDrawInfo(&pageTouchCallback, NULL, &home);
+    nbgl_refresh();
+}
+
+#endif
+
+
 enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
 
 enum UI_STATE uiState;
@@ -141,7 +251,9 @@ UX_FLOW(ux_idle_flow, &ux_idle_flow_1_step, &ux_idle_flow_3_step, &ux_idle_flow_
 
 #endif
 
+
 void ui_idle_init(void) {
+#if defined(HAVE_BAGL)
     uiState = UI_IDLE;
 
     // reserve a display stack slot if none yet
@@ -149,4 +261,10 @@ void ui_idle_init(void) {
         ux_stack_push();
     }
     ux_flow_init(0, ux_idle_flow, NULL);
+#endif
+
+#if defined(HAVE_NBGL)
+    display_home_page();
+#endif
+
 }

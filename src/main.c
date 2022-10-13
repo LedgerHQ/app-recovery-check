@@ -18,6 +18,10 @@
 #include <cx.h>
 #include <os_io_seproxyhal.h>
 
+#if defined(HAVE_NBGL)
+#include <ux.h>
+#endif
+
 #include "ui.h"
 
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
@@ -84,11 +88,11 @@ unsigned char io_event(unsigned char channel __attribute__((unused))) {
         case SEPROXYHAL_TAG_FINGER_EVENT:
             UX_FINGER_EVENT(G_io_seproxyhal_spi_buffer);
             break;
-
+#if ! defined(HAVE_NBGL)
         case SEPROXYHAL_TAG_BUTTON_PUSH_EVENT:  // for Nano S
             UX_BUTTON_PUSH_EVENT(G_io_seproxyhal_spi_buffer);
             break;
-
+#endif
         case SEPROXYHAL_TAG_DISPLAY_PROCESSED_EVENT:
 #if defined(TARGET_NANOS)
             if ((uiState == UI_TEXT) &&
@@ -141,7 +145,11 @@ __attribute__((section(".boot"))) int main(void) {
     // ensure exception will work as planned
     os_boot();
 
+#if defined(HAVE_NBGL)
+    nbgl_objInit();
+#elif defined(HAVE_BAGL)
     UX_INIT();
+#endif
 
     BEGIN_TRY {
         TRY {

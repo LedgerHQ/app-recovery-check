@@ -44,7 +44,11 @@
 #define KEYBOARD_RENDER_WORD \
     3  // callback is called with a -1 when requesting complete word, or the char index else,
        // returnin 0 implies no char is to be displayed
+#if defined(HAVE_NBGL)
+typedef const nbgl_obj_t* (*keyboard_callback_t)(unsigned int event, unsigned int value);
+#else
 typedef const bagl_element_t* (*keyboard_callback_t)(unsigned int event, unsigned int value);
+#endif
 
 void bolos_ux_hslider3_init(unsigned int total_count);
 void bolos_ux_hslider3_set_current(unsigned int current);

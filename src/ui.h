@@ -27,6 +27,8 @@
 #include "ux_nanos.h"
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 #include "ux_nanox.h"
+#elif defined(TARGET_FATSTACKS)
+#include "ux_stax.h"
 #endif
 
 #define ARRAYLEN(array) (sizeof(array) / sizeof(array[0]))
