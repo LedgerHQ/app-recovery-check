@@ -17,7 +17,7 @@
 
 #include "ux_nanos.h"
 
-#ifdef TARGET_NANOS
+#if defined(TARGET_NANOS)
 
 //#ifdef OS_IO_SEPROXYHAL
 

@@ -31,15 +31,10 @@ enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
 extern enum UI_STATE uiState;
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-#include "ux_nanox.h"
 uint8_t compare_recovery_phrase(void);
 #else
-#include "ux_nanos.h"
 void compare_recovery_phrase(void);
 #endif
-
-ux_state_t G_ux;
-bolos_ux_params_t G_ux_params;
 
 unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len) {
     switch (channel & ~(IO_FLAGS)) {

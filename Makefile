@@ -18,6 +18,7 @@
 ifeq ($(BOLOS_SDK),)
 $(error Environment variable BOLOS_SDK is not set)
 endif
+
 include $(BOLOS_SDK)/Makefile.defines
 
 all: default
@@ -30,9 +31,9 @@ APPVERSION_N = 1
 APPVERSION_P = 0
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
-APP_LOAD_PARAMS = --appFlags 0x210 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1 --path ""
+APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1 --path ""
 
-ifeq ($(TARGET_NAME),TARGET_NANOS)
+ifeq ($(TARGET_NAME), TARGET_NANOS)
     ICONNAME=icons/nanos_app_recovery_check.gif
 else
     ICONNAME=icons/nanox_app_recovery_check.gif
@@ -103,12 +104,10 @@ endif
 CC := $(CLANGPATH)clang
 CFLAGS += -O3 -Os -Wshadow -Wformat
 AS := $(GCCPATH)arm-none-eabi-gcc
-AFLAGS +=
 LD := $(GCCPATH)arm-none-eabi-gcc
 LDFLAGS += -O3 -Os
 LDLIBS += -lm -lgcc -lc
 
-# import rules to compile glyphs(/pone)
 include $(BOLOS_SDK)/Makefile.glyphs
 
 APP_SOURCE_PATH += src

@@ -14,8 +14,7 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#ifndef COMMON_UX_H
-#define COMMON_UX_H
+#pragma once
 
 #include <os.h>
 #include <cx.h>
@@ -61,5 +60,3 @@ void screen_onboarding_4_restore_word_init(unsigned int action);
 #define COMMON_KEYBOARD_INDEX_UNCHANGED (-1UL)
 
 #endif  // OS_IO_SEPROXYHAL
-
-#endif  // COMMON_UX_H

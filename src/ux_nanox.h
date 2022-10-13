@@ -14,12 +14,11 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#ifndef BOLOS_UX_NANOX_H
-#define BOLOS_UX_NANOX_H
-
-#ifdef HAVE_BOLOS_UX
+#pragma once
 
 #include "ux_common/common.h"
+
+#if defined(HAVE_BOLOS_UX) && (defined(TARGET_NANOX) || defined(TARGET_NANOS2))
 
 // bolos ux context (not mandatory if redesigning a bolos ux)
 typedef struct bolos_ux_context {
@@ -107,6 +106,4 @@ void screen_common_keyboard_init(unsigned int stack_slot,
 // to be included into all flow that needs to go back to the dashboard
 extern const ux_flow_step_t ux_ob_goto_dashboard_step;
 
-#endif  // HAVE_BOLOS_UX
-
-#endif  // BOLOS_UX_H
+#endif  // HAVE_BOLOS_UX_H && (TARGET_NANOX || TARGET_NANOS2)

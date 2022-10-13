@@ -1,6 +1,5 @@
 
-#ifndef COMMON_BIP39_H
-#define COMMON_BIP39_H
+#pragma once
 
 // BIP39 helpers
 #include "onboarding_seed_rom_variables.h"
@@ -32,5 +31,3 @@ unsigned int bolos_ux_electrum_mnemonic_check(unsigned int version,
                                               unsigned int mnemonicLength);
 
 #endif
-
-#endif  // COMMON_BIP39

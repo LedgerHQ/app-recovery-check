@@ -14,8 +14,7 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#ifndef BUSRV_H
-#define BUSRV_H
+#pragma once
 
 #define BIP39_WORDLIST_LENGTH         11068
 #define BIP39_WORDLIST_OFFSETS_LENGTH 2049
@@ -42,5 +41,3 @@ extern unsigned char const WIDE ELECTRUM_SEED_VERSION[ELECTRUM_SEED_VERSION_LENG
 extern unsigned char const WIDE ELECTRUM_MNEMONIC[ELECTRUM_MNEMONIC_LENGTH];
 
 #endif
-
-#endif  // BUSRV_H

@@ -14,12 +14,11 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#ifndef BOLOS_UX_NANOS_H
-#define BOLOS_UX_NANOS_H
-
-#ifdef HAVE_BOLOS_UX
+#pragma once
 
 #include "ux_common/common.h"
+
+#if defined(HAVE_BOLOS_UX) && defined(TARGET_NANOS)
 
 typedef unsigned int (*callback_t)(unsigned int);
 
@@ -89,6 +88,4 @@ void screen_common_keyboard_init(unsigned int stack_slot,
 
 extern const bagl_element_t screen_onboarding_word_list_elements[9];
 
-#endif  // HAVE_BOLOS_UX
-
-#endif  // BOLOS_UX_H
+#endif  // HAVE_BOLOS_UX && TARGET_NANOS

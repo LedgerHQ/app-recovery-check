@@ -14,13 +14,14 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#ifndef _UI_
-#define _UI_
+#pragma once
 
 #include <os.h>
 #include <os_io_seproxyhal.h>
 #include <string.h>
 #include <cx.h>
+
+#include "glyphs.h"
 
 #if defined(TARGET_NANOS)
 #include "ux_nanos.h"
@@ -31,5 +32,3 @@
 #define ARRAYLEN(array) (sizeof(array) / sizeof(array[0]))
 
 void ui_idle_init(void);
-
-#endif
