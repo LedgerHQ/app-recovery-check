@@ -76,10 +76,10 @@ void ui_menu_about() {
 /*
  * Word recover page
  */
-static char textToEnter[20];
-static char headerText[48];
-static nbgl_layout_t *layout;
-static int textIndex, suggestionIndex, keyboardIndex;
+static char textToEnter[MAX_WORD_LENGTH + 1] = {0};
+static char headerText[48] = {0};
+static nbgl_layout_t *layout = 0;
+static int textIndex, suggestionIndex, keyboardIndex = 0;
 static char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
 
 // function called when back or any suggestion button is touched
@@ -103,42 +103,41 @@ static void layoutTouchCallback(const int token, uint8_t index) {
 // function called when a key of keyboard is touched
 static void keyboardCallback(const char touchedKey) {
     size_t textLen = 0;
-    if (touchedKey != BACKSPACE_KEY) {
-        const size_t previousTextLen = strlen(textToEnter);
-        textToEnter[previousTextLen] = touchedKey;
-        textToEnter[previousTextLen+1] = '\0';
-        textLen = previousTextLen + 1;
-    }
-    else {
-        const size_t previousTextLen = strlen(textToEnter);
+    uint32_t mask = 0;
+    const size_t previousTextLen = strlen(textToEnter);
+    if (touchedKey == BACKSPACE_KEY) {
         if (previousTextLen == 0) {
             return;
         }
-        textToEnter[previousTextLen-1] = '\0';
+        textToEnter[previousTextLen - 1] = '\0';
         textLen = previousTextLen - 1;
+    } else {
+        textToEnter[previousTextLen] = touchedKey;
+        textToEnter[previousTextLen + 1] = '\0';
+        textLen = previousTextLen + 1;
     }
+
     if (textLen < 2) {
         nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, 0, buttonTexts);
-        nbgl_layoutUpdateKeyboard(layout, keyboardIndex, 0x0);
-    }
-    else {
-        const size_t nbMatchingWords = bolos_ux_bip39_fillwith_candidates(
-            (unsigned char*)textToEnter,
+    } else {
+        const size_t nbMatchingWords = bolos_ux_bip39_fill_with_candidates(
+            (unsigned char *)&(textToEnter[0]),
             strlen(textToEnter),
             buttonTexts
         );
-        PRINTF("Updating layout with '%d' buttons\nThey will be:\n", nbMatchingWords);
-        for (size_t i=0; i<nbMatchingWords; i++) {
-            PRINTF("(i) - '%s'\n", buttonTexts[i]);
-        }
         nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, nbMatchingWords, buttonTexts);
-        uint32_t mask = bolos_ux_bip39_get_keyboard_mask((unsigned char*)textToEnter, strlen(textToEnter));
-        nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask);
     }
+    if (textLen > 0) {
+        mask = bolos_ux_bip39_get_keyboard_mask(
+            (unsigned char *)&(textToEnter[0]),
+            strlen(textToEnter)
+            );
+    }
+    nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask);
 
-    nbgl_layoutUpdateEnteredText(layout, textIndex, false, 0, textToEnter, false);
+    nbgl_layoutUpdateEnteredText(layout, textIndex, false, 0, &(textToEnter[0]), false);
     nbgl_refresh();
-}
+ }
 
 void page_keyboard(void) {
     nbgl_layoutDescription_t layoutDescription = {
@@ -181,7 +180,6 @@ void page_keyboard(void) {
                                                       buttonTexts,
                                                       FIRST_SUGGESTION_TOKEN,
                                                       TUNE_TAP_CASUAL);
-
     nbgl_layoutDraw(layout);
 }
 

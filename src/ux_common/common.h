@@ -35,6 +35,8 @@
 #define ONBOARDING_WORD_COMPLETION_MAX_ITEMS 8
 #define BOLOS_UX_HASH_LENGTH                 4  // as on the blue
 
+#define MAX_WORD_LENGTH 8
+
 #define KEYBOARD_ITEM_VALIDATED \
     1  // callback is called with the entered item index, tmp_element is precharged with element to
        // be displayed and using the common string buffer as string parameter

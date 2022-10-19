@@ -6,10 +6,8 @@
 #include "onboarding_seed_rom_variables.h"
 #include "common.h"
 
-#define MAX_WORD_LENGTH 8
 #define ALPHABET_LENGTH 27
-
-static const char KBD_LETTERS[ALPHABET_LENGTH] = "qwertyuiopasdfghjklzxcvbnm";
+#define KBD_LETTERS "qwertyuiopasdfghjklzxcvbnm"
 
 // separated function to lower the stack usage when jumping into pbkdf algorithm
 unsigned int bolos_ux_mnemonic_to_seed_hash_length128(unsigned char* mnemonic,
@@ -132,15 +130,15 @@ unsigned int bolos_ux_bip39_idx_strcpy(const unsigned int index, unsigned char* 
 }
 
 unsigned int bolos_ux_bip39_get_word_idx_starting_with(const unsigned char* prefix,
-                                                       const unsigned int prefixlength) {
+                                                       const unsigned int prefixLength) {
     unsigned int i;
     for (i = 0; i < BIP39_WORDLIST_OFFSETS_LENGTH - 1; i++) {
         unsigned int j = 0;
         while (j < (unsigned int) (BIP39_WORDLIST_OFFSETS[i + 1] - BIP39_WORDLIST_OFFSETS[i]) &&
-               j < prefixlength && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j] == prefix[j]) {
+               j < prefixLength && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j] == prefix[j]) {
             j++;
         }
-        if (j == prefixlength) {
+        if (j == prefixLength) {
             return i;
         }
     }
@@ -149,16 +147,16 @@ unsigned int bolos_ux_bip39_get_word_idx_starting_with(const unsigned char* pref
 }
 
 unsigned int bolos_ux_bip39_get_word_count_starting_with(const unsigned char* prefix,
-                                                         const unsigned int prefixlength) {
+                                                         const unsigned int prefixLength) {
     unsigned int i;
     unsigned int count = 0;
     for (i = 0; i < BIP39_WORDLIST_OFFSETS_LENGTH - 1; i++) {
         unsigned int j = 0;
         while (j < (unsigned int) (BIP39_WORDLIST_OFFSETS[i + 1] - BIP39_WORDLIST_OFFSETS[i]) &&
-               j < prefixlength && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j] == prefix[j]) {
+               j < prefixLength && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j] == prefix[j]) {
             j++;
         }
-        if (j == prefixlength) {
+        if (j == prefixLength) {
             count++;
         }
         // don't seek till the end, abort when the prefix is not matched anymore
@@ -174,17 +172,17 @@ unsigned int bolos_ux_bip39_get_word_count_starting_with(const unsigned char* pr
 // algorithm considers the bip39 words are alphabetically ordered in the wordlist
 unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(
     const unsigned char* prefix,
-    const unsigned int prefixlength,
+    const unsigned int prefixLength,
     unsigned char* next_letters_buffer) {
     unsigned int i;
     unsigned int letter_count = 0;
     for (i = 0; i < BIP39_WORDLIST_OFFSETS_LENGTH - 1; i++) {
         unsigned int j = 0;
         while (j < (unsigned int) (BIP39_WORDLIST_OFFSETS[i + 1] - BIP39_WORDLIST_OFFSETS[i]) &&
-               j < prefixlength && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j] == prefix[j]) {
+               j < prefixLength && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j] == prefix[j]) {
             j++;
         }
-        if (j == prefixlength) {
+        if (j == prefixLength) {
             if (j < (unsigned int) (BIP39_WORDLIST_OFFSETS[i + 1] - BIP39_WORDLIST_OFFSETS[i])) {
                 // j is inc during previous loop, don't touch it
                 unsigned char next_letter = BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j];
@@ -217,8 +215,8 @@ unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(
 // the max number of showed suggestions is NB_MAX_SUGGESTION_BUTTONS
 static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] = {0};
 
-size_t bolos_ux_bip39_fillwith_candidates(
-    const unsigned char *startingChars,
+size_t bolos_ux_bip39_fill_with_candidates(
+    const unsigned char * startingChars,
     const size_t startingCharsLenght,
     char *outputBuffer[]
     ) {
@@ -247,11 +245,11 @@ size_t bolos_ux_bip39_fillwith_candidates(
 
 uint32_t bolos_ux_bip39_get_keyboard_mask(
     const unsigned char *prefix,
-    const unsigned int prefixlength
+    const unsigned int prefixLength
     ) {
     uint32_t existing_mask = 0;
-    unsigned char next_letters[MAX_WORD_LENGTH] = {0};
-    const size_t nb_letters = bolos_ux_bip39_get_word_next_letters_starting_with(prefix, prefixlength, next_letters);
+    unsigned char next_letters[ALPHABET_LENGTH] = {0};
+    const size_t nb_letters = bolos_ux_bip39_get_word_next_letters_starting_with(prefix, prefixLength, next_letters);
     next_letters[nb_letters] = '\0';
     PRINTF("Next letters are in: %s\n", next_letters);
     for (int i = 0; i < ALPHABET_LENGTH; i++) {

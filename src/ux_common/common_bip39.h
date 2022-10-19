@@ -16,17 +16,17 @@ unsigned int bolos_ux_bip39_get_word_idx_starting_with(const unsigned char *pref
                                                        const unsigned int prefixlength);
 unsigned int bolos_ux_bip39_idx_strcpy(const unsigned int index, unsigned char *buffer);
 unsigned int bolos_ux_bip39_get_word_count_starting_with(const unsigned char *prefix,
-                                                         const unsigned int prefixlength);
+                                                         const unsigned int prefixLength);
 unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(const unsigned char *prefix,
-                                                                const unsigned int prefixlength,
+                                                                const unsigned int prefixLength,
                                                                 unsigned char *next_letters_buffer);
 
 #if defined(HAVE_NBGL)
-size_t bolos_ux_bip39_fillwith_candidates(const unsigned char *startingChars,
-                                          const size_t startingCharsLenght,
+size_t bolos_ux_bip39_fill_with_candidates(const unsigned char *startingChars,
+                                           const size_t startingCharsLenght,
                                           char *outputBuffer[]);
 uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char *prefix,
-                                          const unsigned int prefixlength);
+                                          const unsigned int prefixLength);
 #endif
 
 #ifdef HAVE_ELECTRUM
