@@ -6,6 +6,11 @@
 #include "onboarding_seed_rom_variables.h"
 #include "common.h"
 
+#define MAX_WORD_LENGTH 8
+#define ALPHABET_LENGTH 27
+
+static const char KBD_LETTERS[ALPHABET_LENGTH] = "qwertyuiopasdfghjklzxcvbnm";
+
 // separated function to lower the stack usage when jumping into pbkdf algorithm
 unsigned int bolos_ux_mnemonic_to_seed_hash_length128(unsigned char* mnemonic,
                                                       unsigned int mnemonicLength) {
@@ -114,7 +119,7 @@ unsigned int bolos_ux_mnemonic_check(unsigned char* mnemonic, unsigned int mnemo
     return 1;
 }
 
-unsigned int bolos_ux_bip39_idx_strcpy(unsigned int index, unsigned char* buffer) {
+unsigned int bolos_ux_bip39_idx_strcpy(const unsigned int index, unsigned char* buffer) {
     if (index < BIP39_WORDLIST_OFFSETS_LENGTH - 1 && buffer) {
         size_t wordLength = BIP39_WORDLIST_OFFSETS[index + 1] - BIP39_WORDLIST_OFFSETS[index];
         memcpy(buffer, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[index], wordLength);
@@ -126,8 +131,8 @@ unsigned int bolos_ux_bip39_idx_strcpy(unsigned int index, unsigned char* buffer
     return 0;
 }
 
-unsigned int bolos_ux_bip39_get_word_idx_starting_with(unsigned char* prefix,
-                                                       unsigned int prefixlength) {
+unsigned int bolos_ux_bip39_get_word_idx_starting_with(const unsigned char* prefix,
+                                                       const unsigned int prefixlength) {
     unsigned int i;
     for (i = 0; i < BIP39_WORDLIST_OFFSETS_LENGTH - 1; i++) {
         unsigned int j = 0;
@@ -143,8 +148,8 @@ unsigned int bolos_ux_bip39_get_word_idx_starting_with(unsigned char* prefix,
     return BIP39_WORDLIST_OFFSETS_LENGTH;
 }
 
-unsigned int bolos_ux_bip39_get_word_count_starting_with(unsigned char* prefix,
-                                                         unsigned int prefixlength) {
+unsigned int bolos_ux_bip39_get_word_count_starting_with(const unsigned char* prefix,
+                                                         const unsigned int prefixlength) {
     unsigned int i;
     unsigned int count = 0;
     for (i = 0; i < BIP39_WORDLIST_OFFSETS_LENGTH - 1; i++) {
@@ -168,8 +173,8 @@ unsigned int bolos_ux_bip39_get_word_count_starting_with(unsigned char* prefix,
 // allocate at most 26 letters for next possibilities
 // algorithm considers the bip39 words are alphabetically ordered in the wordlist
 unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(
-    unsigned char* prefix,
-    unsigned int prefixlength,
+    const unsigned char* prefix,
+    const unsigned int prefixlength,
     unsigned char* next_letters_buffer) {
     unsigned int i;
     unsigned int letter_count = 0;
@@ -204,3 +209,58 @@ unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(
     // return number of matched word starting with the given prefix
     return letter_count;
 }
+
+#if defined(HAVE_NBGL)
+#include <nbgl_layout.h>
+
+// the biggest word of BIP39 list is 8 char (9 with trailing '\0'), and
+// the max number of showed suggestions is NB_MAX_SUGGESTION_BUTTONS
+static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] = {0};
+
+size_t bolos_ux_bip39_fillwith_candidates(
+    const unsigned char *startingChars,
+    const size_t startingCharsLenght,
+    char *outputBuffer[]
+    ) {
+    const size_t nbMatchingWords = MIN(
+        bolos_ux_bip39_get_word_count_starting_with(startingChars, startingCharsLenght),
+        NB_MAX_SUGGESTION_BUTTONS
+        );
+    PRINTF("There are %d possible suggestions\n", nbMatchingWords);
+    if (nbMatchingWords == 0) {
+        return 0;
+    }
+    size_t matchingWordIndex = bolos_ux_bip39_get_word_idx_starting_with(
+        startingChars,
+        startingCharsLenght
+        );
+    size_t offset = 0;
+    for (size_t i = 0; i < nbMatchingWords; i++) {
+        unsigned char *wordDest = (unsigned char *)(&wordCandidates + offset);
+        const size_t wordSize = bolos_ux_bip39_idx_strcpy(matchingWordIndex, wordDest);
+        matchingWordIndex++;
+        offset += wordSize + 1;  // + trailing '\0' size
+        outputBuffer[i] = (char *)wordDest;
+    }
+    return nbMatchingWords;
+}
+
+uint32_t bolos_ux_bip39_get_keyboard_mask(
+    const unsigned char *prefix,
+    const unsigned int prefixlength
+    ) {
+    uint32_t existing_mask = 0;
+    unsigned char next_letters[MAX_WORD_LENGTH] = {0};
+    const size_t nb_letters = bolos_ux_bip39_get_word_next_letters_starting_with(prefix, prefixlength, next_letters);
+    next_letters[nb_letters] = '\0';
+    PRINTF("Next letters are in: %s\n", next_letters);
+    for (int i = 0; i < ALPHABET_LENGTH; i++) {
+        for (size_t j = 0; j < nb_letters; j++) {
+            if (KBD_LETTERS[i] == next_letters[j]) {
+                existing_mask += 1 << i;
+            }
+        }
+    }
+    return (-1 ^ existing_mask);
+}
+#endif

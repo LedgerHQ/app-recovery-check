@@ -82,7 +82,9 @@ else
 endif
 
 DEBUG = 0
+
 ifneq ($(DEBUG), 0)
+    $(info DEBUG enabled)
     DEFINES += HAVE_IO_USB HAVE_USB_APDU
     SDK_SOURCE_PATH  += lib_stusb lib_stusb_impl
     DEFINES += HAVE_PRINTF

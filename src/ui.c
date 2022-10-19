@@ -8,10 +8,14 @@
 #include <nbgl_debug.h>
 #include <nbgl_page.h>
 
-nbgl_page_t* pageContext;
+#include "ux_common/common_bip39.h"
 
-void ui_menu_about();
-void recover_page();
+static nbgl_page_t* pageContext;
+static int wordNum;
+
+void ui_menu_about(void);
+void page_keyboard(void);
+void display_home_page(void);
 
 void releaseContext(void) {
     if (pageContext != NULL) {
@@ -20,26 +24,34 @@ void releaseContext(void) {
     }
 }
 
-enum { BACK_TOKEN = 0, INFO_TOKEN, NEXT_TOKEN, CANCEL_TOKEN, START_RECOVER_TOKEN, BACK_HOME_TOKEN, QUIT_APP_TOKEN };
+enum {
+    BACK_HOME_TOKEN = 0,
+    BACK_BUTTON_TOKEN,
+    FIRST_SUGGESTION_TOKEN,
+    INFO_TOKEN,
+    QUIT_APP_TOKEN,
+    START_RECOVER_TOKEN,
+};
 
 void pageTouchCallback(int token, uint8_t index) {
     (void) index;
-    PRINTF("LOL");
     if (token == QUIT_APP_TOKEN) {
         releaseContext();
         os_sched_exit(-1);
     } else if (token == INFO_TOKEN) {
         ui_menu_about();
     } else if (token == START_RECOVER_TOKEN) {
-        recover_page();
+        wordNum = 0;
+        page_keyboard();
     } else if (token == BACK_HOME_TOKEN) {
         releaseContext();
         ui_idle_init();
     }
 }
 
-// 'About' menu
-
+/*
+ * About menu
+ */
 static const char* const infoTypes[] = {"Version", "Recovery Check"};
 static const char* const infoContents[] = {APPVERSION, "(c) 2022 Ledger"};
 
@@ -61,29 +73,121 @@ void ui_menu_about() {
     nbgl_refresh();
 }
 
-void recover_page() {
+/*
+ * Word recover page
+ */
+static char textToEnter[20];
+static char headerText[48];
+static nbgl_layout_t *layout;
+static int textIndex, suggestionIndex, keyboardIndex;
+static char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
 
-    nbgl_layoutDescription_t layoutDescription = {
-        .modal = false, // not modal (so on plane 0)
-        .onActionCallback = NULL, // generic callback for all controls
-        .tapActionText = "Return", // A "tapable" main container is necessary, with this text
-        .tapActionToken = BACK_HOME_TOKEN, // token to be used when main container is touched
-        .ticker.tickerCallback = NULL // no ticker
-    };
+// function called when back or any suggestion button is touched
+static void layoutTouchCallback(const int token, uint8_t index) {
+    if (token == BACK_BUTTON_TOKEN) {
+        // go back to main screen of app
+        // TODO: instead, back to previous word
+        nbgl_layoutRelease(layout);
+        display_home_page();
+    }
+    else if (token >= FIRST_SUGGESTION_TOKEN) {
+        // do something with touched button
+        PRINTF("Selected word is %s\n", buttonTexts[token - FIRST_SUGGESTION_TOKEN]);
 
-    nbgl_layoutProgressBar_t bar = {
-        .percentage = 50,
-        .text = "coucou lol",
-        .subText = "sub"
-    };
+        // go back to main screen of app
+        nbgl_layoutRelease(layout);
+        display_home_page();
+    }
+}
 
-    nbgl_layout_t *layout = nbgl_layoutGet(&layoutDescription);
-    nbgl_layoutAddKeyboard(layout, &bar);
+// function called when a key of keyboard is touched
+static void keyboardCallback(const char touchedKey) {
+    size_t textLen = 0;
+    if (touchedKey != BACKSPACE_KEY) {
+        const size_t previousTextLen = strlen(textToEnter);
+        textToEnter[previousTextLen] = touchedKey;
+        textToEnter[previousTextLen+1] = '\0';
+        textLen = previousTextLen + 1;
+    }
+    else {
+        const size_t previousTextLen = strlen(textToEnter);
+        if (previousTextLen == 0) {
+            return;
+        }
+        textToEnter[previousTextLen-1] = '\0';
+        textLen = previousTextLen - 1;
+    }
+    if (textLen < 2) {
+        nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, 0, buttonTexts);
+        nbgl_layoutUpdateKeyboard(layout, keyboardIndex, 0x0);
+    }
+    else {
+        const size_t nbMatchingWords = bolos_ux_bip39_fillwith_candidates(
+            (unsigned char*)textToEnter,
+            strlen(textToEnter),
+            buttonTexts
+        );
+        PRINTF("Updating layout with '%d' buttons\nThey will be:\n", nbMatchingWords);
+        for (size_t i=0; i<nbMatchingWords; i++) {
+            PRINTF("(i) - '%s'\n", buttonTexts[i]);
+        }
+        nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, nbMatchingWords, buttonTexts);
+        uint32_t mask = bolos_ux_bip39_get_keyboard_mask((unsigned char*)textToEnter, strlen(textToEnter));
+        nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask);
+    }
 
-    releaseContext();
-    nbgl_layoutDraw(layout);
+    nbgl_layoutUpdateEnteredText(layout, textIndex, false, 0, textToEnter, false);
     nbgl_refresh();
 }
+
+void page_keyboard(void) {
+    nbgl_layoutDescription_t layoutDescription = {
+      .modal = false,
+      .onActionCallback = &layoutTouchCallback
+    };
+    nbgl_layoutKbd_t kbdInfo = {
+      .lettersOnly = true,  // use only letters
+      .upperCase = false,   // start with lower case letters
+      .mode = MODE_LETTERS, // start in letters mode
+      .keyMask = 0,         // no inactive key
+      .callback = &keyboardCallback
+    };
+    nbgl_layoutCenteredInfo_t centeredInfo = {
+      .text1 = NULL,
+      .text2 = headerText, // to use as "header"
+      .text3 = NULL,
+      .style = LARGE_CASE_INFO,
+      .icon = NULL,
+      .offsetY = 0,
+      .onTop = true
+    };
+    strlcpy(textToEnter, "", 1);
+    memset(buttonTexts, 0, NB_MAX_SUGGESTION_BUTTONS);
+    wordNum++;
+
+    layout = nbgl_layoutGet(&layoutDescription);
+    nbgl_layoutAddProgressIndicator(layout, 0, 0, true, BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
+    snprintf(headerText, 48, "Enter word no.%d from your \nRecovery Sheet", wordNum);
+    nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
+    keyboardIndex = nbgl_layoutAddKeyboard(layout, &kbdInfo);
+    textIndex = nbgl_layoutAddEnteredText(layout,
+                                          true,        // numbered
+                                          wordNum,     // number to use
+                                          textToEnter, // text to display
+                                          false,       // not grayed-out
+                                          32);         // vertical margin from the buttons
+    suggestionIndex = nbgl_layoutAddSuggestionButtons(layout,
+                                                      0, // no used buttons at start-up
+                                                      buttonTexts,
+                                                      FIRST_SUGGESTION_TOKEN,
+                                                      TUNE_TAP_CASUAL);
+
+    nbgl_layoutDraw(layout);
+}
+
+/*
+ * Home page
+ */
 
 static void display_home_page() {
     nbgl_pageInfoDescription_t home = {
