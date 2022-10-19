@@ -224,7 +224,6 @@ size_t bolos_ux_bip39_fill_with_candidates(
         bolos_ux_bip39_get_word_count_starting_with(startingChars, startingCharsLenght),
         NB_MAX_SUGGESTION_BUTTONS
         );
-    PRINTF("There are %d possible suggestions\n", nbMatchingWords);
     if (nbMatchingWords == 0) {
         return 0;
     }

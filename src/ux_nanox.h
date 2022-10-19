@@ -22,14 +22,6 @@
 
 // bolos ux context (not mandatory if redesigning a bolos ux)
 typedef struct bolos_ux_context {
-#define BOLOS_UX_ONBOARDING_NEW        1
-#define BOLOS_UX_ONBOARDING_NEW_12     12
-#define BOLOS_UX_ONBOARDING_NEW_18     18
-#define BOLOS_UX_ONBOARDING_NEW_24     24
-#define BOLOS_UX_ONBOARDING_RESTORE    2
-#define BOLOS_UX_ONBOARDING_RESTORE_12 12
-#define BOLOS_UX_ONBOARDING_RESTORE_18 18
-#define BOLOS_UX_ONBOARDING_RESTORE_24 24
     unsigned int onboarding_kind;
 
 #ifdef HAVE_ELECTRUM

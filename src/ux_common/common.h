@@ -37,7 +37,12 @@
 
 #define MAX_WORD_LENGTH 8
 
-#define KEYBOARD_ITEM_VALIDATED \
+enum {
+    MNEMONIC_SIZE_12 = 12,
+    MNEMONIC_SIZE_18 = 18,
+    MNEMONIC_SIZE_24 = 24,
+};
+#define KEYBOARD_ITEM_VALIDATED                                         \
     1  // callback is called with the entered item index, tmp_element is precharged with element to
        // be displayed and using the common string buffer as string parameter
 #define KEYBOARD_RENDER_ITEM \

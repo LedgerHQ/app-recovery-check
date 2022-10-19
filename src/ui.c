@@ -10,12 +10,18 @@
 
 #include "ux_common/common_bip39.h"
 
+#define HEADER_SIZE 50
+
 static nbgl_page_t* pageContext;
-static int wordNum;
+static int current_word = 0;
+static char headerText[HEADER_SIZE] = {0};
+static nbgl_layout_t *layout = 0;
+static uint8_t mnemonic_size = 0;
 
 void ui_menu_about(void);
-void page_keyboard(void);
+void display_keyboard_page(void);
 void display_home_page(void);
+void display_mnemonic_page(void);
 
 void releaseContext(void) {
     if (pageContext != NULL) {
@@ -27,22 +33,22 @@ void releaseContext(void) {
 enum {
     BACK_HOME_TOKEN = 0,
     BACK_BUTTON_TOKEN,
+    CHOOSE_MNEMONIC_SIZE_TOKEN,
     FIRST_SUGGESTION_TOKEN,
     INFO_TOKEN,
     QUIT_APP_TOKEN,
     START_RECOVER_TOKEN,
 };
 
-void pageTouchCallback(int token, uint8_t index) {
-    (void) index;
+void pageTouchCallback(int token, uint8_t index __attribute__((unused))) {
     if (token == QUIT_APP_TOKEN) {
         releaseContext();
         os_sched_exit(-1);
     } else if (token == INFO_TOKEN) {
         ui_menu_about();
-    } else if (token == START_RECOVER_TOKEN) {
-        wordNum = 0;
-        page_keyboard();
+    } else if (token == CHOOSE_MNEMONIC_SIZE_TOKEN) {
+        current_word = 1;
+        display_mnemonic_page();
     } else if (token == BACK_HOME_TOKEN) {
         releaseContext();
         ui_idle_init();
@@ -74,34 +80,99 @@ void ui_menu_about() {
 }
 
 /*
+ * Choose mnemonic size page
+ */
+void mnemonic_dispatcher(const int token, uint8_t index) {
+    if (token == BACK_BUTTON_TOKEN) {
+        nbgl_layoutRelease(layout);
+        display_home_page();
+    } else if (token == CHOOSE_MNEMONIC_SIZE_TOKEN) {
+        switch(index) {
+        case 0:
+            mnemonic_size = MNEMONIC_SIZE_12;
+            break;
+        case 1:
+            mnemonic_size = MNEMONIC_SIZE_18;
+            break;
+        case 2:
+            mnemonic_size = MNEMONIC_SIZE_24;
+            break;
+        default:
+            PRINTF("Unexpected index '%d' (max 3)\n", index);
+            nbgl_layoutRelease(layout);
+            display_home_page();
+            return;
+        }
+        nbgl_layoutRelease(layout);
+        display_keyboard_page();
+    }
+}
+
+void display_mnemonic_page() {
+    nbgl_layoutDescription_t layoutDescription = {
+      .modal = false,
+      .onActionCallback = mnemonic_dispatcher
+    };
+    nbgl_layoutRadioChoice_t choices = {
+        .names = (char*[]){"12 words", "18 words", "24 words"},
+        .localized = false,
+        .nbChoices = 3,
+        .initChoice = 2,
+        .token = CHOOSE_MNEMONIC_SIZE_TOKEN
+    };
+    nbgl_layoutCenteredInfo_t centeredInfo = {
+      .text1 = NULL,
+      .text2 = headerText, // to use as "header"
+      .text3 = NULL,
+      .style = LARGE_CASE_INFO,
+      .icon = NULL,
+      .offsetY = 0,
+      .onTop = true
+    };
+    layout = nbgl_layoutGet(&layoutDescription);
+    nbgl_layoutAddProgressIndicator(layout, 0, 0, true, BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
+    memset(headerText, 0, HEADER_SIZE);
+    snprintf(headerText, HEADER_SIZE, "What is the length of your\nrecovery passphrase?");
+    nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
+    nbgl_layoutAddRadioChoice(layout, &choices);
+    nbgl_layoutDraw(layout);
+}
+
+/*
  * Word recover page
  */
 static char textToEnter[MAX_WORD_LENGTH + 1] = {0};
-static char headerText[48] = {0};
-static nbgl_layout_t *layout = 0;
 static int textIndex, suggestionIndex, keyboardIndex = 0;
 static char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
 
 // function called when back or any suggestion button is touched
-static void layoutTouchCallback(const int token, uint8_t index) {
+static void keyboard_dispatcher(const int token, uint8_t index __attribute__((unused))) {
     if (token == BACK_BUTTON_TOKEN) {
-        // go back to main screen of app
-        // TODO: instead, back to previous word
         nbgl_layoutRelease(layout);
-        display_home_page();
-    }
-    else if (token >= FIRST_SUGGESTION_TOKEN) {
+        current_word--;
+        if (current_word <= 0) {
+            current_word = 0;
+            display_mnemonic_page();
+        } else {
+            display_keyboard_page();
+        }
+    } else if (token >= FIRST_SUGGESTION_TOKEN) {
+        nbgl_layoutRelease(layout);
         // do something with touched button
         PRINTF("Selected word is %s\n", buttonTexts[token - FIRST_SUGGESTION_TOKEN]);
-
+        current_word++;
+        if (current_word >= mnemonic_size) {
+            // TODO: mnemonic completed, now checking the seed.
+            display_home_page();
+        } else {
+            display_keyboard_page();
+        }
         // go back to main screen of app
-        nbgl_layoutRelease(layout);
-        display_home_page();
     }
 }
 
 // function called when a key of keyboard is touched
-static void keyboardCallback(const char touchedKey) {
+static void key_press_callback(const char touchedKey) {
     size_t textLen = 0;
     uint32_t mask = 0;
     const size_t previousTextLen = strlen(textToEnter);
@@ -134,22 +205,21 @@ static void keyboardCallback(const char touchedKey) {
             );
     }
     nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask);
-
     nbgl_layoutUpdateEnteredText(layout, textIndex, false, 0, &(textToEnter[0]), false);
     nbgl_refresh();
  }
 
-void page_keyboard(void) {
+void display_keyboard_page() {
     nbgl_layoutDescription_t layoutDescription = {
       .modal = false,
-      .onActionCallback = &layoutTouchCallback
+      .onActionCallback = &keyboard_dispatcher
     };
     nbgl_layoutKbd_t kbdInfo = {
       .lettersOnly = true,  // use only letters
       .upperCase = false,   // start with lower case letters
       .mode = MODE_LETTERS, // start in letters mode
       .keyMask = 0,         // no inactive key
-      .callback = &keyboardCallback
+      .callback = &key_press_callback
     };
     nbgl_layoutCenteredInfo_t centeredInfo = {
       .text1 = NULL,
@@ -162,19 +232,25 @@ void page_keyboard(void) {
     };
     strlcpy(textToEnter, "", 1);
     memset(buttonTexts, 0, NB_MAX_SUGGESTION_BUTTONS);
-    wordNum++;
 
     layout = nbgl_layoutGet(&layoutDescription);
     nbgl_layoutAddProgressIndicator(layout, 0, 0, true, BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
-    snprintf(headerText, 48, "Enter word no.%d from your \nRecovery Sheet", wordNum);
+    memset(headerText, 0, HEADER_SIZE);
+    snprintf(
+        headerText,
+        HEADER_SIZE,
+        "Enter word n. %d/%d from your\nRecovery Sheet",
+        current_word,
+        mnemonic_size
+        );
     nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
     keyboardIndex = nbgl_layoutAddKeyboard(layout, &kbdInfo);
     textIndex = nbgl_layoutAddEnteredText(layout,
-                                          true,        // numbered
-                                          wordNum,     // number to use
-                                          textToEnter, // text to display
-                                          false,       // not grayed-out
-                                          32);         // vertical margin from the buttons
+                                          true,         // numbered
+                                          current_word, // number to use
+                                          textToEnter,  // text to display
+                                          false,        // not grayed-out
+                                          32);          // vertical margin from the buttons
     suggestionIndex = nbgl_layoutAddSuggestionButtons(layout,
                                                       0, // no used buttons at start-up
                                                       buttonTexts,
@@ -202,7 +278,8 @@ static void display_home_page() {
         .bottomButtonToken = QUIT_APP_TOKEN,
         .footerText = NULL,
         .tapActionText = "Tap to check your mnemonic",
-        .tapActionToken = START_RECOVER_TOKEN,
+        .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
+        // .tapActionToken = START_RECOVER_TOKEN,
         .tuneId = TUNE_TAP_CASUAL
     };
     releaseContext();
@@ -222,7 +299,7 @@ bolos_ux_params_t G_ux_params;
 
 #if defined(TARGET_NANOS)
 
-UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
+UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE__24;
            screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
@@ -230,7 +307,7 @@ UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBO
                "with 24 words",
            });
 
-UX_STEP_CB(restore_3_1_2, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
+UX_STEP_CB(restore_3_1_2, bb, G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_18;
            screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
@@ -238,7 +315,7 @@ UX_STEP_CB(restore_3_1_2, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBO
                "with 18 words",
            });
 
-UX_STEP_CB(restore_3_1_3, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
+UX_STEP_CB(restore_3_1_3, bb, G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_12;
            screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
@@ -297,15 +374,15 @@ const char* number_of_words_getter(unsigned int idx) {
 void number_of_words_selector(unsigned int idx) {
     switch (idx) {
         case 0:
-            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
+            G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_12;
             screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
             break;
         case 1:
-            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
+            G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_18;
             screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
             break;
         case 2:
-            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
+            G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_24;
             screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
             break;
         default:
