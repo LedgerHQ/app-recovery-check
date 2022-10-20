@@ -12,16 +12,22 @@
 
 #define HEADER_SIZE 50
 
+#define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH+1))
+
 static nbgl_page_t* pageContext;
 static int current_word = 0;
 static char headerText[HEADER_SIZE] = {0};
 static nbgl_layout_t *layout = 0;
 static uint8_t mnemonic_size = 0;
+static char mnemonic_buffer[MAX_MNEMONIC_LENGTH] = {0};
+static size_t mnemonic_buffer_length = 0;
 
 void ui_menu_about(void);
 void display_keyboard_page(void);
 void display_home_page(void);
+void display_result_page(const bool result);
 void display_mnemonic_page(void);
+void reset_globals(void);
 
 void releaseContext(void) {
     if (pageContext != NULL) {
@@ -47,7 +53,7 @@ void pageTouchCallback(int token, uint8_t index __attribute__((unused))) {
     } else if (token == INFO_TOKEN) {
         ui_menu_about();
     } else if (token == CHOOSE_MNEMONIC_SIZE_TOKEN) {
-        current_word = 1;
+        reset_globals();
         display_mnemonic_page();
     } else if (token == BACK_HOME_TOKEN) {
         releaseContext();
@@ -144,12 +150,27 @@ void display_mnemonic_page() {
 static char textToEnter[MAX_WORD_LENGTH + 1] = {0};
 static int textIndex, suggestionIndex, keyboardIndex = 0;
 static char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
+// the biggest word of BIP39 list is 8 char (9 with trailing '\0'), and
+// the max number of showed suggestions is NB_MAX_SUGGESTION_BUTTONS
+static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] = {0};
+static size_t current_word_length = 0;
+
 
 // function called when back or any suggestion button is touched
 static void keyboard_dispatcher(const int token, uint8_t index __attribute__((unused))) {
+    PRINTF("Current mnemonic is: '%s'\n", mnemonic_buffer);
     if (token == BACK_BUTTON_TOKEN) {
         nbgl_layoutRelease(layout);
         current_word--;
+
+        // removing previous word from mnemonic buffer
+        if (current_word_length + 1 > mnemonic_buffer_length) {
+            mnemonic_buffer_length = 0;
+        } else {
+            mnemonic_buffer_length -= (current_word_length + 1);
+        }
+        memset(&mnemonic_buffer[mnemonic_buffer_length], 0, MAX_MNEMONIC_LENGTH - mnemonic_buffer_length);
+
         if (current_word <= 0) {
             current_word = 0;
             display_mnemonic_page();
@@ -158,13 +179,35 @@ static void keyboard_dispatcher(const int token, uint8_t index __attribute__((un
         }
     } else if (token >= FIRST_SUGGESTION_TOKEN) {
         nbgl_layoutRelease(layout);
-        // do something with touched button
+
+        current_word_length = strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]);
+        PRINTF("Copying word '%s' (size '%d') to 0x%p\n",
+               buttonTexts[token - FIRST_SUGGESTION_TOKEN],
+               current_word_length,
+               &mnemonic_buffer[0] + mnemonic_buffer_length
+            );
         PRINTF("Selected word is %s\n", buttonTexts[token - FIRST_SUGGESTION_TOKEN]);
+        memcpy(&mnemonic_buffer[0] + mnemonic_buffer_length,
+               buttonTexts[token - FIRST_SUGGESTION_TOKEN],
+               current_word_length);
+        mnemonic_buffer_length += current_word_length;
+        PRINTF("Current mnemonic --> '%s'\n", mnemonic_buffer);
         current_word++;
-        if (current_word >= mnemonic_size) {
+
+        // current_word starts at 1
+        if (current_word > mnemonic_size) {
+            PRINTF("Mnemonic completed! --> '%s' (size %d)\n", mnemonic_buffer, mnemonic_buffer_length);
+            const bool result = bolos_ux_mnemonic_check(
+                (unsigned char *)&mnemonic_buffer[0],
+                mnemonic_buffer_length
+                );
+            // clearing the mnemonic ASAP
+            memset(&mnemonic_buffer[0], 0, mnemonic_buffer_length);
             // TODO: mnemonic completed, now checking the seed.
-            display_home_page();
+            display_result_page(result);
         } else {
+            mnemonic_buffer[mnemonic_buffer_length++] = ' ';
+            mnemonic_buffer[mnemonic_buffer_length] = '\0';
             display_keyboard_page();
         }
         // go back to main screen of app
@@ -187,16 +230,20 @@ static void key_press_callback(const char touchedKey) {
         textToEnter[previousTextLen + 1] = '\0';
         textLen = previousTextLen + 1;
     }
-
+    PRINTF("Current text is: '%s' (size '%d')\n", textToEnter, textLen);
     if (textLen < 2) {
         nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, 0, buttonTexts);
     } else {
         const size_t nbMatchingWords = bolos_ux_bip39_fill_with_candidates(
             (unsigned char *)&(textToEnter[0]),
             strlen(textToEnter),
+            wordCandidates,
             buttonTexts
         );
         nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, nbMatchingWords, buttonTexts);
+        for (size_t i=0; i<nbMatchingWords; i++) {
+            PRINTF("Word %d: '%s' (0x%p)\n", i, buttonTexts[i], &buttonTexts[i]);
+        }
     }
     if (textLen > 0) {
         mask = bolos_ux_bip39_get_keyboard_mask(
@@ -279,12 +326,54 @@ static void display_home_page() {
         .footerText = NULL,
         .tapActionText = "Tap to check your mnemonic",
         .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
-        // .tapActionToken = START_RECOVER_TOKEN,
         .tuneId = TUNE_TAP_CASUAL
     };
     releaseContext();
     pageContext = nbgl_pageDrawInfo(&pageTouchCallback, NULL, &home);
     nbgl_refresh();
+}
+
+/*
+ * Result page
+ */
+static char *possible_results[2] = {
+    "Sorry, this passphrase\nis incorrect.",
+    "You passphrase\nis correct!"
+};
+
+static void display_result_page(const bool result) {
+    nbgl_pageInfoDescription_t home = {
+        /* .centeredInfo.icon = &C_fatstacks_app_recovery_check, */
+        .centeredInfo.icon = NULL,
+        .centeredInfo.text1 = possible_results[result],
+        .centeredInfo.text2 = NULL,
+        .centeredInfo.text3 = NULL,
+        .centeredInfo.style = LARGE_CASE_INFO,
+        .centeredInfo.offsetY = 32,
+        .topRightStyle = NO_BUTTON_STYLE,
+        .bottomButtonStyle = QUIT_ICON,
+        .bottomButtonToken = QUIT_APP_TOKEN,
+        .footerText = NULL,
+        .tapActionText = "Tap to check another mnemonic",
+        .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
+        .tuneId = TUNE_TAP_CASUAL
+    };
+    releaseContext();
+    pageContext = nbgl_pageDrawInfo(&pageTouchCallback, NULL, &home);
+    nbgl_refresh();
+}
+
+/*
+ * Utils
+ */
+
+static void reset_globals() {
+    current_word = 1;
+    memset(mnemonic_buffer, 0, sizeof(mnemonic_buffer) / sizeof(char));
+    mnemonic_buffer_length = 0;
+    mnemonic_size = 0;
+    current_word_length = 0;
+    memset(buttonTexts, 0, NB_MAX_SUGGESTION_BUTTONS);
 }
 
 #endif
@@ -299,7 +388,7 @@ bolos_ux_params_t G_ux_params;
 
 #if defined(TARGET_NANOS)
 
-UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE__24;
+UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_24;
            screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
@@ -443,6 +532,7 @@ void ui_idle_init(void) {
 #endif
 
 #if defined(HAVE_NBGL)
+    reset_globals();
     display_home_page();
 #endif
 
