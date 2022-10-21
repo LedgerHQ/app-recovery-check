@@ -53,7 +53,6 @@ void pageTouchCallback(int token, uint8_t index __attribute__((unused))) {
     } else if (token == INFO_TOKEN) {
         ui_menu_about();
     } else if (token == CHOOSE_MNEMONIC_SIZE_TOKEN) {
-        reset_globals();
         display_mnemonic_page();
     } else if (token == BACK_HOME_TOKEN) {
         releaseContext();
@@ -115,6 +114,7 @@ void mnemonic_dispatcher(const int token, uint8_t index) {
 }
 
 void display_mnemonic_page() {
+    reset_globals();
     nbgl_layoutDescription_t layoutDescription = {
       .modal = false,
       .onActionCallback = mnemonic_dispatcher
@@ -158,7 +158,6 @@ static size_t current_word_length = 0;
 
 // function called when back or any suggestion button is touched
 static void keyboard_dispatcher(const int token, uint8_t index __attribute__((unused))) {
-    PRINTF("Current mnemonic is: '%s'\n", mnemonic_buffer);
     if (token == BACK_BUTTON_TOKEN) {
         nbgl_layoutRelease(layout);
         current_word--;
@@ -241,9 +240,6 @@ static void key_press_callback(const char touchedKey) {
             buttonTexts
         );
         nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, nbMatchingWords, buttonTexts);
-        for (size_t i=0; i<nbMatchingWords; i++) {
-            PRINTF("Word %d: '%s' (0x%p)\n", i, buttonTexts[i], &buttonTexts[i]);
-        }
     }
     if (textLen > 0) {
         mask = bolos_ux_bip39_get_keyboard_mask(
