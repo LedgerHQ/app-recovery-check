@@ -8,7 +8,6 @@
 #include "string.h"
 #include "cx.h"
 
- 
 void ui_idle_init(void);
 
 #endif

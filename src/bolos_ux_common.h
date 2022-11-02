@@ -6,11 +6,10 @@
 #include "string.h"
 
 #if defined(TARGET_NANOS)
-    #include "bolos_ux_nanos.h"
+#include "bolos_ux_nanos.h"
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-    #include "bolos_ux_nanox.h"
+#include "bolos_ux_nanox.h"
 #endif
-
 
 #include "glyphs.h"
 
@@ -20,17 +19,17 @@
 //#define COLOR_BG_1 0xF80000
 //#define ALWAYS_INVERT
 
-#define KEYCODE_SWITCH '\1'
+#define KEYCODE_SWITCH    '\1'
 #define KEYCODE_BACKSPACE '\r'
 
 #ifndef SPRINTF
 // avoid typing the size each time
-#define SPRINTF(strbuf, ...) snprintf((char*)(strbuf), sizeof(strbuf), __VA_ARGS__)
+#define SPRINTF(strbuf, ...) snprintf((char*) (strbuf), sizeof(strbuf), __VA_ARGS__)
 #endif
 
-#define ONBOARDING_CONFIRM_WORD_COUNT 24
+#define ONBOARDING_CONFIRM_WORD_COUNT        24
 #define ONBOARDING_WORD_COMPLETION_MAX_ITEMS 8
-#define BOLOS_UX_HASH_LENGTH 4 // as on the blue
+#define BOLOS_UX_HASH_LENGTH                 4  // as on the blue
 
 #define CONSENT_INTERVAL_MS 3000
 
@@ -40,7 +39,7 @@ extern const unsigned char hex_digits[];
 
 unsigned char rng_u8_modulo(unsigned char modulo);
 
-void screen_hex_identifier_string_buffer (const unsigned char * buffer, unsigned int total);
+void screen_hex_identifier_string_buffer(const unsigned char* buffer, unsigned int total);
 
 // common code for all screens
 // reset the screen asynch display machine
@@ -51,7 +50,7 @@ void screen_state_init(unsigned int stack_slot);
 void screen_display_init(unsigned int stack_slot);
 
 // request display of the element (taking care of calling screen displayed preprocessors)
-void screen_display_element(const bagl_element_t * element);
+void screen_display_element(const bagl_element_t* element);
 
 // prepare to return the exit code after the next display asynch ack is received (0d 00 00)
 void screen_return_after_displayed_touched_element(unsigned int exit_code);
@@ -92,7 +91,7 @@ void screen_onboarding_4_confirm_init(unsigned int feilword);
 
 void screen_onboarding_3_restore_init(void);
 #define RESTORE_WORD_ACTION_REENTER_WORD 0
-#define RESTORE_WORD_ACTION_FIRST_WORD 1
+#define RESTORE_WORD_ACTION_FIRST_WORD   1
 void screen_onboarding_4_restore_word_init(unsigned int action);
 
 void screen_onboarding_5_passphrase_init(void);
@@ -113,11 +112,16 @@ void screen_settings_passphrase_temporary_1_init(void);
 void screen_settings_passphrase_type_and_review_init(unsigned int kind);
 void screen_settings_erase_all_init(void);
 
+void screen_common_keyboard_init(unsigned int stack_slot,
+                                 unsigned int current_element,
+                                 unsigned int nb_elements,
+                                 keyboard_callback_t callback);
+
 #define COMMON_KEYBOARD_INDEX_UNCHANGED (-1UL)
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 // to be included into all flow that needs to go back to the dashboard
-extern const ux_flow_step_t          ux_ob_goto_dashboard_step;
+extern const ux_flow_step_t ux_ob_goto_dashboard_step;
 
 void ux_pairing_init(void);
 void ux_pairing_deinit(void);
@@ -132,24 +136,34 @@ void screen_processing_init(void);
 
 void screen_prepare_app_name(unsigned int appidx);
 
-bagl_icon_details_t* screen_prepare_bitmap_14x14(ux_icon_buffer_t* icon_buffer, const unsigned char* icon_bitmap, unsigned int masked_inverted);
-void screen_prepare_app_icon_14x14(ux_icon_buffer_t* icon_buffer, const unsigned char* icon_bitmap, unsigned int icon_bitmap_length, unsigned int masked_inverted);
-void screen_prepare_app_icon(ux_icon_buffer_t* icon_buffer, unsigned char* icon_bitmap_buffer, unsigned int icon_bitmap_buffer_length, unsigned int appidx, unsigned int inverted);
+bagl_icon_details_t* screen_prepare_bitmap_14x14(ux_icon_buffer_t* icon_buffer,
+                                                 const unsigned char* icon_bitmap,
+                                                 unsigned int masked_inverted);
+void screen_prepare_app_icon_14x14(ux_icon_buffer_t* icon_buffer,
+                                   const unsigned char* icon_bitmap,
+                                   unsigned int icon_bitmap_length,
+                                   unsigned int masked_inverted);
+void screen_prepare_app_icon(ux_icon_buffer_t* icon_buffer,
+                             unsigned char* icon_bitmap_buffer,
+                             unsigned int icon_bitmap_buffer_length,
+                             unsigned int appidx,
+                             unsigned int inverted);
 
 void screen_lock(void);
 
 #ifdef BOLOS_OS_UPGRADER
 void screen_os_upgrader(void);
-#endif // BOLOS_OS_UPGRADER
+#endif  // BOLOS_OS_UPGRADER
 
 unsigned int screen_consent_button(unsigned int button_mask, unsigned int button_mask_counter);
 unsigned int screen_consent_ticker(unsigned int ignored);
-void screen_consent_ticker_init(unsigned int number_of_steps, unsigned int interval_ms, unsigned int check_pin_to_confirm);
+void screen_consent_ticker_init(unsigned int number_of_steps,
+                                unsigned int interval_ms,
+                                unsigned int check_pin_to_confirm);
 void screen_consent_set_interval(unsigned int interval_ms);
 
 void screen_common_pin_init(unsigned int stack_slot, pin_callback_t end_callback);
 
-void screen_common_keyboard_init(unsigned int stack_slot, unsigned int current_element, unsigned int nb_elements, keyboard_callback_t callback);
 void screen_keyboard_init(char* buffer, unsigned int maxsize, appmain_t validation_callback);
 
 void debug(unsigned int id, unsigned char* msg);
@@ -161,6 +175,6 @@ void screen_boot_delay_init(void);
 void settings_general_version(appmain_t end_callback);
 void settings_general_regulatory(appmain_t end_callback);
 void settings_general_serial(appmain_t end_callback);
-#endif //TARGET_NANOX
+#endif  // TARGET_NANOX || TARGET_NANOS2
 
-#endif // OS_IO_SEPROXYHAL
+#endif  // OS_IO_SEPROXYHAL
