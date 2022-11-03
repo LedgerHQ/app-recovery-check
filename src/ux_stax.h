@@ -20,7 +20,7 @@
 
 #if defined(HAVE_BOLOS_UX) && defined(TARGET_FATSTACKS)
 
-#define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH+1))
+#define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH + 1))
 
 typedef struct buffer {
     // the mnemonic passphrase, built over time
@@ -66,8 +66,8 @@ bool check_mnemonic(void);
 void reset_mnemonic(void);
 
 /*
- * Remove the latest word from the passphrase, returns true if there was at least one to remove, else
- * false (there was no word)
+ * Remove the latest word from the passphrase, returns true if there was at least one to remove,
+ * else false (there was no word)
  */
 bool remove_word_from_mnemonic(void);
 

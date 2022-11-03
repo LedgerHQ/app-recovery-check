@@ -30,12 +30,12 @@ size_t get_current_word_number() {
 
 void reset_mnemonic() {
     memset(&mnemonic, 0, sizeof(mnemonic));
-    mnemonic.current_word_index = (size_t)-1;
+    mnemonic.current_word_index = (size_t) -1;
 }
 
 bool remove_word_from_mnemonic() {
     PRINTF("Removing a word, currently there is '%d' of them\n", mnemonic.current_word_index + 1);
-    if (mnemonic.current_word_index == (size_t)-1) {
+    if (mnemonic.current_word_index == (size_t) -1) {
         return false;
     }
     const size_t current_length = mnemonic.word_lengths[mnemonic.current_word_index];
@@ -47,7 +47,7 @@ bool remove_word_from_mnemonic() {
 }
 
 size_t add_word_in_mnemonic(const char* const buffer, const size_t size) {
-    if (mnemonic.current_word_index != (size_t)-1) {
+    if (mnemonic.current_word_index != (size_t) -1) {
         // adding an extra white space ' ' between words
         mnemonic.buffer[mnemonic.length++] = ' ';
         mnemonic.buffer[mnemonic.length] = '\0';
@@ -66,15 +66,11 @@ bool is_mnemonic_complete() {
 }
 
 bool check_mnemonic() {
-    PRINTF(
-        "Checking the following mnemonic: '%s' (size %d)\n",
-        &mnemonic.buffer[0],
-        mnemonic.length
-        );
-    const bool result = bolos_ux_mnemonic_check(
-        (unsigned char *)&mnemonic.buffer[0],
-        mnemonic.length
-        );
+    PRINTF("Checking the following mnemonic: '%s' (size %d)\n",
+           &mnemonic.buffer[0],
+           mnemonic.length);
+    const bool result =
+        bolos_ux_mnemonic_check((unsigned char*) &mnemonic.buffer[0], mnemonic.length);
     // clearing the mnemonic ASAP
     reset_mnemonic();
     return result;

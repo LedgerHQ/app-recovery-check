@@ -22,7 +22,7 @@ unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(const unsigned c
                                                                 unsigned char *next_letters_buffer);
 
 #if defined(HAVE_NBGL)
-size_t bolos_ux_bip39_fill_with_candidates(const unsigned char * startingChars,
+size_t bolos_ux_bip39_fill_with_candidates(const unsigned char *startingChars,
                                            const size_t startingCharsLength,
                                            char wordCandidatesBuffer[],
                                            char *wordIndexorBuffer[]);

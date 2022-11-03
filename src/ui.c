@@ -12,9 +12,9 @@
 
 #define HEADER_SIZE 50
 
-#define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH+1))
+#define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH + 1))
 
-static nbgl_page_t* pageContext;
+static nbgl_page_t *pageContext;
 static char headerText[HEADER_SIZE] = {0};
 static nbgl_layout_t *layout = 0;
 
@@ -59,8 +59,8 @@ void pageTouchCallback(int token, uint8_t index __attribute__((unused))) {
 /*
  * About menu
  */
-static const char* const infoTypes[] = {"Version", "Recovery Check"};
-static const char* const infoContents[] = {APPVERSION, "(c) 2022 Ledger"};
+static const char *const infoTypes[] = {"Version", "Recovery Check"};
+static const char *const infoContents[] = {APPVERSION, "(c) 2022 Ledger"};
 
 void ui_menu_about() {
     nbgl_pageContent_t content = {.title = "Recovery Check infos", .isTouchableTitle = false};
@@ -72,8 +72,8 @@ void ui_menu_about() {
                                      .tuneId = TUNE_TAP_CASUAL};
     content.type = INFOS_LIST;
     content.infosList.nbInfos = 2;
-    content.infosList.infoTypes = (const char**) infoTypes;
-    content.infosList.infoContents = (const char**) infoContents;
+    content.infosList.infoTypes = (const char **) infoTypes;
+    content.infosList.infoContents = (const char **) infoContents;
 
     releaseContext();
     pageContext = nbgl_pageDrawGenericContent(&pageTouchCallback, &nav, &content);
@@ -88,21 +88,21 @@ void mnemonic_dispatcher(const int token, uint8_t index) {
         nbgl_layoutRelease(layout);
         display_home_page();
     } else if (token == CHOOSE_MNEMONIC_SIZE_TOKEN) {
-        switch(index) {
-        case 0:
-            set_mnemonic_final_size(MNEMONIC_SIZE_12);
-            break;
-        case 1:
-            set_mnemonic_final_size(MNEMONIC_SIZE_18);
-            break;
-        case 2:
-            set_mnemonic_final_size(MNEMONIC_SIZE_24);
-            break;
-        default:
-            PRINTF("Unexpected index '%d' (max 3)\n", index);
-            nbgl_layoutRelease(layout);
-            display_home_page();
-            return;
+        switch (index) {
+            case 0:
+                set_mnemonic_final_size(MNEMONIC_SIZE_12);
+                break;
+            case 1:
+                set_mnemonic_final_size(MNEMONIC_SIZE_18);
+                break;
+            case 2:
+                set_mnemonic_final_size(MNEMONIC_SIZE_24);
+                break;
+            default:
+                PRINTF("Unexpected index '%d' (max 3)\n", index);
+                nbgl_layoutRelease(layout);
+                display_home_page();
+                return;
         }
         nbgl_layoutRelease(layout);
         display_keyboard_page();
@@ -111,26 +111,20 @@ void mnemonic_dispatcher(const int token, uint8_t index) {
 
 void display_mnemonic_page() {
     reset_globals();
-    nbgl_layoutDescription_t layoutDescription = {
-      .modal = false,
-      .onActionCallback = mnemonic_dispatcher
-    };
-    nbgl_layoutRadioChoice_t choices = {
-        .names = (char*[]){"12 words", "18 words", "24 words"},
-        .localized = false,
-        .nbChoices = 3,
-        .initChoice = 2,
-        .token = CHOOSE_MNEMONIC_SIZE_TOKEN
-    };
-    nbgl_layoutCenteredInfo_t centeredInfo = {
-      .text1 = NULL,
-      .text2 = headerText, // to use as "header"
-      .text3 = NULL,
-      .style = LARGE_CASE_INFO,
-      .icon = NULL,
-      .offsetY = 0,
-      .onTop = true
-    };
+    nbgl_layoutDescription_t layoutDescription = {.modal = false,
+                                                  .onActionCallback = mnemonic_dispatcher};
+    nbgl_layoutRadioChoice_t choices = {.names = (char *[]){"12 words", "18 words", "24 words"},
+                                        .localized = false,
+                                        .nbChoices = 3,
+                                        .initChoice = 2,
+                                        .token = CHOOSE_MNEMONIC_SIZE_TOKEN};
+    nbgl_layoutCenteredInfo_t centeredInfo = {.text1 = NULL,
+                                              .text2 = headerText,  // to use as "header"
+                                              .text3 = NULL,
+                                              .style = LARGE_CASE_INFO,
+                                              .icon = NULL,
+                                              .offsetY = 0,
+                                              .onTop = true};
     layout = nbgl_layoutGet(&layoutDescription);
     nbgl_layoutAddProgressIndicator(layout, 0, 0, true, BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
     memset(headerText, 0, HEADER_SIZE);
@@ -165,10 +159,8 @@ static void keyboard_dispatcher(const int token, uint8_t index __attribute__((un
         PRINTF("Selected word is '%s' (size '%d')\n",
                buttonTexts[token - FIRST_SUGGESTION_TOKEN],
                strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
-        add_word_in_mnemonic(
-            buttonTexts[token - FIRST_SUGGESTION_TOKEN],
-            strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN])
-            );
+        add_word_in_mnemonic(buttonTexts[token - FIRST_SUGGESTION_TOKEN],
+                             strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
         // current_word starts at 1
         if (is_mnemonic_complete()) {
             display_result_page(check_mnemonic());
@@ -200,69 +192,58 @@ static void key_press_callback(const char touchedKey) {
         // no suggestion until there is at least 2 characters
         nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, 0, buttonTexts);
     } else {
-        const size_t nbMatchingWords = bolos_ux_bip39_fill_with_candidates(
-            (unsigned char *)&(textToEnter[0]),
-            strlen(textToEnter),
-            wordCandidates,
-            buttonTexts
-        );
+        const size_t nbMatchingWords =
+            bolos_ux_bip39_fill_with_candidates((unsigned char *) &(textToEnter[0]),
+                                                strlen(textToEnter),
+                                                wordCandidates,
+                                                buttonTexts);
         nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, nbMatchingWords, buttonTexts);
     }
     if (textLen > 0) {
-        mask = bolos_ux_bip39_get_keyboard_mask(
-            (unsigned char *)&(textToEnter[0]),
-            strlen(textToEnter)
-            );
+        mask = bolos_ux_bip39_get_keyboard_mask((unsigned char *) &(textToEnter[0]),
+                                                strlen(textToEnter));
     }
     nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask);
     nbgl_layoutUpdateEnteredText(layout, textIndex, false, 0, &(textToEnter[0]), false);
     nbgl_refresh();
- }
+}
 
 void display_keyboard_page() {
-    nbgl_layoutDescription_t layoutDescription = {
-      .modal = false,
-      .onActionCallback = &keyboard_dispatcher
-    };
-    nbgl_layoutKbd_t kbdInfo = {
-      .lettersOnly = true,  // use only letters
-      .upperCase = false,   // start with lower case letters
-      .mode = MODE_LETTERS, // start in letters mode
-      .keyMask = 0,         // no inactive key
-      .callback = &key_press_callback
-    };
-    nbgl_layoutCenteredInfo_t centeredInfo = {
-      .text1 = NULL,
-      .text2 = headerText, // to use as "header"
-      .text3 = NULL,
-      .style = LARGE_CASE_INFO,
-      .icon = NULL,
-      .offsetY = 0,
-      .onTop = true
-    };
+    nbgl_layoutDescription_t layoutDescription = {.modal = false,
+                                                  .onActionCallback = &keyboard_dispatcher};
+    nbgl_layoutKbd_t kbdInfo = {.lettersOnly = true,   // use only letters
+                                .upperCase = false,    // start with lower case letters
+                                .mode = MODE_LETTERS,  // start in letters mode
+                                .keyMask = 0,          // no inactive key
+                                .callback = &key_press_callback};
+    nbgl_layoutCenteredInfo_t centeredInfo = {.text1 = NULL,
+                                              .text2 = headerText,  // to use as "header"
+                                              .text3 = NULL,
+                                              .style = LARGE_CASE_INFO,
+                                              .icon = NULL,
+                                              .offsetY = 0,
+                                              .onTop = true};
     strlcpy(textToEnter, "", 1);
     memset(buttonTexts, 0, NB_MAX_SUGGESTION_BUTTONS);
 
     layout = nbgl_layoutGet(&layoutDescription);
     nbgl_layoutAddProgressIndicator(layout, 0, 0, true, BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
     memset(headerText, 0, HEADER_SIZE);
-    snprintf(
-        headerText,
-        HEADER_SIZE,
-        "Enter word n. %d/%d from your\nRecovery Sheet",
-        get_current_word_number() + 1,
-        get_mnemonic_final_size()
-        );
+    snprintf(headerText,
+             HEADER_SIZE,
+             "Enter word n. %d/%d from your\nRecovery Sheet",
+             get_current_word_number() + 1,
+             get_mnemonic_final_size());
     nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
     keyboardIndex = nbgl_layoutAddKeyboard(layout, &kbdInfo);
     textIndex = nbgl_layoutAddEnteredText(layout,
-                                          true,         // numbered
-                                          get_current_word_number() + 1, // number to use
-                                          textToEnter,  // text to display
-                                          false,        // not grayed-out
-                                          32);          // vertical margin from the buttons
+                                          true,                           // numbered
+                                          get_current_word_number() + 1,  // number to use
+                                          textToEnter,                    // text to display
+                                          false,                          // not grayed-out
+                                          32);  // vertical margin from the buttons
     suggestionIndex = nbgl_layoutAddSuggestionButtons(layout,
-                                                      0, // no used buttons at start-up
+                                                      0,  // no used buttons at start-up
                                                       buttonTexts,
                                                       FIRST_SUGGESTION_TOKEN,
                                                       TUNE_TAP_CASUAL);
@@ -274,23 +255,21 @@ void display_keyboard_page() {
  */
 
 static void display_home_page() {
-    nbgl_pageInfoDescription_t home = {
-        /* .centeredInfo.icon = &C_fatstacks_app_recovery_check, */
-        .centeredInfo.icon = NULL,
-        .centeredInfo.text1 = "Recovery Check app",
-        .centeredInfo.text2 = NULL,
-        .centeredInfo.text3 = NULL,
-        .centeredInfo.style = LARGE_CASE_INFO,
-        .centeredInfo.offsetY = 32,
-        .topRightStyle = INFO_ICON,
-        .bottomButtonStyle = QUIT_ICON,
-        .topRightToken = INFO_TOKEN,
-        .bottomButtonToken = QUIT_APP_TOKEN,
-        .footerText = NULL,
-        .tapActionText = "Tap to check your mnemonic",
-        .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
-        .tuneId = TUNE_TAP_CASUAL
-    };
+    nbgl_pageInfoDescription_t home = {/* .centeredInfo.icon = &C_fatstacks_app_recovery_check, */
+                                       .centeredInfo.icon = NULL,
+                                       .centeredInfo.text1 = "Recovery Check app",
+                                       .centeredInfo.text2 = NULL,
+                                       .centeredInfo.text3 = NULL,
+                                       .centeredInfo.style = LARGE_CASE_INFO,
+                                       .centeredInfo.offsetY = 32,
+                                       .topRightStyle = INFO_ICON,
+                                       .bottomButtonStyle = QUIT_ICON,
+                                       .topRightToken = INFO_TOKEN,
+                                       .bottomButtonToken = QUIT_APP_TOKEN,
+                                       .footerText = NULL,
+                                       .tapActionText = "Tap to check your mnemonic",
+                                       .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
+                                       .tuneId = TUNE_TAP_CASUAL};
     releaseContext();
     pageContext = nbgl_pageDrawInfo(&pageTouchCallback, NULL, &home);
     nbgl_refresh();
@@ -299,28 +278,24 @@ static void display_home_page() {
 /*
  * Result page
  */
-static char *possible_results[2] = {
-    "Sorry, this passphrase\nis incorrect.",
-    "You passphrase\nis correct!"
-};
+static char *possible_results[2] = {"Sorry, this passphrase\nis incorrect.",
+                                    "You passphrase\nis correct!"};
 
 static void display_result_page(const bool result) {
-    nbgl_pageInfoDescription_t home = {
-        /* .centeredInfo.icon = &C_fatstacks_app_recovery_check, */
-        .centeredInfo.icon = NULL,
-        .centeredInfo.text1 = possible_results[result],
-        .centeredInfo.text2 = NULL,
-        .centeredInfo.text3 = NULL,
-        .centeredInfo.style = LARGE_CASE_INFO,
-        .centeredInfo.offsetY = 32,
-        .topRightStyle = NO_BUTTON_STYLE,
-        .bottomButtonStyle = QUIT_ICON,
-        .bottomButtonToken = QUIT_APP_TOKEN,
-        .footerText = NULL,
-        .tapActionText = "Tap to check another mnemonic",
-        .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
-        .tuneId = TUNE_TAP_CASUAL
-    };
+    nbgl_pageInfoDescription_t home = {/* .centeredInfo.icon = &C_fatstacks_app_recovery_check, */
+                                       .centeredInfo.icon = NULL,
+                                       .centeredInfo.text1 = possible_results[result],
+                                       .centeredInfo.text2 = NULL,
+                                       .centeredInfo.text3 = NULL,
+                                       .centeredInfo.style = LARGE_CASE_INFO,
+                                       .centeredInfo.offsetY = 32,
+                                       .topRightStyle = NO_BUTTON_STYLE,
+                                       .bottomButtonStyle = QUIT_ICON,
+                                       .bottomButtonToken = QUIT_APP_TOKEN,
+                                       .footerText = NULL,
+                                       .tapActionText = "Tap to check another mnemonic",
+                                       .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
+                                       .tuneId = TUNE_TAP_CASUAL};
     releaseContext();
     pageContext = nbgl_pageDrawInfo(&pageTouchCallback, NULL, &home);
     nbgl_refresh();
@@ -336,7 +311,6 @@ static void reset_globals() {
 }
 
 #endif
-
 
 enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
 
@@ -478,7 +452,6 @@ UX_FLOW(ux_idle_flow, &ux_idle_flow_1_step, &ux_idle_flow_3_step, &ux_idle_flow_
 
 #endif
 
-
 void ui_idle_init(void) {
 #if defined(HAVE_BAGL)
     uiState = UI_IDLE;
@@ -494,5 +467,4 @@ void ui_idle_init(void) {
     reset_globals();
     display_home_page();
 #endif
-
 }

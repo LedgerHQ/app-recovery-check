@@ -7,7 +7,7 @@
 #include "common.h"
 
 #define ALPHABET_LENGTH 27
-#define KBD_LETTERS "qwertyuiopasdfghjklzxcvbnm"
+#define KBD_LETTERS     "qwertyuiopasdfghjklzxcvbnm"
 
 // separated function to lower the stack usage when jumping into pbkdf algorithm
 unsigned int bolos_ux_mnemonic_to_seed_hash_length128(unsigned char* mnemonic,
@@ -210,45 +210,41 @@ unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(
 #if defined(HAVE_NBGL)
 #include <nbgl_layout.h>
 
-size_t bolos_ux_bip39_fill_with_candidates(
-    const unsigned char * startingChars,
-    const size_t startingCharsLength,
-    char wordCandidatesBuffer[],
-    char *wordIndexorBuffer[]
-    ) {
-    PRINTF("Calculating nb of words starting with '%s' (size is '%d')\n", startingChars, startingCharsLength);
-    const size_t nbMatchingWords = MIN(
-        bolos_ux_bip39_get_word_count_starting_with(startingChars, startingCharsLength),
-        NB_MAX_SUGGESTION_BUTTONS
-        );
+size_t bolos_ux_bip39_fill_with_candidates(const unsigned char* startingChars,
+                                           const size_t startingCharsLength,
+                                           char wordCandidatesBuffer[],
+                                           char* wordIndexorBuffer[]) {
+    PRINTF("Calculating nb of words starting with '%s' (size is '%d')\n",
+           startingChars,
+           startingCharsLength);
+    const size_t nbMatchingWords =
+        MIN(bolos_ux_bip39_get_word_count_starting_with(startingChars, startingCharsLength),
+            NB_MAX_SUGGESTION_BUTTONS);
     PRINTF("'%d' words start with '%s'\n", nbMatchingWords, startingChars);
     if (nbMatchingWords == 0) {
         return 0;
     }
-    size_t matchingWordIndex = bolos_ux_bip39_get_word_idx_starting_with(
-        startingChars,
-        startingCharsLength
-        );
+    size_t matchingWordIndex =
+        bolos_ux_bip39_get_word_idx_starting_with(startingChars, startingCharsLength);
     size_t offset = 0;
     for (size_t i = 0; i < nbMatchingWords; i++) {
-        unsigned char * const wordDest = (unsigned char *)(&wordCandidatesBuffer[0] + offset);
+        unsigned char* const wordDest = (unsigned char*) (&wordCandidatesBuffer[0] + offset);
         const size_t wordSize = bolos_ux_bip39_idx_strcpy(matchingWordIndex, wordDest);
         matchingWordIndex++;
         *(wordDest + wordSize) = '\0';
         offset += wordSize + 1;  // + trailing '\0' size
-        wordIndexorBuffer[i] = (char *)wordDest;
+        wordIndexorBuffer[i] = (char*) wordDest;
     }
     return nbMatchingWords;
 }
 
-uint32_t bolos_ux_bip39_get_keyboard_mask(
-    const unsigned char *prefix,
-    const unsigned int prefixLength
-    ) {
+uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char* prefix,
+                                          const unsigned int prefixLength) {
     uint32_t existing_mask = 0;
     unsigned char next_letters[ALPHABET_LENGTH] = {0};
     PRINTF("Looking for letter candidates following '%s'\n", prefix);
-    const size_t nb_letters = bolos_ux_bip39_get_word_next_letters_starting_with(prefix, prefixLength, next_letters);
+    const size_t nb_letters =
+        bolos_ux_bip39_get_word_next_letters_starting_with(prefix, prefixLength, next_letters);
     next_letters[nb_letters] = '\0';
     PRINTF("Next letters are in: %s\n", next_letters);
     for (int i = 0; i < ALPHABET_LENGTH; i++) {

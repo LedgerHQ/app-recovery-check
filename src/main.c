@@ -88,7 +88,7 @@ unsigned char io_event(unsigned char channel __attribute__((unused))) {
         case SEPROXYHAL_TAG_FINGER_EVENT:
             UX_FINGER_EVENT(G_io_seproxyhal_spi_buffer);
             break;
-#if ! defined(HAVE_NBGL)
+#if !defined(HAVE_NBGL)
         case SEPROXYHAL_TAG_BUTTON_PUSH_EVENT:  // for Nano S
             UX_BUTTON_PUSH_EVENT(G_io_seproxyhal_spi_buffer);
             break;
