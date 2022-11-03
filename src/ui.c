@@ -15,12 +15,8 @@
 #define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH+1))
 
 static nbgl_page_t* pageContext;
-static int current_word = 0;
 static char headerText[HEADER_SIZE] = {0};
 static nbgl_layout_t *layout = 0;
-static uint8_t mnemonic_size = 0;
-static char mnemonic_buffer[MAX_MNEMONIC_LENGTH] = {0};
-static size_t mnemonic_buffer_length = 0;
 
 void ui_menu_about(void);
 void display_keyboard_page(void);
@@ -94,13 +90,13 @@ void mnemonic_dispatcher(const int token, uint8_t index) {
     } else if (token == CHOOSE_MNEMONIC_SIZE_TOKEN) {
         switch(index) {
         case 0:
-            mnemonic_size = MNEMONIC_SIZE_12;
+            set_mnemonic_final_size(MNEMONIC_SIZE_12);
             break;
         case 1:
-            mnemonic_size = MNEMONIC_SIZE_18;
+            set_mnemonic_final_size(MNEMONIC_SIZE_18);
             break;
         case 2:
-            mnemonic_size = MNEMONIC_SIZE_24;
+            set_mnemonic_final_size(MNEMONIC_SIZE_24);
             break;
         default:
             PRINTF("Unexpected index '%d' (max 3)\n", index);
@@ -153,60 +149,30 @@ static char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
 // the biggest word of BIP39 list is 8 char (9 with trailing '\0'), and
 // the max number of showed suggestions is NB_MAX_SUGGESTION_BUTTONS
 static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] = {0};
-static size_t current_word_length = 0;
-
 
 // function called when back or any suggestion button is touched
 static void keyboard_dispatcher(const int token, uint8_t index __attribute__((unused))) {
     if (token == BACK_BUTTON_TOKEN) {
         nbgl_layoutRelease(layout);
-        current_word--;
-
-        // removing previous word from mnemonic buffer
-        if (current_word_length + 1 > mnemonic_buffer_length) {
-            mnemonic_buffer_length = 0;
-        } else {
-            mnemonic_buffer_length -= (current_word_length + 1);
-        }
-        memset(&mnemonic_buffer[mnemonic_buffer_length], 0, MAX_MNEMONIC_LENGTH - mnemonic_buffer_length);
-
-        if (current_word <= 0) {
-            current_word = 0;
-            display_mnemonic_page();
-        } else {
+        if (remove_word_from_mnemonic()) {
             display_keyboard_page();
+        } else {
+            display_mnemonic_page();
         }
     } else if (token >= FIRST_SUGGESTION_TOKEN) {
         nbgl_layoutRelease(layout);
 
-        current_word_length = strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]);
-        PRINTF("Copying word '%s' (size '%d') to 0x%p\n",
+        PRINTF("Selected word is '%s' (size '%d')\n",
                buttonTexts[token - FIRST_SUGGESTION_TOKEN],
-               current_word_length,
-               &mnemonic_buffer[0] + mnemonic_buffer_length
+               strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
+        add_word_in_mnemonic(
+            buttonTexts[token - FIRST_SUGGESTION_TOKEN],
+            strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN])
             );
-        PRINTF("Selected word is %s\n", buttonTexts[token - FIRST_SUGGESTION_TOKEN]);
-        memcpy(&mnemonic_buffer[0] + mnemonic_buffer_length,
-               buttonTexts[token - FIRST_SUGGESTION_TOKEN],
-               current_word_length);
-        mnemonic_buffer_length += current_word_length;
-        PRINTF("Current mnemonic --> '%s'\n", mnemonic_buffer);
-        current_word++;
-
         // current_word starts at 1
-        if (current_word > mnemonic_size) {
-            PRINTF("Mnemonic completed! --> '%s' (size %d)\n", mnemonic_buffer, mnemonic_buffer_length);
-            const bool result = bolos_ux_mnemonic_check(
-                (unsigned char *)&mnemonic_buffer[0],
-                mnemonic_buffer_length
-                );
-            // clearing the mnemonic ASAP
-            memset(&mnemonic_buffer[0], 0, mnemonic_buffer_length);
-            // TODO: mnemonic completed, now checking the seed.
-            display_result_page(result);
+        if (is_mnemonic_complete()) {
+            display_result_page(check_mnemonic());
         } else {
-            mnemonic_buffer[mnemonic_buffer_length++] = ' ';
-            mnemonic_buffer[mnemonic_buffer_length] = '\0';
             display_keyboard_page();
         }
         // go back to main screen of app
@@ -231,6 +197,7 @@ static void key_press_callback(const char touchedKey) {
     }
     PRINTF("Current text is: '%s' (size '%d')\n", textToEnter, textLen);
     if (textLen < 2) {
+        // no suggestion until there is at least 2 characters
         nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, 0, buttonTexts);
     } else {
         const size_t nbMatchingWords = bolos_ux_bip39_fill_with_candidates(
@@ -283,14 +250,14 @@ void display_keyboard_page() {
         headerText,
         HEADER_SIZE,
         "Enter word n. %d/%d from your\nRecovery Sheet",
-        current_word,
-        mnemonic_size
+        get_current_word_number() + 1,
+        get_mnemonic_final_size()
         );
     nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
     keyboardIndex = nbgl_layoutAddKeyboard(layout, &kbdInfo);
     textIndex = nbgl_layoutAddEnteredText(layout,
                                           true,         // numbered
-                                          current_word, // number to use
+                                          get_current_word_number() + 1, // number to use
                                           textToEnter,  // text to display
                                           false,        // not grayed-out
                                           32);          // vertical margin from the buttons
@@ -364,11 +331,7 @@ static void display_result_page(const bool result) {
  */
 
 static void reset_globals() {
-    current_word = 1;
-    memset(mnemonic_buffer, 0, sizeof(mnemonic_buffer) / sizeof(char));
-    mnemonic_buffer_length = 0;
-    mnemonic_size = 0;
-    current_word_length = 0;
+    reset_mnemonic();
     memset(buttonTexts, 0, NB_MAX_SUGGESTION_BUTTONS);
 }
 

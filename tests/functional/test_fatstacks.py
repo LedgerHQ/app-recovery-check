@@ -72,3 +72,6 @@ def test_check_previous_word(screen: Screen, client: BackendInterface):
     for _ in tries:
         screen.navigation.tap()
     assert_current_equals(client, SCREENSHOTS / "first_12.png")
+    # one more 'back' tap will bring us to the passphrase length choice page
+    screen.navigation.tap()
+    assert_current_equals(client, SCREENSHOTS / "passphrase_length.png")
