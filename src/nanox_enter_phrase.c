@@ -227,8 +227,8 @@ void screen_onboarding_4_restore_word_display_word_selection(void) {
     ux_stack_display(0);
 }
 
-const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigned int event,
-                                                                         unsigned int value) {
+const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(const unsigned int event,
+                                                                         const unsigned int value) {
     switch (event) {
         case KEYBOARD_ITEM_VALIDATED:
             // depending on the chosen class, interpret the click
@@ -273,7 +273,6 @@ const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigne
                 x:57 w:14
                 iconw: 11
                 */
-                value = 3;
                 G_ux.tmp_element.component.width = C_icon_backspace.width;
                 G_ux.tmp_element.component.x +=
                     1 + G_ux.tmp_element.component.width / 2 - C_icon_backspace.width / 2;
@@ -476,8 +475,9 @@ void screen_onboarding_4_restore_word_validate(void) {
     }
 }
 
-unsigned int screen_onboarding_4_restore_word_select_button(unsigned int button_mask,
-                                                            unsigned int button_mask_counter) {
+unsigned int screen_onboarding_4_restore_word_select_button(
+    const unsigned int button_mask,
+    const unsigned int button_mask_counter) {
     UNUSED(button_mask_counter);
     switch (button_mask) {
         case BUTTON_EVT_FAST | BUTTON_LEFT:
@@ -515,8 +515,8 @@ unsigned int screen_onboarding_4_restore_word_select_button(unsigned int button_
     return 0;
 }
 
-unsigned int screen_onboarding_4_restore_word_intro_button(unsigned int button_mask,
-                                                           unsigned int button_mask_counter) {
+unsigned int screen_onboarding_4_restore_word_intro_button(const unsigned int button_mask,
+                                                           const unsigned int button_mask_counter) {
     UNUSED(button_mask_counter);
     switch (button_mask) {
         case BUTTON_EVT_RELEASED | BUTTON_LEFT | BUTTON_RIGHT: {

@@ -27,7 +27,6 @@ static void display_mnemonic_page(void);
 static void reset_globals(void);
 static bool onInfos(uint8_t page, nbgl_pageContent_t *content);
 
-
 enum {
     BACK_HOME_TOKEN = 0,
     BACK_BUTTON_TOKEN,
@@ -250,20 +249,21 @@ static void display_keyboard_page() {
  * Home page
  */
 static void display_home_page() {
-    nbgl_pageInfoDescription_t home = {.centeredInfo.icon = &C_fatstacks_app_recovery_check,
-                                       .centeredInfo.text1 = "Recovery Check",
-                                       .centeredInfo.text2 = NULL,
-                                       .centeredInfo.text3 = NULL,
-                                       .centeredInfo.style = LARGE_CASE_INFO,
-                                       .centeredInfo.offsetY = 32,
-                                       .topRightStyle = QUIT_ICON,
-                                       .bottomButtonStyle = INFO_ICON,
-                                       .topRightToken = QUIT_APP_TOKEN,
-                                       .bottomButtonToken = INFO_TOKEN,
-                                       .footerText = NULL,
-                                       .tapActionText = "Tap to check if your\nrecovery passphrase is valid",
-                                       .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
-                                       .tuneId = TUNE_TAP_CASUAL};
+    nbgl_pageInfoDescription_t home = {
+        .centeredInfo.icon = &C_fatstacks_app_recovery_check,
+        .centeredInfo.text1 = "Recovery Check",
+        .centeredInfo.text2 = NULL,
+        .centeredInfo.text3 = NULL,
+        .centeredInfo.style = LARGE_CASE_INFO,
+        .centeredInfo.offsetY = 32,
+        .topRightStyle = QUIT_ICON,
+        .bottomButtonStyle = INFO_ICON,
+        .topRightToken = QUIT_APP_TOKEN,
+        .bottomButtonToken = INFO_TOKEN,
+        .footerText = NULL,
+        .tapActionText = "Tap to check if your\nrecovery passphrase is valid",
+        .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
+        .tuneId = TUNE_TAP_CASUAL};
     releaseContext();
     pageContext = nbgl_pageDrawInfo(&pageTouchCallback, NULL, &home);
     nbgl_refresh();

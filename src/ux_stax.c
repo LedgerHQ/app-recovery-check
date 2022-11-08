@@ -72,16 +72,21 @@ size_t add_word_in_mnemonic(const char* const buffer, const size_t size) {
     mnemonic.length += size;
     mnemonic.current_word_index++;
     mnemonic.word_lengths[mnemonic.current_word_index] = size;
-    PRINTF("Number of words in the mnemonic: '%ld'\n", mnemonic.current_word_index);
+    PRINTF("Number of words in the mnemonic: '%ld'\n", get_current_word_number());
     PRINTF("Current mnemonic: '%s'\n", &mnemonic.buffer[0]);
-    return mnemonic.current_word_index;
+    return get_current_word_number();
 }
 
 bool is_mnemonic_complete() {
-    return ((mnemonic.current_word_index + 1) >= get_mnemonic_final_size());
+    return (mnemonic.final_size == 0
+                ? false
+                : (mnemonic.current_word_index + 1) >= get_mnemonic_final_size());
 }
 
 bool check_mnemonic() {
+    if (!is_mnemonic_complete()) {
+        return false;
+    }
     PRINTF("Checking the following mnemonic: '%s' (size %ld)\n",
            &mnemonic.buffer[0],
            mnemonic.length);
@@ -91,5 +96,11 @@ bool check_mnemonic() {
     reset_mnemonic();
     return result;
 }
+
+#if defined(TEST)
+char* get_mnemonic() {
+    return mnemonic.buffer;
+}
+#endif
 
 #endif

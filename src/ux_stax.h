@@ -64,4 +64,8 @@ bool remove_word_from_mnemonic(void);
  */
 size_t add_word_in_mnemonic(const char* const buffer, const size_t size);
 
+#if defined(TEST)
+char* get_mnemonic();
+#endif
+
 #endif  // HAVE_BOLOS_UX && TARGET_NANOS
