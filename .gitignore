@@ -6,14 +6,12 @@ debug/
 dep/
 obj/
 elfs/
+build/
+*.elf
 
 # Unit tests and code coverage
-unit-tests/build/
-unit-tests/coverage/
-unit-tests/coverage.info
-
-# Fuzzing
-fuzzing/build/
+tests/unit/coverage/
+tests/unit/coverage.info
 
 
 # Editors

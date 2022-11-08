@@ -1,5 +1,8 @@
 #include <ux.h>
+
+#include "constants.h"
 #include "ui.h"
+#include "glyphs.h"
 
 #if defined(HAVE_NBGL)
 
@@ -12,8 +15,6 @@
 #include "ux_common/common_bip39.h"
 
 #define HEADER_SIZE 50
-
-#define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH + 1))
 
 static nbgl_page_t *pageContext;
 static char headerText[HEADER_SIZE] = {0};
@@ -37,7 +38,6 @@ enum {
     START_RECOVER_TOKEN,
 };
 
-
 static void releaseContext(void) {
     if (pageContext != NULL) {
         nbgl_pageRelease(pageContext);
@@ -45,12 +45,10 @@ static void releaseContext(void) {
     }
 }
 
-
 static void onHome(void) {
     releaseContext();
     ui_idle_init();
 }
-
 
 static void pageTouchCallback(int token, uint8_t index __attribute__((unused))) {
     if (token == QUIT_APP_TOKEN) {
@@ -65,13 +63,11 @@ static void pageTouchCallback(int token, uint8_t index __attribute__((unused))) 
     }
 }
 
-
 /*
  * About menu
  */
 static const char *const infoTypes[] = {"Version", "Recovery Check"};
 static const char *const infoContents[] = {APPVERSION, "(c) 2022 Ledger"};
-
 
 static bool onInfos(uint8_t page, nbgl_pageContent_t *content) {
     if (page == 0) {
@@ -84,7 +80,6 @@ static bool onInfos(uint8_t page, nbgl_pageContent_t *content) {
     }
     return true;
 }
-
 
 /*
  * Choose mnemonic size page
@@ -115,7 +110,6 @@ static void mnemonic_dispatcher(const int token, uint8_t index) {
     }
 }
 
-
 static void display_mnemonic_page() {
     reset_globals();
     nbgl_layoutDescription_t layoutDescription = {.modal = false,
@@ -141,7 +135,6 @@ static void display_mnemonic_page() {
     nbgl_layoutDraw(layout);
 }
 
-
 /*
  * Word recover page
  */
@@ -151,7 +144,6 @@ static char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
 // the biggest word of BIP39 list is 8 char (9 with trailing '\0'), and
 // the max number of showed suggestions is NB_MAX_SUGGESTION_BUTTONS
 static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] = {0};
-
 
 static void keyboard_dispatcher(const int token, uint8_t index __attribute__((unused))) {
     if (token == BACK_BUTTON_TOKEN) {
@@ -175,7 +167,6 @@ static void keyboard_dispatcher(const int token, uint8_t index __attribute__((un
         }
     }
 }
-
 
 // function called when a key of keyboard is touched
 static void key_press_callback(const char touchedKey) {
@@ -213,7 +204,6 @@ static void key_press_callback(const char touchedKey) {
     nbgl_layoutUpdateEnteredText(layout, textIndex, false, 0, &(textToEnter[0]), false);
     nbgl_refresh();
 }
-
 
 static void display_keyboard_page() {
     nbgl_layoutDescription_t layoutDescription = {.modal = false,
@@ -256,7 +246,6 @@ static void display_keyboard_page() {
     nbgl_layoutDraw(layout);
 }
 
-
 /*
  * Home page
  */
@@ -280,13 +269,11 @@ static void display_home_page() {
     nbgl_refresh();
 }
 
-
 /*
  * Result page
  */
 static char *possible_results[2] = {"Sorry, this passphrase\nis incorrect.",
                                     "You recovery passphrase\nis correct!"};
-
 
 static void display_result_page(const bool result) {
     nbgl_pageInfoDescription_t home = {.centeredInfo.icon = &C_fatstacks_app_recovery_check,
@@ -307,7 +294,6 @@ static void display_result_page(const bool result) {
     nbgl_refresh();
 }
 
-
 /*
  * Utils
  */
@@ -315,7 +301,6 @@ static void reset_globals() {
     reset_mnemonic();
     memset(buttonTexts, 0, NB_MAX_SUGGESTION_BUTTONS);
 }
-
 
 #endif
 

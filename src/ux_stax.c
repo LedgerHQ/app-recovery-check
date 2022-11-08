@@ -1,7 +1,23 @@
+#include <os.h>
+#include <string.h>
+
 #include "ux_stax.h"
 #include "ux_common/common_bip39.h"
 
 #if defined(HAVE_BOLOS_UX) && defined(TARGET_FATSTACKS)
+
+typedef struct buffer {
+    // the mnemonic passphrase, built over time
+    char buffer[MAX_MNEMONIC_LENGTH];
+    // current length of the mnemonic passphrase
+    size_t length;
+    // index of the current word ((size_t)-1 mean there is no word currently)
+    size_t current_word_index;
+    // array of every stored word lengths (used for removing them if needed)
+    size_t word_lengths[MNEMONIC_SIZE_24];
+    // expected number of word in the final mnemonic (12 or 18 or 24)
+    size_t final_size;
+} buffer_t;
 
 static buffer_t mnemonic = {0};
 
@@ -34,7 +50,7 @@ void reset_mnemonic() {
 }
 
 bool remove_word_from_mnemonic() {
-    PRINTF("Removing a word, currently there is '%d' of them\n", mnemonic.current_word_index + 1);
+    PRINTF("Removing a word, currently there is '%ld' of them\n", mnemonic.current_word_index + 1);
     if (mnemonic.current_word_index == (size_t) -1) {
         return false;
     }
@@ -42,7 +58,7 @@ bool remove_word_from_mnemonic() {
     mnemonic.current_word_index--;
     // removing previous word from mnemonic buffer (+ 1 blank space)
     mnemonic_shrink(current_length + 1);
-    PRINTF("Number of remaining words in the mnemonic: '%d'\n", mnemonic.current_word_index + 1);
+    PRINTF("Number of remaining words in the mnemonic: '%ld'\n", mnemonic.current_word_index + 1);
     return true;
 }
 
@@ -56,7 +72,7 @@ size_t add_word_in_mnemonic(const char* const buffer, const size_t size) {
     mnemonic.length += size;
     mnemonic.current_word_index++;
     mnemonic.word_lengths[mnemonic.current_word_index] = size;
-    PRINTF("Number of words in the mnemonic: '%d'\n", mnemonic.current_word_index);
+    PRINTF("Number of words in the mnemonic: '%ld'\n", mnemonic.current_word_index);
     PRINTF("Current mnemonic: '%s'\n", &mnemonic.buffer[0]);
     return mnemonic.current_word_index;
 }
@@ -66,7 +82,7 @@ bool is_mnemonic_complete() {
 }
 
 bool check_mnemonic() {
-    PRINTF("Checking the following mnemonic: '%s' (size %d)\n",
+    PRINTF("Checking the following mnemonic: '%s' (size %ld)\n",
            &mnemonic.buffer[0],
            mnemonic.length);
     const bool result =

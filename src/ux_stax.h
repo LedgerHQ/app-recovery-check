@@ -16,24 +16,12 @@
 
 #pragma once
 
-#include "ux_common/common.h"
+#include <stdbool.h>
+#include "constants.h"
 
 #if defined(HAVE_BOLOS_UX) && defined(TARGET_FATSTACKS)
 
 #define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH + 1))
-
-typedef struct buffer {
-    // the mnemonic passphrase, built over time
-    char buffer[MAX_MNEMONIC_LENGTH];
-    // current length of the mnemonic passphrase
-    size_t length;
-    // index of the current word ((size_t)-1 mean there is no word currently)
-    size_t current_word_index;
-    // array of every stored word lengths (used for removing them if needed)
-    size_t word_lengths[MNEMONIC_SIZE_24];
-    // expected number of word in the final mnemonic (12 or 18 or 24)
-    size_t final_size;
-} buffer_t;
 
 /*
  * Sets how many words are expected in the mnemonic passphrase

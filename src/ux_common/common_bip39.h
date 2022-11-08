@@ -1,6 +1,6 @@
-
 #pragma once
 
+#include <stdbool.h>
 // BIP39 helpers
 #include "onboarding_seed_rom_variables.h"
 

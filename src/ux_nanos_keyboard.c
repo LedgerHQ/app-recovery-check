@@ -14,6 +14,7 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include "constants.h"
 #include "ui.h"
 
 #ifdef TARGET_NANOS

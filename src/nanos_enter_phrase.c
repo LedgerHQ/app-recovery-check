@@ -14,7 +14,9 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include "constants.h"
 #include "ui.h"
+#include "glyphs.h"
 
 #ifdef TARGET_NANOS
 
