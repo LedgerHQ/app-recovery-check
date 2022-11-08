@@ -1,6 +1,3 @@
-from time import sleep
-from pathlib import Path
-
 from pytest import fixture
 from ragger.backend import BackendInterface
 
@@ -20,44 +17,22 @@ def screen(client: BackendInterface):
     return s
 
 
-def test_nominal_full_passphrase_check(screen: Screen, client: BackendInterface):
-    # going to choose mnemonic length
-    screen.center.tap()
-    assert_current_equals(client, SCREENSHOTS / "passphrase_length.png")
-    # choosing 3d (24 words)
-    screen.choice_list.choose(3)
-    assert_current_equals(client, SCREENSHOTS / "first_24.png")
-    for word in SPECULOS_MNEMONIC.split():
-        # 4 letters are enough to discriminate the correct word
-        screen.keyboard.write(word[:4])
-        # choosing 1st suggestion
-        screen.suggestions.choose(1)
-    sleep(0.1)
-    assert_current_equals(client, SCREENSHOTS / "correct.png")
-    screen.exit()
-
-
 def test_check_info_then_leave(screen: Screen, client: BackendInterface):
     screen.info.tap()
     assert_current_equals(client, SCREENSHOTS / "info.png")
-    screen.footer.tap()
+    screen.quit_info.tap()
     assert_current_equals(client, SCREENSHOTS / "welcome.png")
     screen.exit()
 
 
-def test_nominal_full_passphrase_check_error_wrong_passphrase(screen: Screen, client: BackendInterface):
+def test_check_all_passphrase_lengths(screen: Screen, client: BackendInterface):
     screen.center.tap()
     assert_current_equals(client, SCREENSHOTS / "passphrase_length.png")
-    # choosing 1st (12 words)
-    screen.choice_list.choose(1)
-    assert_current_equals(client, SCREENSHOTS / "first_12.png")
-     # only the 12 first words
-    for word in SPECULOS_MNEMONIC.split()[:12]:
-        screen.keyboard.write(word[:4])
-        screen.suggestions.choose(1)
-    sleep(0.1)
-    assert_current_equals(client, SCREENSHOTS / "incorrect.png")
-    screen.exit()
+    for choice, length in [(1, 12), (2, 18), (3, 24)]:
+        screen.choice_list.choose(choice)
+        assert_current_equals(client, SCREENSHOTS / f"first_{length}.png")
+        screen.navigation.tap()
+        assert_current_equals(client, SCREENSHOTS / "passphrase_length.png")
 
 
 def test_check_previous_word(screen: Screen, client: BackendInterface):

@@ -3,6 +3,7 @@
 
 #if defined(HAVE_NBGL)
 
+#include <nbgl_use_case.h>
 #include <nbgl_fonts.h>
 #include <nbgl_front.h>
 #include <nbgl_debug.h>
@@ -18,19 +19,13 @@ static nbgl_page_t *pageContext;
 static char headerText[HEADER_SIZE] = {0};
 static nbgl_layout_t *layout = 0;
 
-void ui_menu_about(void);
-void display_keyboard_page(void);
-void display_home_page(void);
-void display_result_page(const bool result);
-void display_mnemonic_page(void);
-void reset_globals(void);
+static void display_keyboard_page(void);
+static void display_home_page(void);
+static void display_result_page(const bool result);
+static void display_mnemonic_page(void);
+static void reset_globals(void);
+static bool onInfos(uint8_t page, nbgl_pageContent_t *content);
 
-void releaseContext(void) {
-    if (pageContext != NULL) {
-        nbgl_pageRelease(pageContext);
-        pageContext = NULL;
-    }
-}
 
 enum {
     BACK_HOME_TOKEN = 0,
@@ -42,19 +37,34 @@ enum {
     START_RECOVER_TOKEN,
 };
 
-void pageTouchCallback(int token, uint8_t index __attribute__((unused))) {
+
+static void releaseContext(void) {
+    if (pageContext != NULL) {
+        nbgl_pageRelease(pageContext);
+        pageContext = NULL;
+    }
+}
+
+
+static void onHome(void) {
+    releaseContext();
+    ui_idle_init();
+}
+
+
+static void pageTouchCallback(int token, uint8_t index __attribute__((unused))) {
     if (token == QUIT_APP_TOKEN) {
         releaseContext();
         os_sched_exit(-1);
     } else if (token == INFO_TOKEN) {
-        ui_menu_about();
+        nbgl_useCaseSettings("Recovery Check infos", 0, 1, false, onHome, onInfos, NULL);
     } else if (token == CHOOSE_MNEMONIC_SIZE_TOKEN) {
         display_mnemonic_page();
     } else if (token == BACK_HOME_TOKEN) {
-        releaseContext();
-        ui_idle_init();
+        onHome();
     }
 }
+
 
 /*
  * About menu
@@ -62,28 +72,24 @@ void pageTouchCallback(int token, uint8_t index __attribute__((unused))) {
 static const char *const infoTypes[] = {"Version", "Recovery Check"};
 static const char *const infoContents[] = {APPVERSION, "(c) 2022 Ledger"};
 
-void ui_menu_about() {
-    nbgl_pageContent_t content = {.title = "Recovery Check infos", .isTouchableTitle = false};
-    nbgl_pageNavigationInfo_t nav = {.activePage = 0,
-                                     .nbPages = 1,
-                                     .navType = NAV_WITH_BUTTONS,
-                                     .navWithButtons.quitButton = true,
-                                     .navWithButtons.navToken = BACK_HOME_TOKEN,
-                                     .tuneId = TUNE_TAP_CASUAL};
-    content.type = INFOS_LIST;
-    content.infosList.nbInfos = 2;
-    content.infosList.infoTypes = (const char **) infoTypes;
-    content.infosList.infoContents = (const char **) infoContents;
 
-    releaseContext();
-    pageContext = nbgl_pageDrawGenericContent(&pageTouchCallback, &nav, &content);
-    nbgl_refresh();
+static bool onInfos(uint8_t page, nbgl_pageContent_t *content) {
+    if (page == 0) {
+        content->type = INFOS_LIST;
+        content->infosList.nbInfos = 2;
+        content->infosList.infoTypes = (const char **) infoTypes;
+        content->infosList.infoContents = (const char **) infoContents;
+    } else {
+        return false;
+    }
+    return true;
 }
+
 
 /*
  * Choose mnemonic size page
  */
-void mnemonic_dispatcher(const int token, uint8_t index) {
+static void mnemonic_dispatcher(const int token, uint8_t index) {
     if (token == BACK_BUTTON_TOKEN) {
         nbgl_layoutRelease(layout);
         display_home_page();
@@ -109,7 +115,8 @@ void mnemonic_dispatcher(const int token, uint8_t index) {
     }
 }
 
-void display_mnemonic_page() {
+
+static void display_mnemonic_page() {
     reset_globals();
     nbgl_layoutDescription_t layoutDescription = {.modal = false,
                                                   .onActionCallback = mnemonic_dispatcher};
@@ -134,6 +141,7 @@ void display_mnemonic_page() {
     nbgl_layoutDraw(layout);
 }
 
+
 /*
  * Word recover page
  */
@@ -144,7 +152,7 @@ static char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
 // the max number of showed suggestions is NB_MAX_SUGGESTION_BUTTONS
 static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] = {0};
 
-// function called when back or any suggestion button is touched
+
 static void keyboard_dispatcher(const int token, uint8_t index __attribute__((unused))) {
     if (token == BACK_BUTTON_TOKEN) {
         nbgl_layoutRelease(layout);
@@ -155,21 +163,19 @@ static void keyboard_dispatcher(const int token, uint8_t index __attribute__((un
         }
     } else if (token >= FIRST_SUGGESTION_TOKEN) {
         nbgl_layoutRelease(layout);
-
         PRINTF("Selected word is '%s' (size '%d')\n",
                buttonTexts[token - FIRST_SUGGESTION_TOKEN],
                strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
         add_word_in_mnemonic(buttonTexts[token - FIRST_SUGGESTION_TOKEN],
                              strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
-        // current_word starts at 1
         if (is_mnemonic_complete()) {
             display_result_page(check_mnemonic());
         } else {
             display_keyboard_page();
         }
-        // go back to main screen of app
     }
 }
+
 
 // function called when a key of keyboard is touched
 static void key_press_callback(const char touchedKey) {
@@ -208,7 +214,8 @@ static void key_press_callback(const char touchedKey) {
     nbgl_refresh();
 }
 
-void display_keyboard_page() {
+
+static void display_keyboard_page() {
     nbgl_layoutDescription_t layoutDescription = {.modal = false,
                                                   .onActionCallback = &keyboard_dispatcher};
     nbgl_layoutKbd_t kbdInfo = {.lettersOnly = true,   // use only letters
@@ -225,13 +232,12 @@ void display_keyboard_page() {
                                               .onTop = true};
     strlcpy(textToEnter, "", 1);
     memset(buttonTexts, 0, NB_MAX_SUGGESTION_BUTTONS);
-
     layout = nbgl_layoutGet(&layoutDescription);
     nbgl_layoutAddProgressIndicator(layout, 0, 0, true, BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
     memset(headerText, 0, HEADER_SIZE);
     snprintf(headerText,
              HEADER_SIZE,
-             "Enter word n. %d/%d from your\nRecovery Sheet",
+             "Enter word n. %d/%d from your\nrecovery passphrase",
              get_current_word_number() + 1,
              get_mnemonic_final_size());
     nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
@@ -250,24 +256,23 @@ void display_keyboard_page() {
     nbgl_layoutDraw(layout);
 }
 
+
 /*
  * Home page
  */
-
 static void display_home_page() {
-    nbgl_pageInfoDescription_t home = {/* .centeredInfo.icon = &C_fatstacks_app_recovery_check, */
-                                       .centeredInfo.icon = NULL,
-                                       .centeredInfo.text1 = "Recovery Check app",
+    nbgl_pageInfoDescription_t home = {.centeredInfo.icon = &C_fatstacks_app_recovery_check,
+                                       .centeredInfo.text1 = "Recovery Check",
                                        .centeredInfo.text2 = NULL,
                                        .centeredInfo.text3 = NULL,
                                        .centeredInfo.style = LARGE_CASE_INFO,
                                        .centeredInfo.offsetY = 32,
-                                       .topRightStyle = INFO_ICON,
-                                       .bottomButtonStyle = QUIT_ICON,
-                                       .topRightToken = INFO_TOKEN,
-                                       .bottomButtonToken = QUIT_APP_TOKEN,
+                                       .topRightStyle = QUIT_ICON,
+                                       .bottomButtonStyle = INFO_ICON,
+                                       .topRightToken = QUIT_APP_TOKEN,
+                                       .bottomButtonToken = INFO_TOKEN,
                                        .footerText = NULL,
-                                       .tapActionText = "Tap to check your mnemonic",
+                                       .tapActionText = "Tap to check if your\nrecovery passphrase is valid",
                                        .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
                                        .tuneId = TUNE_TAP_CASUAL};
     releaseContext();
@@ -275,15 +280,16 @@ static void display_home_page() {
     nbgl_refresh();
 }
 
+
 /*
  * Result page
  */
 static char *possible_results[2] = {"Sorry, this passphrase\nis incorrect.",
-                                    "You passphrase\nis correct!"};
+                                    "You recovery passphrase\nis correct!"};
+
 
 static void display_result_page(const bool result) {
-    nbgl_pageInfoDescription_t home = {/* .centeredInfo.icon = &C_fatstacks_app_recovery_check, */
-                                       .centeredInfo.icon = NULL,
+    nbgl_pageInfoDescription_t home = {.centeredInfo.icon = &C_fatstacks_app_recovery_check,
                                        .centeredInfo.text1 = possible_results[result],
                                        .centeredInfo.text2 = NULL,
                                        .centeredInfo.text3 = NULL,
@@ -301,14 +307,15 @@ static void display_result_page(const bool result) {
     nbgl_refresh();
 }
 
+
 /*
  * Utils
  */
-
 static void reset_globals() {
     reset_mnemonic();
     memset(buttonTexts, 0, NB_MAX_SUGGESTION_BUTTONS);
 }
+
 
 #endif
 

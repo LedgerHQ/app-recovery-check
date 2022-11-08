@@ -12,7 +12,8 @@ def assert_current_equals(client: BackendInterface, existing: Path):
 
 
 def assert_equal(image: bytes, existing: Path):
-    error_file = existing.parent / f'{existing.stem}_{time()}{existing.suffix}'
+    error_file = existing.parent.parent / 'screenshots-tmp' / f'{existing.stem}_{time()}{existing.suffix}'
+    error_file.parent.mkdir(parents=True, exist_ok=True)
     try:
         with existing.open('rb') as filee:
             assert image == filee.read(), \
