@@ -1,16 +1,22 @@
-
-#include "os.h"
-
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-
-#include "cx.h"
-
-#include "os_io_seproxyhal.h"
-#include "string.h"
+/*******************************************************************************
+ *   (c) 2016-2022 Ledger SAS
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ********************************************************************************/
 
 #include "ui.h"
 
-#include "glyphs.h"
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
 const bagl_element_t* screen_onboarding_4_restore_word_before_element_display_callback(
     const bagl_element_t* element);
@@ -399,21 +405,21 @@ uint8_t compare_recovery_phrase(void) {
     bolos_ux_mnemonic_to_seed((unsigned char*) G_bolos_ux_context.words_buffer,
                               G_bolos_ux_context.words_buffer_length,
                               buffer);
-    // PRINTF("Input seed:\n %.*H\n", 64, buffer);
+    PRINTF("Input seed:\n %.*H\n", 64, buffer);
 
     // get rootkey from hex-seed
     cx_hmac_sha512_t ctx;
     const char key[] = "Bitcoin seed";
 
-    cx_hmac_sha512_init(&ctx, (const uint8_t*) key, sizeof(key));
+    cx_hmac_sha512_init(&ctx, (const uint8_t*) key, strlen(key));
     cx_hmac((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64);
-    // PRINTF("Root key from input:\n%.*H\n", 64, buffer);
+    PRINTF("Root key from input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
     uint8_t buffer_device[64];
 
     os_perso_derive_node_bip32(CX_CURVE_256K1, NULL, 0, buffer_device, buffer_device + 32);
-    // PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
+    PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
     // compare both rootkey
     return os_secure_memcmp(buffer, buffer_device, 64) ? 0 : 1;

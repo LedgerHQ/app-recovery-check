@@ -1,10 +1,44 @@
+#include <ux.h>
 #include "ui.h"
 
 enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
 
 enum UI_STATE uiState;
 
+ux_state_t G_ux;
+bolos_ux_params_t G_ux_params;
+
 #if defined(TARGET_NANOS)
+
+UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
+           screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
+           ,
+           {
+               "Recovery phrase",
+               "with 24 words",
+           });
+
+UX_STEP_CB(restore_3_1_2, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
+           screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
+           ,
+           {
+               "Recovery phrase",
+               "with 18 words",
+           });
+
+UX_STEP_CB(restore_3_1_3, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
+           screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
+           ,
+           {
+               "Recovery phrase",
+               "with 12 words",
+           });
+
+UX_FLOW(restore_3_1, &restore_3_1_1, &restore_3_1_2, &restore_3_1_3);
+
+void screen_onboarding_3_restore_init(void) {
+    ux_flow_init(0, restore_3_1, NULL);
+}
 
 UX_STEP_VALID(ux_idle_flow_1_step, pbb, screen_onboarding_3_restore_init();,
                                                                            {
@@ -12,12 +46,14 @@ UX_STEP_VALID(ux_idle_flow_1_step, pbb, screen_onboarding_3_restore_init();,
                                                                                "Check your",
                                                                                "recovery phrase",
                                                                            });
+
 UX_STEP_NOCB(ux_idle_flow_3_step,
              bn,
              {
                  "Version",
                  APPVERSION,
              });
+
 UX_STEP_VALID(ux_idle_flow_4_step,
               pb,
               os_sched_exit(-1),
@@ -25,6 +61,7 @@ UX_STEP_VALID(ux_idle_flow_4_step,
                   &C_icon_dashboard_x,
                   "Quit",
               });
+
 UX_FLOW(ux_idle_flow, &ux_idle_flow_1_step, &ux_idle_flow_3_step, &ux_idle_flow_4_step);
 
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
@@ -48,15 +85,15 @@ const char* number_of_words_getter(unsigned int idx) {
 void number_of_words_selector(unsigned int idx) {
     switch (idx) {
         case 0:
-            G_bolos_ux_context.onboarding_kind = 12;
+            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
             screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
             break;
         case 1:
-            G_bolos_ux_context.onboarding_kind = 18;
+            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
             screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
             break;
         case 2:
-            G_bolos_ux_context.onboarding_kind = 24;
+            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
             screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
             break;
         default:

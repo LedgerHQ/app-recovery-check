@@ -6,9 +6,9 @@ on:
     branches:
       - master
   pull_request:
-    branches:
-      - master
-      - develop
+    paths-ignore:
+      - '.github/workflows/*.yml'
+      - 'tests/*'
 
 jobs:
   job_lint:
@@ -22,7 +22,7 @@ jobs:
       - name: Lint
         uses: DoozyX/clang-format-lint-action@v0.11
         with:
-          source: 'src src_ux_common'
+          source: 'src'
           extensions: 'h,c'
           clangFormatVersion: 11
 

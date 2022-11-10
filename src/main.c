@@ -1,6 +1,5 @@
 /*******************************************************************************
- *   Ledger Blue
- *   (c) 2016 Ledger
+ *   (c) 2016-2022 Ledger SAS
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,10 +14,10 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#include "os.h"
-#include "cx.h"
+#include <os.h>
+#include <cx.h>
+#include <os_io_seproxyhal.h>
 
-#include "os_io_seproxyhal.h"
 #include "ui.h"
 
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
@@ -32,22 +31,10 @@ enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
 extern enum UI_STATE uiState;
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-#include "ux.h"
-#include "bolos_ux_nanox.h"
-#else
-#include "bolos_ux_nanos.h"
-#endif
-
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 uint8_t compare_recovery_phrase(void);
-#endif
-
-#ifdef TARGET_NANOS
+#else
 void compare_recovery_phrase(void);
 #endif
-
-ux_state_t G_ux;
-bolos_ux_params_t G_ux_params;
 
 unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len) {
     switch (channel & ~(IO_FLAGS)) {

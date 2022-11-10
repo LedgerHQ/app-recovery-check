@@ -1,48 +1,10 @@
 /* @BANNER@ */
 
-#include "os.h"
-#include "cx.h"
+#include <os.h>
+#include <cx.h>
 
-#include "bolos_ux_common.h"
-
-unsigned int bolos_ux_mnemonic_from_data(unsigned char* in,
-                                         unsigned int inLength,
-                                         unsigned char* out,
-                                         unsigned int outLength) {
-    unsigned char bits[32 + 1];
-    unsigned int mlen = inLength * 3 / 4;
-    unsigned int i, j, idx, offset;
-
-    if ((inLength % 4) || (inLength < 16) || (inLength > 32)) {
-        THROW(INVALID_PARAMETER);
-    }
-    cx_hash_sha256(in, inLength, bits, 32);
-
-    bits[inLength] = bits[0];
-    memcpy(bits, in, inLength);
-    offset = 0;
-    for (i = 0; i < mlen; i++) {
-        size_t wordLength;
-        idx = 0;
-        for (j = 0; j < 11; j++) {
-            idx <<= 1;
-            idx += (bits[(i * 11 + j) / 8] & (1 << (7 - ((i * 11 + j) % 8)))) > 0;
-        }
-        wordLength = BIP39_WORDLIST_OFFSETS[idx + 1] - BIP39_WORDLIST_OFFSETS[idx];
-        if ((offset + wordLength) > outLength) {
-            THROW(INVALID_PARAMETER);
-        }
-        memcpy(out + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx], wordLength);
-        offset += wordLength;
-        if (i < mlen - 1) {
-            if (offset > outLength) {
-                THROW(INVALID_PARAMETER);
-            }
-            out[offset++] = ' ';
-        }
-    }
-    return offset;
-}
+#include "onboarding_seed_rom_variables.h"
+#include "common.h"
 
 // separated function to lower the stack usage when jumping into pbkdf algorithm
 unsigned int bolos_ux_mnemonic_to_seed_hash_length128(unsigned char* mnemonic,
@@ -71,33 +33,6 @@ void bolos_ux_mnemonic_to_seed(unsigned char* mnemonic,
                      64);
 
     // what happen to the second block for a very short seed ?
-}
-
-unsigned int bolos_ux_get_word_ptr(unsigned char** word,
-                                   unsigned int max_length,
-                                   unsigned int word_index) {
-    unsigned int word_length;
-
-    // seek next word
-    while (word_index--) {
-        while (*(*word) != ' ' && max_length) {
-            *word = (*word) + 1;
-            max_length--;
-        }
-        // also skip the space
-        *word = (*word) + 1;
-        max_length--;
-    }
-
-    // seek next word's length
-    word_length =
-        0;  // could optim by using the smaller word length here (EOS or space as delim here)
-    while (word_length < max_length && (*word)[word_length] != ' ' && (*word)[word_length] != 0) {
-        word_length++;
-    }
-
-    // word ptr is returned in the parameter
-    return word_length;
 }
 
 unsigned int bolos_ux_mnemonic_check(unsigned char* mnemonic, unsigned int mnemonicLength) {
@@ -188,23 +123,6 @@ unsigned int bolos_ux_bip39_idx_strcpy(unsigned int index, unsigned char* buffer
     }
     // no word at that index
     // buffer[0] = 0; // EOS
-    return 0;
-}
-
-unsigned int bolos_ux_bip39_idx_startswith(unsigned int index,
-                                           unsigned char* prefix,
-                                           unsigned int prefixlength) {
-    unsigned int j = 0;
-    if (index < BIP39_WORDLIST_OFFSETS_LENGTH - 1) {
-        while (j < (unsigned int) (BIP39_WORDLIST_OFFSETS[index + 1] -
-                                   BIP39_WORDLIST_OFFSETS[index]) &&
-               BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[index] + j] == prefix[j]) {
-            j++;
-        }
-        if (j == prefixlength) {
-            return 1;
-        }
-    }
     return 0;
 }
 

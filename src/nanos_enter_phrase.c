@@ -1,6 +1,5 @@
 /*******************************************************************************
- *   Ledger Blue - Secure firmware
- *   (c) 2016, 2017 Ledger
+ *   (c) 2016-2022 Ledger SAS
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,7 +15,6 @@
  ********************************************************************************/
 
 #include "ui.h"
-#include "bolos_ux_common.h"
 
 #ifdef TARGET_NANOS
 
@@ -233,21 +231,21 @@ void compare_recovery_phrase(void) {
     bolos_ux_mnemonic_to_seed((unsigned char*) G_bolos_ux_context.words_buffer,
                               G_bolos_ux_context.words_buffer_length,
                               buffer);
-    // PRINTF("Input seed:\n %.*H\n", 64, buffer);
+    PRINTF("Input seed:\n %.*H\n", 64, buffer);
 
     // get rootkey from hex-seed
     cx_hmac_sha512_t ctx;
     const char key[] = "Bitcoin seed";
 
-    cx_hmac_sha512_init(&ctx, (const uint8_t*) key, sizeof(key));
+    cx_hmac_sha512_init(&ctx, (const uint8_t*) key, strlen(key));
     cx_hmac((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64);
-    // PRINTF("Root key from input:\n%.*H\n", 64, buffer);
+    PRINTF("Root key from input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
     uint8_t buffer_device[64];
 
     os_perso_derive_node_bip32(CX_CURVE_256K1, NULL, 0, buffer_device, buffer_device + 32);
-    // PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
+    PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
     // compare both rootkey
     if (os_secure_memcmp(buffer, buffer_device, 64)) {
