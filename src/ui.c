@@ -250,7 +250,7 @@ static void display_keyboard_page() {
  */
 static void display_home_page() {
     nbgl_pageInfoDescription_t home = {
-        .centeredInfo.icon = &C_fatstacks_app_recovery_check,
+        .centeredInfo.icon = &C_fatstacks_recovery_check_64px,
         .centeredInfo.text1 = "Recovery Check",
         .centeredInfo.text2 = NULL,
         .centeredInfo.text3 = NULL,
@@ -272,11 +272,11 @@ static void display_home_page() {
 /*
  * Result page
  */
-static char *possible_results[2] = {"Sorry, this passphrase\nis incorrect.",
-                                    "You recovery passphrase\nis correct!"};
+static char *possible_results[2] = {"Sorry, this recovery\npassphrase is\nincorrect.",
+                                    "Your recovery\npassphrase is\ncorrect!"};
 
 static void display_result_page(const bool result) {
-    nbgl_pageInfoDescription_t home = {.centeredInfo.icon = &C_fatstacks_app_recovery_check,
+    nbgl_pageInfoDescription_t home = {.centeredInfo.icon = &C_fatstacks_recovery_check_64px,
                                        .centeredInfo.text1 = possible_results[result],
                                        .centeredInfo.text2 = NULL,
                                        .centeredInfo.text3 = NULL,

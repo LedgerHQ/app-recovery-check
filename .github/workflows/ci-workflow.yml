@@ -86,7 +86,7 @@ jobs:
         with:
           repository: LedgerHQ/ledger-secure-sdk
           path: ./stax-sdk
-          ref: master
+          ref: v0.4.5-ci
           token: ${{ secrets.STAX_RO }}
       - name: Build
         run: |
