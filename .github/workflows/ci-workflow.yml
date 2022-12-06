@@ -102,6 +102,7 @@ jobs:
   job_scan_build:
     name: Clang Static Analyzer
     strategy:
+      fail-fast: false
       matrix:
         include:
           - SDK: "$NANOS_SDK"

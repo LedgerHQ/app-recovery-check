@@ -107,6 +107,8 @@ unsigned char io_event(unsigned char channel __attribute__((unused))) {
             }
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
             UX_DISPLAYED_EVENT({});
+#elif defined(HAVE_NBGL)
+            UX_DEFAULT_EVENT();
 #endif
             break;
 
