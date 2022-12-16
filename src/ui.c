@@ -11,6 +11,7 @@
 #include <nbgl_front.h>
 #include <nbgl_debug.h>
 #include <nbgl_page.h>
+#include <nbgl_layout.h>
 
 #include "ux_common/common_bip39.h"
 
@@ -259,7 +260,7 @@ static void display_home_page() {
         .topRightStyle = QUIT_ICON,
         .bottomButtonStyle = INFO_ICON,
         .topRightToken = QUIT_APP_TOKEN,
-        .bottomButtonToken = INFO_TOKEN,
+        .bottomButtonsToken = INFO_TOKEN,
         .footerText = NULL,
         .tapActionText = "Tap to check if your\nrecovery passphrase is valid",
         .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
@@ -276,7 +277,7 @@ static char *possible_results[2] = {"Sorry, this recovery\npassphrase is\nincorr
                                     "Your recovery\npassphrase is\ncorrect!"};
 
 static void display_result_page(const bool result) {
-    nbgl_pageInfoDescription_t home = {.centeredInfo.icon = &C_fatstacks_recovery_check_64px,
+    nbgl_pageInfoDescription_t page = {.centeredInfo.icon = &C_fatstacks_recovery_check_64px,
                                        .centeredInfo.text1 = possible_results[result],
                                        .centeredInfo.text2 = NULL,
                                        .centeredInfo.text3 = NULL,
@@ -284,13 +285,13 @@ static void display_result_page(const bool result) {
                                        .centeredInfo.offsetY = 32,
                                        .topRightStyle = NO_BUTTON_STYLE,
                                        .bottomButtonStyle = QUIT_ICON,
-                                       .bottomButtonToken = QUIT_APP_TOKEN,
+                                       .bottomButtonsToken = QUIT_APP_TOKEN,
                                        .footerText = NULL,
                                        .tapActionText = "Tap to check another mnemonic",
                                        .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
                                        .tuneId = TUNE_TAP_CASUAL};
     releaseContext();
-    pageContext = nbgl_pageDrawInfo(&pageTouchCallback, NULL, &home);
+    pageContext = nbgl_pageDrawInfo(&pageTouchCallback, NULL, &page);
     nbgl_refresh();
 }
 

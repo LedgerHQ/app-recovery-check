@@ -64,6 +64,7 @@ ifneq ($(TARGET_NAME), TARGET_FATSTACKS)
     DEFINES += HAVE_BAGL
 else
     $(info BAGL deactivated)
+    DEFINES += NBGL_KEYBOARD
 endif
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
