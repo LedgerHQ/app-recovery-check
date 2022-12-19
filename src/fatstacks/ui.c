@@ -31,12 +31,9 @@ static void reset_globals(void);
 static bool onInfos(uint8_t page, nbgl_pageContent_t *content);
 
 enum {
-    BACK_HOME_TOKEN = 0,
-    BACK_BUTTON_TOKEN,
+    BACK_BUTTON_TOKEN = 0,
     CHOOSE_MNEMONIC_SIZE_TOKEN,
     FIRST_SUGGESTION_TOKEN,
-    INFO_TOKEN,
-    QUIT_APP_TOKEN,
     START_RECOVER_TOKEN,
 };
 
@@ -253,38 +250,21 @@ static void display_keyboard_page() {
 /*
  * Home page & dispatcher
  */
-static void pageTouchCallback(int token, uint8_t index __attribute__((unused))) {
-    if (token == QUIT_APP_TOKEN) {
-        onQuit();
-    } else if (token == INFO_TOKEN) {
-        nbgl_useCaseSettings("Recovery Check infos", 0, 1, false, onHome, onInfos, NULL);
-    } else if (token == CHOOSE_MNEMONIC_SIZE_TOKEN) {
-        display_mnemonic_page();
-    } else if (token == BACK_HOME_TOKEN) {
-        onHome();
-    }
+
+static void display_settings_page() {
+    nbgl_useCaseSettings("Recovery Check infos", 0, 1, false, onHome, onInfos, NULL);
 }
 
 static void display_home_page() {
     reset_globals();
-    nbgl_pageInfoDescription_t home = {
-        .centeredInfo.icon = &C_fatstacks_recovery_check_64px,
-        .centeredInfo.text1 = "Recovery Check",
-        .centeredInfo.text2 = NULL,
-        .centeredInfo.text3 = NULL,
-        .centeredInfo.style = LARGE_CASE_INFO,
-        .centeredInfo.offsetY = 32,
-        .topRightStyle = QUIT_ICON,
-        .bottomButtonStyle = INFO_ICON,
-        .topRightToken = QUIT_APP_TOKEN,
-        .bottomButtonsToken = INFO_TOKEN,
-        .footerText = NULL,
-        .tapActionText = "Tap to check if your\nrecovery passphrase is valid",
-        .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
-        .tuneId = TUNE_TAP_CASUAL};
-    releaseContext();
-    pageContext = nbgl_pageDrawInfo(&pageTouchCallback, NULL, &home);
-    nbgl_refresh();
+    nbgl_useCaseHomeExt("Recovery Check",
+                        &C_fatstacks_recovery_check_64px,
+                        "Verify the validity of\nyour recovery passphrase",
+                        true,
+                        "Check your passphrase",
+                        display_mnemonic_page,
+                        display_settings_page,
+                        onQuit);
 }
 
 /*
@@ -295,22 +275,14 @@ static char *possible_results[2] = {"Sorry, this recovery\npassphrase is\nincorr
 
 static void display_result_page(const bool result) {
     reset_globals();
-    nbgl_pageInfoDescription_t page = {.centeredInfo.icon = &C_fatstacks_recovery_check_64px,
-                                       .centeredInfo.text1 = possible_results[result],
-                                       .centeredInfo.text2 = NULL,
-                                       .centeredInfo.text3 = NULL,
-                                       .centeredInfo.style = LARGE_CASE_INFO,
-                                       .centeredInfo.offsetY = 32,
-                                       .topRightStyle = NO_BUTTON_STYLE,
-                                       .bottomButtonStyle = QUIT_ICON,
-                                       .bottomButtonsToken = QUIT_APP_TOKEN,
-                                       .footerText = NULL,
-                                       .tapActionText = "Tap to check another mnemonic",
-                                       .tapActionToken = CHOOSE_MNEMONIC_SIZE_TOKEN,
-                                       .tuneId = TUNE_TAP_CASUAL};
-    releaseContext();
-    pageContext = nbgl_pageDrawInfo(&pageTouchCallback, NULL, &page);
-    nbgl_refresh();
+    nbgl_useCaseHomeExt(possible_results[result],
+                        &C_fatstacks_recovery_check_64px,
+                        "",
+                        false,
+                        "Check another passphrase",
+                        display_mnemonic_page,
+                        NULL,
+                        onQuit);
 }
 
 /*
