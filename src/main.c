@@ -16,14 +16,16 @@
 
 #include <os.h>
 #include <cx.h>
+#include <ux.h>
 #include <os_io_seproxyhal.h>
 
 #if defined(HAVE_NBGL)
-#include <ux.h>
+#include "fatstacks/ui.h"
+#else
+#include "nano/ui.h"
 #endif
 
-#include "ui.h"
-
+bolos_ux_params_t G_ux_params;
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
 static unsigned int current_text_pos;  // parsing cursor in the text to display
@@ -142,8 +144,9 @@ __attribute__((section(".boot"))) int main(void) {
 
     current_text_pos = 0;
     text_y = 60;
+#if defined(HAVE_BAGL)
     uiState = UI_IDLE;
-
+#endif
     // ensure exception will work as planned
     os_boot();
 

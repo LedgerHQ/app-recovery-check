@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "ux_common/common.h"
+#include "../ux_common/common.h"
 
 #if defined(HAVE_BOLOS_UX) && defined(TARGET_NANOS)
 

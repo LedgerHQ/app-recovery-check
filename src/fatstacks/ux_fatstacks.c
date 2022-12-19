@@ -1,8 +1,8 @@
 #include <os.h>
 #include <string.h>
 
-#include "ux_stax.h"
-#include "ux_common/common_bip39.h"
+#include "ux_fatstacks.h"
+#include "../ux_common/common_bip39.h"
 
 #if defined(HAVE_BOLOS_UX) && defined(TARGET_FATSTACKS)
 

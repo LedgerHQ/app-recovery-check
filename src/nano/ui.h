@@ -16,19 +16,14 @@
 
 #pragma once
 
-#include <os.h>
-#include <os_io_seproxyhal.h>
-#include <string.h>
-#include <cx.h>
-
-#include "glyphs.h"
+#if defined(HAVE_BAGL)
 
 #if defined(TARGET_NANOS)
 #include "ux_nanos.h"
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 #include "ux_nanox.h"
-#elif defined(TARGET_FATSTACKS)
-#include "ux_stax.h"
 #endif
 
 void ui_idle_init(void);
+
+#endif

@@ -15,8 +15,8 @@
  ********************************************************************************/
 
 #include "constants.h"
-#include "ui.h"
 #include "glyphs.h"
+#include "ui.h"
 
 #ifdef TARGET_NANOS
 
