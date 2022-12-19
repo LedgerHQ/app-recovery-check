@@ -19,7 +19,6 @@
 
 #define HEADER_SIZE 50
 
-static nbgl_page_t *pageContext;
 static char headerText[HEADER_SIZE] = {0};
 static nbgl_layout_t *layout = 0;
 
@@ -27,41 +26,25 @@ static void display_keyboard_page(void);
 static void display_home_page(void);
 static void display_result_page(const bool result);
 static void display_mnemonic_page(void);
-static void reset_globals(void);
-static bool onInfos(uint8_t page, nbgl_pageContent_t *content);
 
 enum {
-    BACK_BUTTON_TOKEN = 0,
+    BACK_BUTTON_TOKEN = FIRST_USER_TOKEN,
     CHOOSE_MNEMONIC_SIZE_TOKEN,
     FIRST_SUGGESTION_TOKEN,
     START_RECOVER_TOKEN,
 };
 
-static char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
-
 /*
  * Utils
  */
+static char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
+
 static void reset_globals() {
     reset_mnemonic();
-    memset(buttonTexts, 0, NB_MAX_SUGGESTION_BUTTONS);
+    memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
 }
 
-
-static void releaseContext(void) {
-    if (pageContext != NULL) {
-        nbgl_pageRelease(pageContext);
-        pageContext = NULL;
-    }
-}
-
-static void onHome(void) {
-    releaseContext();
-    ui_idle_init();
-}
-
-static void onQuit(void) {
-    releaseContext();
+static void on_quit(void) {
     os_sched_exit(-1);
 }
 
@@ -71,16 +54,15 @@ static void onQuit(void) {
 static const char *const infoTypes[] = {"Version", "Recovery Check"};
 static const char *const infoContents[] = {APPVERSION, "(c) 2022 Ledger"};
 
-static bool onInfos(uint8_t page, nbgl_pageContent_t *content) {
+static bool on_infos(uint8_t page, nbgl_pageContent_t *content) {
     if (page == 0) {
         content->type = INFOS_LIST;
         content->infosList.nbInfos = 2;
         content->infosList.infoTypes = (const char **) infoTypes;
         content->infosList.infoContents = (const char **) infoContents;
-    } else {
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 /*
@@ -112,29 +94,30 @@ static void mnemonic_dispatcher(const int token, uint8_t index) {
     }
 }
 
+static const char *const passphraseLength[] = {"12 words", "18 words", "24 words"};
+
+static bool on_passphrase_length_selector(uint8_t page, nbgl_pageContent_t *content) {
+    if (page == 0) {
+        content->type = CHOICES_LIST;
+        content->choicesList.names = (char **) passphraseLength;
+        content->choicesList.localized = false;
+        content->choicesList.nbChoices = 3;
+        content->choicesList.initChoice = 2;
+        content->choicesList.token = CHOOSE_MNEMONIC_SIZE_TOKEN;
+        return true;
+    }
+    return false;
+}
+
 static void display_mnemonic_page() {
     reset_globals();
-    nbgl_layoutDescription_t layoutDescription = {.modal = false,
-                                                  .onActionCallback = mnemonic_dispatcher};
-    nbgl_layoutRadioChoice_t choices = {.names = (char *[]){"12 words", "18 words", "24 words"},
-                                        .localized = false,
-                                        .nbChoices = 3,
-                                        .initChoice = 2,
-                                        .token = CHOOSE_MNEMONIC_SIZE_TOKEN};
-    nbgl_layoutCenteredInfo_t centeredInfo = {.text1 = NULL,
-                                              .text2 = headerText,  // to use as "header"
-                                              .text3 = NULL,
-                                              .style = LARGE_CASE_INFO,
-                                              .icon = NULL,
-                                              .offsetY = 0,
-                                              .onTop = true};
-    layout = nbgl_layoutGet(&layoutDescription);
-    nbgl_layoutAddProgressIndicator(layout, 0, 0, true, BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
-    memset(headerText, 0, HEADER_SIZE);
-    snprintf(headerText, HEADER_SIZE, "What is the length of your\nrecovery passphrase?");
-    nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
-    nbgl_layoutAddRadioChoice(layout, &choices);
-    nbgl_layoutDraw(layout);
+    nbgl_useCaseSettings("Select the length of your\nrecovery passphrase",
+                         0,
+                         1,
+                         true,
+                         display_home_page,
+                         on_passphrase_length_selector,
+                         mnemonic_dispatcher);
 }
 
 /*
@@ -252,7 +235,7 @@ static void display_keyboard_page() {
  */
 
 static void display_settings_page() {
-    nbgl_useCaseSettings("Recovery Check infos", 0, 1, false, onHome, onInfos, NULL);
+    nbgl_useCaseSettings("Recovery Check infos", 0, 1, false, display_home_page, on_infos, NULL);
 }
 
 static void display_home_page() {
@@ -264,7 +247,7 @@ static void display_home_page() {
                         "Check your passphrase",
                         display_mnemonic_page,
                         display_settings_page,
-                        onQuit);
+                        on_quit);
 }
 
 /*
@@ -282,7 +265,7 @@ static void display_result_page(const bool result) {
                         "Check another passphrase",
                         display_mnemonic_page,
                         NULL,
-                        onQuit);
+                        on_quit);
 }
 
 /*
