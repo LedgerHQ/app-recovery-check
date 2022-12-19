@@ -18,7 +18,7 @@ def screen(client: BackendInterface):
 
 
 def test_check_info_then_leave(screen: Screen, client: BackendInterface):
-    screen.info.tap()
+    screen.home.info()
     assert_current_equals(client, SCREENSHOTS / "info.png")
     screen.quit_info.tap()
     assert_current_equals(client, SCREENSHOTS / "welcome.png")
@@ -26,7 +26,7 @@ def test_check_info_then_leave(screen: Screen, client: BackendInterface):
 
 
 def test_check_all_passphrase_lengths(screen: Screen, client: BackendInterface):
-    screen.center.tap()
+    screen.home.action()
     assert_current_equals(client, SCREENSHOTS / "passphrase_length.png")
     for choice, length in [(1, 12), (2, 18), (3, 24)]:
         screen.choice_list.choose(choice)
@@ -36,7 +36,7 @@ def test_check_all_passphrase_lengths(screen: Screen, client: BackendInterface):
 
 
 def test_check_previous_word(screen: Screen, client: BackendInterface):
-    screen.center.tap()
+    screen.home.action()
     screen.choice_list.choose(1)
     assert_current_equals(client, SCREENSHOTS / "first_12.png")
     tries = ["rand", "ok"]

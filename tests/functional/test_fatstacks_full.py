@@ -21,7 +21,7 @@ def screen(client: BackendInterface):
 
 def test_nominal_full_passphrase_check(screen: Screen, client: BackendInterface):
     # going to choose mnemonic length
-    screen.center.tap()
+    screen.home.action()
     assert_current_equals(client, SCREENSHOTS / "passphrase_length.png")
     # choosing 3d (24 words)
     screen.choice_list.choose(3)
@@ -37,7 +37,7 @@ def test_nominal_full_passphrase_check(screen: Screen, client: BackendInterface)
 
 
 def test_nominal_full_passphrase_check_error_wrong_passphrase(screen: Screen, client: BackendInterface):
-    screen.center.tap()
+    screen.home.action()
     assert_current_equals(client, SCREENSHOTS / "passphrase_length.png")
     # choosing 1st (12 words)
     screen.choice_list.choose(1)
