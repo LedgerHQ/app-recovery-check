@@ -60,11 +60,12 @@ DEFINES += HAVE_SPRINTF
 DEFINES += HAVE_BOLOS_UX
 
 ifneq ($(TARGET_NAME), TARGET_FATSTACKS)
-    $(info BAGL activated)
+    $(info Using BAGL)
     DEFINES += HAVE_BAGL
 else
-    $(info BAGL deactivated)
+    $(info Usgin NBGL)
     DEFINES += NBGL_KEYBOARD
+    APP_LOAD_PARAMS += --appFlags 0x200
 endif
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
