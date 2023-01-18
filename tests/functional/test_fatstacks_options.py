@@ -28,7 +28,7 @@ def test_check_info_then_leave(screen: Screen, client: BackendInterface):
 def test_check_all_passphrase_lengths(screen: Screen, client: BackendInterface):
     screen.home.action()
     assert_current_equals(client, SCREENSHOTS / "passphrase_length.png")
-    for choice, length in [(1, 12), (2, 18), (3, 24)]:
+    for choice, length in [(1, 24), (2, 18), (3, 12)]:
         screen.choice_list.choose(choice)
         assert_current_equals(client, SCREENSHOTS / f"first_{length}.png")
         screen.navigation.tap()
@@ -38,7 +38,7 @@ def test_check_all_passphrase_lengths(screen: Screen, client: BackendInterface):
 def test_check_previous_word(screen: Screen, client: BackendInterface):
     screen.home.action()
     screen.choice_list.choose(1)
-    assert_current_equals(client, SCREENSHOTS / "first_12.png")
+    assert_current_equals(client, SCREENSHOTS / "first_24.png")
     tries = ["rand", "ok"]
     for word in tries:
         screen.keyboard.write(word[:4])
@@ -46,7 +46,7 @@ def test_check_previous_word(screen: Screen, client: BackendInterface):
     # coming back N time, should bring back to the first word page
     for _ in tries:
         screen.navigation.tap()
-    assert_current_equals(client, SCREENSHOTS / "first_12.png")
+    assert_current_equals(client, SCREENSHOTS / "first_24.png")
     # one more 'back' tap will bring us to the passphrase length choice page
     screen.navigation.tap()
     assert_current_equals(client, SCREENSHOTS / "passphrase_length.png")

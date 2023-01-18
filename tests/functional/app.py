@@ -1,14 +1,14 @@
-from ragger.firmware.fatstacks.layouts import ExitFooter,  _Layout, LetterOnlyKeyboard, \
+from ragger.firmware.stax.layouts import ExitFooter, CenteredFooter, _Layout, LetterOnlyKeyboard, \
     NavigationHeader, Suggestions
-from ragger.firmware.fatstacks.use_cases import UseCaseHomeExt
-from ragger.firmware.fatstacks.screen import MetaScreen
+from ragger.firmware.stax.use_cases import UseCaseHomeExt
+from ragger.firmware.stax.screen import MetaScreen
 
 
 class CustomChoiceList(_Layout):
 
     def choose(self, index: int):
         assert 1 <= index <= 6, "Choice index must be in [1, 6]"
-        x, y = (200, 130)
+        x, y = (200, 430)
         diff = 80
         self.client.finger_touch(x, y + (index - 1)*diff)
 
@@ -19,6 +19,7 @@ class Screen(metaclass=MetaScreen):
     layout_suggestions = Suggestions
     layout_navigation = NavigationHeader
     layout_quit_info = ExitFooter
+    layout_dismiss = CenteredFooter
     use_case_home = UseCaseHomeExt
 
     def exit(self):

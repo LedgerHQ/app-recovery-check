@@ -16,8 +16,11 @@
 #include "../ux_common/common_bip39.h"
 #include "ui.h"
 #include "ux_fatstacks.h"
+#include "passphrase_length_screen.h"
 
 #define HEADER_SIZE 50
+
+static nbgl_page_t *pageContext;
 
 static char headerText[HEADER_SIZE] = {0};
 static nbgl_layout_t *layout = 0;
@@ -25,13 +28,13 @@ static nbgl_layout_t *layout = 0;
 static void display_keyboard_page(void);
 static void display_home_page(void);
 static void display_result_page(const bool result);
-static void display_mnemonic_page(void);
 
 enum {
     BACK_BUTTON_TOKEN = FIRST_USER_TOKEN,
     CHOOSE_MNEMONIC_SIZE_TOKEN,
     FIRST_SUGGESTION_TOKEN,
     START_RECOVER_TOKEN,
+    RESULT_TOKEN,
 };
 
 /*
@@ -68,56 +71,67 @@ static bool on_infos(uint8_t page, nbgl_pageContent_t *content) {
 /*
  * Choose mnemonic size page
  */
-static void mnemonic_dispatcher(const int token, uint8_t index) {
-    if (token == BACK_BUTTON_TOKEN) {
+enum {
+    ICON_INDEX = 0,
+    TEXT_INDEX,
+    BUTTON_12_INDEX,
+    BUTTON_18_INDEX,
+    BUTTON_24_INDEX,
+    BACK_BUTTON_INDEX,
+    NB_CHILDREN
+};
+
+#define NB_BUTTONS 3
+
+static char *passphraseLength[] = {"12 words", "18 words", "24 words"};
+static void passphrase_length_callback(nbgl_obj_t *obj, nbgl_touchType_t eventType) {
+    nbgl_obj_t **screenChildren = nbgl_screenGetElements(0);
+    if (eventType != TOUCHED) {
+        return;
+    }
+    io_seproxyhal_play_tune(TUNE_TAP_CASUAL);
+    if (obj == screenChildren[BUTTON_12_INDEX]) {
+        set_mnemonic_final_size(MNEMONIC_SIZE_12);
+    } else if (obj == screenChildren[BUTTON_18_INDEX]) {
+        set_mnemonic_final_size(MNEMONIC_SIZE_18);
+    } else if (obj == screenChildren[BUTTON_24_INDEX]) {
+        set_mnemonic_final_size(MNEMONIC_SIZE_24);
+    } else if (obj == screenChildren[BACK_BUTTON_INDEX]) {
         nbgl_layoutRelease(layout);
         display_home_page();
-    } else if (token == CHOOSE_MNEMONIC_SIZE_TOKEN) {
-        switch (index) {
-            case 0:
-                set_mnemonic_final_size(MNEMONIC_SIZE_12);
-                break;
-            case 1:
-                set_mnemonic_final_size(MNEMONIC_SIZE_18);
-                break;
-            case 2:
-                set_mnemonic_final_size(MNEMONIC_SIZE_24);
-                break;
-            default:
-                PRINTF("Unexpected index '%d' (max 3)\n", index);
-                nbgl_layoutRelease(layout);
-                display_home_page();
-                return;
-        }
-        nbgl_layoutRelease(layout);
-        display_keyboard_page();
+        return;
     }
+    nbgl_layoutRelease(layout);
+    display_keyboard_page();
 }
 
-static const char *const passphraseLength[] = {"12 words", "18 words", "24 words"};
+static void passphrase_length_page(void) {
+    nbgl_obj_t **screenChildren;
 
-static bool on_passphrase_length_selector(uint8_t page, nbgl_pageContent_t *content) {
-    if (page == 0) {
-        content->type = CHOICES_LIST;
-        content->choicesList.names = (char **) passphraseLength;
-        content->choicesList.localized = false;
-        content->choicesList.nbChoices = 3;
-        content->choicesList.initChoice = 2;
-        content->choicesList.token = CHOOSE_MNEMONIC_SIZE_TOKEN;
-        return true;
-    }
-    return false;
-}
+    // 3 buttons + icon + text + subText
+    nbgl_screenSet(&screenChildren, 6, NULL);
 
-static void display_mnemonic_page() {
-    reset_globals();
-    nbgl_useCaseSettings("Select the length of your\nrecovery passphrase",
-                         0,
-                         1,
-                         true,
-                         display_home_page,
-                         on_passphrase_length_selector,
-                         mnemonic_dispatcher);
+    screenChildren[ICON_INDEX] = (nbgl_obj_t *) passphrase_length_set_icon();
+    screenChildren[TEXT_INDEX] =
+        (nbgl_obj_t *) passphrase_length_set_title(screenChildren[ICON_INDEX]);
+
+    // create nb words buttons
+    nbgl_objPoolGetArray(BUTTON, NB_BUTTONS, 0, (nbgl_obj_t **) &screenChildren[BUTTON_12_INDEX]);
+    passphrase_length_configure_buttons((nbgl_button_t **) &screenChildren[BUTTON_12_INDEX],
+                                        NB_BUTTONS,
+                                        (nbgl_touchCallback_t) &passphrase_length_callback);
+    ((nbgl_button_t *) screenChildren[BUTTON_12_INDEX])->text = passphraseLength[0];
+    ((nbgl_button_t *) screenChildren[BUTTON_18_INDEX])->text = passphraseLength[1];
+    ((nbgl_button_t *) screenChildren[BUTTON_24_INDEX])->text = passphraseLength[2];
+    ((nbgl_button_t *) screenChildren[BUTTON_24_INDEX])->borderColor = BLACK;
+    ((nbgl_button_t *) screenChildren[BUTTON_24_INDEX])->innerColor = BLACK;
+    ((nbgl_button_t *) screenChildren[BUTTON_24_INDEX])->foregroundColor = WHITE;
+
+    // create back button
+    screenChildren[BACK_BUTTON_INDEX] = (nbgl_obj_t *) passphrase_length_set_back_button(
+        (nbgl_touchCallback_t) &passphrase_length_callback);
+
+    nbgl_screenRedraw();
 }
 
 /*
@@ -135,7 +149,7 @@ static void keyboard_dispatcher(const int token, uint8_t index __attribute__((un
         if (remove_word_from_mnemonic()) {
             display_keyboard_page();
         } else {
-            display_mnemonic_page();
+            passphrase_length_page();
         }
     } else if (token >= FIRST_SUGGESTION_TOKEN) {
         nbgl_layoutRelease(layout);
@@ -169,7 +183,7 @@ static void key_press_callback(const char touchedKey) {
         textLen = previousTextLen + 1;
     }
     PRINTF("Current text is: '%s' (size '%d')\n", textToEnter, textLen);
-    if (textLen < 2) {
+    if (textLen == 0) {
         // no suggestion until there is at least 2 characters
         nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, 0, buttonTexts);
     } else {
@@ -207,26 +221,26 @@ static void display_keyboard_page() {
     strlcpy(textToEnter, "", 1);
     memset(buttonTexts, 0, NB_MAX_SUGGESTION_BUTTONS);
     layout = nbgl_layoutGet(&layoutDescription);
-    nbgl_layoutAddProgressIndicator(layout, 0, 0, true, BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
     memset(headerText, 0, HEADER_SIZE);
     snprintf(headerText,
              HEADER_SIZE,
-             "Enter word n. %d/%d from your\nrecovery passphrase",
+             "Enter word n. %d/%d from your\nRecovery Sheet",
              get_current_word_number() + 1,
              get_mnemonic_final_size());
+    nbgl_layoutAddProgressIndicator(layout, 0, 0, true, BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
     nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
     keyboardIndex = nbgl_layoutAddKeyboard(layout, &kbdInfo);
+    suggestionIndex = nbgl_layoutAddSuggestionButtons(layout,
+                                                      0,  // no used buttons at start-up
+                                                      buttonTexts,
+                                                      FIRST_SUGGESTION_TOKEN,
+                                                      TUNE_TAP_CASUAL);
     textIndex = nbgl_layoutAddEnteredText(layout,
                                           true,                           // numbered
                                           get_current_word_number() + 1,  // number to use
                                           textToEnter,                    // text to display
                                           false,                          // not grayed-out
                                           32);  // vertical margin from the buttons
-    suggestionIndex = nbgl_layoutAddSuggestionButtons(layout,
-                                                      0,  // no used buttons at start-up
-                                                      buttonTexts,
-                                                      FIRST_SUGGESTION_TOKEN,
-                                                      TUNE_TAP_CASUAL);
     nbgl_layoutDraw(layout);
 }
 
@@ -241,11 +255,12 @@ static void display_settings_page() {
 static void display_home_page() {
     reset_globals();
     nbgl_useCaseHomeExt("Recovery Check",
-                        &C_fatstacks_recovery_check_64px,
-                        "Verify the validity of\nyour recovery passphrase",
-                        true,
-                        "Check your passphrase",
-                        display_mnemonic_page,
+                        &C_stax_recovery_check_64px,
+                        "This app lets you enter a\nSecret Recovery Phrase and\ntest if it matches "
+                        "the one\npresent on this Ledger Stax",
+                        false,
+                        "Start check",
+                        passphrase_length_page,
                         display_settings_page,
                         on_quit);
 }
@@ -253,19 +268,35 @@ static void display_home_page() {
 /*
  * Result page
  */
-static char *possible_results[2] = {"Sorry, this recovery\npassphrase is\nincorrect.",
-                                    "Your recovery\npassphrase is\ncorrect!"};
+static char *possible_results[2][2] = {
+    {"Incorrect Secret\nRecovery Phrase",
+     "The Recovery Phrase you have\nentered doesn't match the one\npresent on this Ledger Stax."},
+    {"Correct Secret\nRecovery Phrase",
+     "The Recovery Phrase you have\nentered matches the one\npresent on this Ledger Stax."}};
+static const nbgl_icon_details_t *icons[2] = {&C_warning64px, &C_round_check_64px};
+
+static void result_callback(int token __attribute__((unused)),
+                            uint8_t index __attribute__((unused))) {
+    display_home_page();
+}
 
 static void display_result_page(const bool result) {
     reset_globals();
-    nbgl_useCaseHomeExt(possible_results[result],
-                        &C_fatstacks_recovery_check_64px,
-                        "",
-                        false,
-                        "Check another passphrase",
-                        display_mnemonic_page,
-                        NULL,
-                        on_quit);
+    nbgl_pageInfoDescription_t info = {.centeredInfo.icon = icons[result],
+                                       .centeredInfo.text1 = possible_results[result][0],
+                                       .centeredInfo.text2 = possible_results[result][1],
+                                       .centeredInfo.text3 = NULL,
+                                       .centeredInfo.style = LARGE_CASE_INFO,
+                                       .centeredInfo.offsetY = -16,
+                                       .footerText = "Tap to dismiss",
+                                       .footerToken = RESULT_TOKEN,
+                                       .bottomButtonStyle = NO_BUTTON_STYLE,
+                                       .tapActionText = NULL,
+                                       .topRightStyle = NO_BUTTON_STYLE,
+                                       .actionButtonText = NULL,
+                                       .tuneId = TUNE_TAP_CASUAL};
+    pageContext = nbgl_pageDrawInfo(&result_callback, NULL, &info);
+    nbgl_refresh();
 }
 
 /*

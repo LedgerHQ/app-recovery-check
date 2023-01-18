@@ -24,7 +24,7 @@ def test_nominal_full_passphrase_check(screen: Screen, client: BackendInterface)
     screen.home.action()
     assert_current_equals(client, SCREENSHOTS / "passphrase_length.png")
     # choosing 3d (24 words)
-    screen.choice_list.choose(3)
+    screen.choice_list.choose(1)
     assert_current_equals(client, SCREENSHOTS / "first_24.png")
     for word in SPECULOS_MNEMONIC.split():
         # 4 letters are enough to discriminate the correct word
@@ -33,6 +33,7 @@ def test_nominal_full_passphrase_check(screen: Screen, client: BackendInterface)
         screen.suggestions.choose(1)
     sleep(0.1)
     assert_current_equals(client, SCREENSHOTS / "correct.png")
+    screen.dismiss.tap() # exit the result screen to the home page
     screen.exit()
 
 
@@ -40,7 +41,7 @@ def test_nominal_full_passphrase_check_error_wrong_passphrase(screen: Screen, cl
     screen.home.action()
     assert_current_equals(client, SCREENSHOTS / "passphrase_length.png")
     # choosing 1st (12 words)
-    screen.choice_list.choose(1)
+    screen.choice_list.choose(3)
     assert_current_equals(client, SCREENSHOTS / "first_12.png")
      # only the 12 first words
     for word in SPECULOS_MNEMONIC.split()[:12]:
@@ -48,4 +49,5 @@ def test_nominal_full_passphrase_check_error_wrong_passphrase(screen: Screen, cl
         screen.suggestions.choose(1)
     sleep(0.1)
     assert_current_equals(client, SCREENSHOTS / "incorrect.png")
+    screen.dismiss.tap() # exit the result screen to the home page
     screen.exit()
