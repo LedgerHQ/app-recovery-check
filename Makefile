@@ -36,7 +36,7 @@ APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1
 ifeq ($(TARGET_NAME), TARGET_NANOS)
     ICONNAME=icons/nanos_app_recovery_check.gif
 else ifeq ($(TARGET_NAME), TARGET_FATSTACKS)
-    ICONNAME=icons/fatstacks_recovery_check_32px.gif
+    ICONNAME=icons/stax_recovery_check_32px.gif
 else
     ICONNAME=icons/nanox_app_recovery_check.gif
 endif

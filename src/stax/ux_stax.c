@@ -1,8 +1,8 @@
 #include <os.h>
 #include <string.h>
 
-#include "ux_fatstacks.h"
 #include "../ux_common/common_bip39.h"
+#include "./ux_stax.h"
 
 #if defined(HAVE_BOLOS_UX) && defined(TARGET_FATSTACKS)
 
@@ -50,7 +50,7 @@ void reset_mnemonic() {
 }
 
 bool remove_word_from_mnemonic() {
-    PRINTF("Removing a word, currently there is '%d' of them\n", mnemonic.current_word_index + 1);
+    PRINTF("Removing a word, currently there is '%ld' of them\n", mnemonic.current_word_index + 1);
     if (mnemonic.current_word_index == (size_t) -1) {
         return false;
     }
@@ -58,7 +58,7 @@ bool remove_word_from_mnemonic() {
     mnemonic.current_word_index--;
     // removing previous word from mnemonic buffer (+ 1 blank space)
     mnemonic_shrink(current_length + 1);
-    PRINTF("Number of remaining words in the mnemonic: '%d'\n", mnemonic.current_word_index + 1);
+    PRINTF("Number of remaining words in the mnemonic: '%ld'\n", mnemonic.current_word_index + 1);
     return true;
 }
 
@@ -72,7 +72,7 @@ size_t add_word_in_mnemonic(const char* const buffer, const size_t size) {
     mnemonic.length += size;
     mnemonic.current_word_index++;
     mnemonic.word_lengths[mnemonic.current_word_index] = size;
-    PRINTF("Number of words in the mnemonic: '%d'\n", get_current_word_number());
+    PRINTF("Number of words in the mnemonic: '%ld'\n", get_current_word_number());
     PRINTF("Current mnemonic: '%s'\n", &mnemonic.buffer[0]);
     return get_current_word_number();
 }
@@ -87,7 +87,7 @@ bool check_mnemonic() {
     if (!is_mnemonic_complete()) {
         return false;
     }
-    PRINTF("Checking the following mnemonic: '%s' (size %d)\n",
+    PRINTF("Checking the following mnemonic: '%s' (size %ld)\n",
            &mnemonic.buffer[0],
            mnemonic.length);
     const bool result =

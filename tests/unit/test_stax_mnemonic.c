@@ -6,7 +6,7 @@
 #include <string.h>
 #include <cmocka.h>
 
-#include "ux_stax.h"
+#include "stax/ux_stax.h"
 
 
 static int setup(void **state __attribute__((unused))) {

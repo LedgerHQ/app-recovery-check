@@ -20,7 +20,7 @@
 #include <os_io_seproxyhal.h>
 
 #if defined(HAVE_NBGL)
-#include "fatstacks/ui.h"
+#include "stax/ui.h"
 #else
 #include "nano/ui.h"
 #endif

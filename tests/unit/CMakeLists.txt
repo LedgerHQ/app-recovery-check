@@ -44,7 +44,7 @@ include_directories(../../src ./mocks/)
 
 add_executable(test_stax_mnemonic test_stax_mnemonic.c)
 
-add_library(stax SHARED ../../src/ux_common/onboarding_seed_rom_variables.c ../../src/ux_stax.c)
+add_library(stax SHARED ../../src/ux_common/onboarding_seed_rom_variables.c ../../src/stax/ux_stax.c)
 
 target_link_libraries(test_stax_mnemonic PUBLIC cmocka gcov stax)
 
