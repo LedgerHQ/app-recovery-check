@@ -1,8 +1,8 @@
 #include <string.h>
 #include <os.h>
 
-#include "constants.h"
-#include "glyphs.h"
+#include "../constants.h"
+#include "../glyphs.h"
 
 #if defined(HAVE_NBGL)
 
@@ -14,7 +14,7 @@
 #include <nbgl_layout.h>
 
 #include "../ux_common/common_bip39.h"
-#include "./ui.h"
+#include "../ui.h"
 #include "./ux_stax.h"
 #include "./passphrase_length_screen.h"
 

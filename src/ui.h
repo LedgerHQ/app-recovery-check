@@ -16,14 +16,17 @@
 
 #pragma once
 
-#if defined(HAVE_BAGL)
+#include <os.h>
 
 #if defined(TARGET_NANOS)
-#include "ux_nanos.h"
+
+#include "./ux_nanos.h"
+
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-#include "ux_nanox.h"
+
+#include "./ux_nanox.h"
+
 #endif
 
+// NanoS, S+, X and Stax
 void ui_idle_init(void);
-
-#endif

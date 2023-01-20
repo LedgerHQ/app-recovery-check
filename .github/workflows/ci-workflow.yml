@@ -47,6 +47,7 @@ jobs:
   nano_build:
     name: Build application for NanoS, X and S+
     strategy:
+      fail-fast: false
       matrix:
         include:
           - SDK: "$NANOS_SDK"
@@ -73,8 +74,8 @@ jobs:
           name: apps
           path: bin/*.elf
 
-  fatstacks_build:
-    name: Build application for Fatstacks
+  stax_build:
+    name: Build application for Stax
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
@@ -86,13 +87,13 @@ jobs:
         with:
           repository: LedgerHQ/ledger-secure-sdk
           path: ./stax-sdk
-          ref: fatstacks_1.0.0-rc6
+          ref: fatstacks_1.0.0-rc7
           token: ${{ secrets.STAX_RO }}
       - name: Build
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           make BOLOS_SDK=./stax-sdk TARGET=fatstacks
-          mv bin/app.elf "bin/fatstacks.elf"
+          mv bin/app.elf "bin/stax.elf"
       - name: Upload app binary
         uses: actions/upload-artifact@v3
         with:

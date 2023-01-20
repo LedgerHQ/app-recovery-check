@@ -14,11 +14,14 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#include "constants.h"
-#include "glyphs.h"
+#include <os_io_seproxyhal.h>
+#include <lcx_hmac.h>
+
+#include "../constants.h"
+#include "../glyphs.h"
 #include "ui.h"
 
-#ifdef TARGET_NANOS
+#if defined(TARGET_NANOS)
 
 // allow to edit back any entered word
 #define RESTORE_WORD_MAX_BACKWARD_STEPS 24

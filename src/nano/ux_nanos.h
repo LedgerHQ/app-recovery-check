@@ -80,4 +80,6 @@ void screen_common_keyboard_init(unsigned int stack_slot,
 
 extern const bagl_element_t screen_onboarding_word_list_elements[9];
 
+void compare_recovery_phrase(void);
+
 #endif  // HAVE_BOLOS_UX && TARGET_NANOS

@@ -1,10 +1,10 @@
 #include <ux.h>
+#include "../ui.h"
 
 #if defined(HAVE_BAGL)
 
-#include "constants.h"
-#include "glyphs.h"
-#include "ui.h"
+#include "../constants.h"
+#include "../glyphs.h"
 
 enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
 

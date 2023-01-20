@@ -14,8 +14,11 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#include "constants.h"
-#include "ui.h"
+#include <lcx_hmac.h>
+#include <lcx_rng.h>
+
+#include "../constants.h"
+#include "../ui.h"
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 

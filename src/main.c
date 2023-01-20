@@ -19,10 +19,10 @@
 #include <ux.h>
 #include <os_io_seproxyhal.h>
 
-#if defined(HAVE_NBGL)
-#include "stax/ui.h"
-#else
-#include "nano/ui.h"
+#include "ui.h"
+
+#if defined(HAVE_BAGL)
+extern enum UI_STATE uiState;
 #endif
 
 bolos_ux_params_t G_ux_params;
@@ -33,14 +33,6 @@ static unsigned int text_y;            // current location of the displayed text
 
 // UI currently displayed
 enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
-
-extern enum UI_STATE uiState;
-
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-uint8_t compare_recovery_phrase(void);
-#else
-void compare_recovery_phrase(void);
-#endif
 
 unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len) {
     switch (channel & ~(IO_FLAGS)) {
