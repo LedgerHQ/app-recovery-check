@@ -23,7 +23,7 @@
 #include <os_io_seproxyhal.h>
 #include <string.h>
 
-#include "../glyphs.h"
+#include "glyphs.h"
 
 #ifdef OS_IO_SEPROXYHAL
 
