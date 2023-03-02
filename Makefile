@@ -25,18 +25,18 @@ all: default
 
 # Main app configuration
 
-APPNAME = "Recovery Check"
+APPNAME = "SSKR Check"
 APPVERSION_M = 1
-APPVERSION_N = 1
-APPVERSION_P = 0
+APPVERSION_N = 0
+APPVERSION_P = 1
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1 --path ""
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
-    ICONNAME=icons/nanos_app_recovery_check.gif
+    ICONNAME=icons/nanos_app_sskr_check.gif
 else
-    ICONNAME=icons/nanox_app_recovery_check.gif
+    ICONNAME=icons/nanox_app_sskr_check.gif
 endif
 
 # Build configuration
@@ -130,4 +130,4 @@ include $(BOLOS_SDK)/Makefile.rules
 
 
 listvariants:
-	@echo VARIANTS APP recovery_check
+	@echo VARIANTS APP sskr_check
