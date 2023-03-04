@@ -131,3 +131,6 @@ include $(BOLOS_SDK)/Makefile.rules
 
 listvariants:
 	@echo VARIANTS APP sskr_check
+
+test:
+	${MAKE} -C ./tests/unit/bc-shamir/ test

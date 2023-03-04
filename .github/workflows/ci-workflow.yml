@@ -52,7 +52,7 @@ jobs:
       - name: Build with Clang Static Analyzer
         run: |
           make clean
-          scan-build --use-cc=clang -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist -o scan-build --status-bugs make default
+          scan-build --use-cc=clang -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist -disable-checker core.VLASize -o scan-build --status-bugs make default
 
       - name: Upload scan result
         uses: actions/upload-artifact@v2

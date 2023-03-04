@@ -21,7 +21,11 @@ jobs:
         language: [ 'cpp' ]
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-legacy:latest
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: read
 
     steps:
       - name: Clone
@@ -32,6 +36,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
+          debug: true`
 
       # CodeQL will create the database during the compilation
       - name: Build
