@@ -15,8 +15,17 @@ jobs:
   analyse:
     name: Analyse
     strategy:
+      fail-fast: false
       matrix:
-        sdk: [ "$NANOS_SDK", "$NANOX_SDK", "$NANOSP_SDK" ]
+        include:
+          - SDK: "$NANOS_SDK"
+            name: nanos
+          - SDK: "$NANOX_SDK"
+            name: nanox
+          - SDK: "$NANOSP_SDK"
+            name: nanos2
+          - SDK: "$STAX_SDK"
+            name: stax
         #'cpp' covers C and C++
         language: [ 'cpp' ]
     runs-on: ubuntu-latest
@@ -36,7 +45,7 @@ jobs:
       # CodeQL will create the database during the compilation
       - name: Build
         run: |
-          make BOLOS_SDK=${{ matrix.sdk }}
+          make BOLOS_SDK=${{ matrix.SDK }} TARGET=${{ matrix.name }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2

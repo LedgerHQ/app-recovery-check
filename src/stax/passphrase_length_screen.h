@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(TARGET_FATSTACKS)
+#if defined(TARGET_STAX)
 
 nbgl_image_t *passphrase_length_set_icon(void);
 nbgl_text_area_t *passphrase_length_set_title(nbgl_obj_t *align_to);

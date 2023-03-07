@@ -35,7 +35,7 @@ APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
     ICONNAME=icons/nanos_app_recovery_check.gif
-else ifeq ($(TARGET_NAME), TARGET_FATSTACKS)
+else ifeq ($(TARGET_NAME), TARGET_STAX)
     ICONNAME=icons/stax_recovery_check_32px.gif
 else
     ICONNAME=icons/nanox_app_recovery_check.gif
@@ -59,7 +59,7 @@ DEFINES += IO_USB_MAX_ENDPOINTS=4 IO_HID_EP_LENGTH=64
 DEFINES += HAVE_SPRINTF
 DEFINES += HAVE_BOLOS_UX
 
-ifneq ($(TARGET_NAME), TARGET_FATSTACKS)
+ifneq ($(TARGET_NAME), TARGET_STAX)
     $(info Using BAGL)
     DEFINES += HAVE_BAGL
 else
@@ -72,7 +72,7 @@ ifeq ($(TARGET_NAME), TARGET_NANOS)
     DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
 else
     DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
-    ifneq ($(TARGET_NAME), TARGET_FATSTACKS)
+    ifneq ($(TARGET_NAME), TARGET_STAX)
         DEFINES += HAVE_GLO096
         DEFINES += BAGL_WIDTH=128 BAGL_HEIGHT=64
         DEFINES += HAVE_BAGL_ELLIPSIS # long label truncation feature
@@ -127,9 +127,9 @@ include $(BOLOS_SDK)/Makefile.glyphs
 
 APP_SOURCE_PATH += src
 
-ifeq ($(TARGET_NAME), TARGET_FATSTACKS)
+ifeq ($(TARGET_NAME), TARGET_STAX)
     SDK_SOURCE_PATH += lib_nbgl/src
-    SDK_SOURCE_PATH += lib_ux_fatstacks
+    SDK_SOURCE_PATH += lib_ux_stax
 else ifneq ($(TARGET_NAME), TARGET_NANOS)
     SDK_SOURCE_PATH  += lib_ux
 endif

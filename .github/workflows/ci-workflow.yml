@@ -87,8 +87,7 @@ jobs:
         with:
           repository: LedgerHQ/ledger-secure-sdk
           path: ./stax-sdk
-          ref: fatstacks_1.0.0-rc7
-          token: ${{ secrets.STAX_RO }}
+          ref: fatstacks_1.0.0-rc9
       - name: Build
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"

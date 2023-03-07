@@ -1,8 +1,8 @@
 #include <string.h>
 #include <os.h>
 
-#include "../constants.h"
-#include "../glyphs.h"
+#include "constants.h"
+#include "glyphs.h"
 
 #if defined(HAVE_NBGL)
 
@@ -78,6 +78,7 @@ enum {
     BUTTON_18_INDEX,
     BUTTON_24_INDEX,
     BACK_BUTTON_INDEX,
+    KBD_TEXT_TOKEN,
     NB_CHILDREN
 };
 
@@ -198,7 +199,7 @@ static void key_press_callback(const char touchedKey) {
         mask = bolos_ux_bip39_get_keyboard_mask((unsigned char *) &(textToEnter[0]),
                                                 strlen(textToEnter));
     }
-    nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask);
+    nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask, false, LOWER_CASE);
     nbgl_layoutUpdateEnteredText(layout, textIndex, false, 0, &(textToEnter[0]), false);
     nbgl_refresh();
 }
@@ -207,7 +208,6 @@ static void display_keyboard_page() {
     nbgl_layoutDescription_t layoutDescription = {.modal = false,
                                                   .onActionCallback = &keyboard_dispatcher};
     nbgl_layoutKbd_t kbdInfo = {.lettersOnly = true,   // use only letters
-                                .upperCase = false,    // start with lower case letters
                                 .mode = MODE_LETTERS,  // start in letters mode
                                 .keyMask = 0,          // no inactive key
                                 .callback = &key_press_callback};
@@ -240,7 +240,8 @@ static void display_keyboard_page() {
                                           get_current_word_number() + 1,  // number to use
                                           textToEnter,                    // text to display
                                           false,                          // not grayed-out
-                                          32);  // vertical margin from the buttons
+                                          32,  // vertical margin from the buttons
+                                          KBD_TEXT_TOKEN);
     nbgl_layoutDraw(layout);
 }
 

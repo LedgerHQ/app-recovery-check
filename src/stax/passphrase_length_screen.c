@@ -1,12 +1,11 @@
 #include <os.h>
-#include "../glyphs.h"
+#include "glyphs.h"
 
-#if defined(TARGET_FATSTACKS)
+#if defined(TARGET_STAX)
 
 #include <nbgl_obj.h>
 
 #define UPPER_MARGIN    4
-#define BUTTON_RADIUS   6
 #define BUTTON_DIAMETER 80
 
 nbgl_image_t *passphrase_length_set_icon() {

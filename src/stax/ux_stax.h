@@ -19,7 +19,7 @@
 #include <stdbool.h>
 #include "constants.h"
 
-#if defined(HAVE_BOLOS_UX) && defined(TARGET_FATSTACKS)
+#if defined(HAVE_BOLOS_UX) && defined(TARGET_STAX)
 
 #define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH + 1))
 

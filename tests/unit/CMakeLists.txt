@@ -37,7 +37,7 @@ endif()
 add_compile_definitions(WIDE=)
 add_compile_definitions(TEST)
 add_compile_definitions(HAVE_BOLOS_UX)
-add_compile_definitions(TARGET_FATSTACKS)
+add_compile_definitions(TARGET_STAX)
 add_compile_definitions(OS_IO_SEPROXYHAL)
 
 include_directories(../../src ./mocks/)

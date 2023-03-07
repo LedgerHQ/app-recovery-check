@@ -17,8 +17,8 @@
 #include <os_io_seproxyhal.h>
 #include <lcx_hmac.h>
 
-#include "../constants.h"
-#include "../glyphs.h"
+#include "constants.h"
+#include "glyphs.h"
 #include "ui.h"
 
 #if defined(TARGET_NANOS)
