@@ -19,7 +19,7 @@
 #include <stdbool.h>
 #include "constants.h"
 
-#if defined(HAVE_BOLOS_UX) && defined(TARGET_STAX)
+#if defined(TARGET_STAX)
 
 #define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH + 1))
 
@@ -68,4 +68,4 @@ size_t add_word_in_mnemonic(const char* const buffer, const size_t size);
 char* get_mnemonic();
 #endif
 
-#endif  // HAVE_BOLOS_UX && TARGET_NANOS
+#endif  // TARGET_NANOS

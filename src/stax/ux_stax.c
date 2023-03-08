@@ -4,7 +4,7 @@
 #include "../ux_common/common_bip39.h"
 #include "./ux_stax.h"
 
-#if defined(HAVE_BOLOS_UX) && defined(TARGET_STAX)
+#if defined(TARGET_STAX)
 
 typedef struct buffer {
     // the mnemonic passphrase, built over time

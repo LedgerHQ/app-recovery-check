@@ -18,7 +18,7 @@
 
 #include "../ux_common/common.h"
 
-#if defined(HAVE_BOLOS_UX) && defined(TARGET_NANOS)
+#if defined(TARGET_NANOS)
 
 typedef unsigned int (*callback_t)(unsigned int);
 
@@ -82,4 +82,4 @@ extern const bagl_element_t screen_onboarding_word_list_elements[9];
 
 void compare_recovery_phrase(void);
 
-#endif  // HAVE_BOLOS_UX && TARGET_NANOS
+#endif  // TARGET_NANOS
