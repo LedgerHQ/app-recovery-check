@@ -6,8 +6,8 @@ from ragger.backend import BackendInterface
 SCREENSHOTS = (Path(__file__).parent.parent / "screenshots").resolve()
 
 
-def assert_current_equals(client: BackendInterface, existing: Path):
-    current = client._client.get_screenshot()
+def assert_current_equals(backend: BackendInterface, existing: Path):
+    current = backend._client.get_screenshot()
     assert_equal(current, existing)
 
 
