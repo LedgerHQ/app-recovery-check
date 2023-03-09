@@ -1,10 +1,7 @@
-from time import sleep
+from ragger.navigator import NavIns
 
-from pytest import fixture
-from ragger.backend import BackendInterface
-
-from .app import Screen
-from .utils import assert_current_equals, SCREENSHOTS
+from .navigator import NavInsID, StaxNavigator
+from .utils import format_instructions
 
 
 SPECULOS_MNEMONIC = "glory promote mansion idle axis finger extra " \
@@ -12,35 +9,65 @@ SPECULOS_MNEMONIC = "glory promote mansion idle axis finger extra " \
     "seven myth punch hobby comfort wild raise skin"
 
 
-def test_nominal_full_passphrase_check(screen: Screen, backend: BackendInterface):
-    # going to choose mnemonic length
-    screen.home.action()
-    assert_current_equals(backend, SCREENSHOTS / "passphrase_length.png")
-    # choosing 3d (24 words)
-    screen.choice_list.choose(1)
-    assert_current_equals(backend, SCREENSHOTS / "first_24.png")
+def test_nominal_full_passphrase_check_ok(navigator: StaxNavigator, functional_test_directory: str):
+    # instructions to go the the keyboard
+    instructions = [
+        NavInsID.HOME_TO_CHECK,
+        NavInsID.LENGTH_CHOOSE_24,
+        NavIns(NavInsID.WAIT, args=(0.5, ))
+    ]
+    # instruction to write the words
     for word in SPECULOS_MNEMONIC.split():
-        # 4 letters are enough to discriminate the correct word
-        screen.keyboard.write(word[:4])
-        # choosing 1st suggestion
-        screen.suggestions.choose(1)
-    sleep(0.1)
-    assert_current_equals(backend, SCREENSHOTS / "correct.png")
-    screen.dismiss.tap() # exit the result screen to the home page
-    screen.exit()
+        instructions += [
+            NavIns(NavInsID.KEYBOARD_WRITE, args=(word[:4], )),
+            NavIns(NavInsID.KEYBOARD_SELECT_SUGGESTION, args=(1, )),
+        ]
+    instructions.append(NavIns(NavInsID.WAIT, args=(1, )))
+    instructions = format_instructions(instructions)
+    # running the instruction to go to result screen
+    navigator.navigate(instructions)
+
+    # now that the 24 words have been written, we check the resulting screen
+    # should be correct
+
+    instructions = format_instructions([
+        NavInsID.RESULT_TO_HOME,
+    ])
+
+    navigator.navigate_and_compare(functional_test_directory,
+                                   "nominal_full_passphrase_check_ok",
+                                   instructions,
+                                   screen_change_before_first_instruction=True,
+                                   screen_change_after_last_instruction=False)
 
 
-def test_nominal_full_passphrase_check_error_wrong_passphrase(screen: Screen, backend: BackendInterface):
-    screen.home.action()
-    assert_current_equals(backend, SCREENSHOTS / "passphrase_length.png")
-    # choosing 1st (12 words)
-    screen.choice_list.choose(3)
-    assert_current_equals(backend, SCREENSHOTS / "first_12.png")
-     # only the 12 first words
+def test_nominal_full_passphrase_check_error_wrong_passphrase(navigator: StaxNavigator, functional_test_directory: str):
+    # instructions to go the the keyboard
+    instructions = [
+        NavInsID.HOME_TO_CHECK,
+        NavInsID.LENGTH_CHOOSE_12,
+        NavIns(NavInsID.WAIT, args=(0.5, ))
+    ]
+    # instruction to write the words
     for word in SPECULOS_MNEMONIC.split()[:12]:
-        screen.keyboard.write(word[:4])
-        screen.suggestions.choose(1)
-    sleep(0.1)
-    assert_current_equals(backend, SCREENSHOTS / "incorrect.png")
-    screen.dismiss.tap() # exit the result screen to the home page
-    screen.exit()
+        instructions += [
+            NavIns(NavInsID.KEYBOARD_WRITE, args=(word[:4], )),
+            NavIns(NavInsID.KEYBOARD_SELECT_SUGGESTION, args=(1, )),
+        ]
+    instructions.append(NavIns(NavInsID.WAIT, args=(1, )))
+    instructions = format_instructions(instructions)
+    # running the instruction to go to result screen
+    navigator.navigate(instructions)
+
+    # now that the 12 words have been written, we check the resulting screen
+    # should be incorrect
+
+    instructions = format_instructions([
+        NavInsID.RESULT_TO_HOME,
+    ])
+
+    navigator.navigate_and_compare(functional_test_directory,
+                                   "nominal_full_passphrase_check_error_wrong_passphrase",
+                                   instructions,
+                                   screen_change_before_first_instruction=True,
+                                   screen_change_after_last_instruction=False)

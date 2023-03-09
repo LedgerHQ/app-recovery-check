@@ -1,6 +1,6 @@
-from ragger.firmware.stax.layouts import ExitFooter, CenteredFooter, _Layout, LetterOnlyKeyboard, \
+from ragger.firmware.stax.layouts import CenteredFooter, _Layout, LetterOnlyKeyboard, \
     NavigationHeader, Suggestions
-from ragger.firmware.stax.use_cases import UseCaseHomeExt
+from ragger.firmware.stax.use_cases import UseCaseHomeExt, UseCaseSettings
 from ragger.firmware.stax.screen import MetaScreen
 
 
@@ -13,20 +13,18 @@ class CustomChoiceList(_Layout):
         self.client.finger_touch(x, y + (index - 1)*diff)
 
 
-class Screen(metaclass=MetaScreen):
+class StaxScreen(metaclass=MetaScreen):
+    # choosing the length a the passphrase. 3 choices
     layout_choice_list = CustomChoiceList
+    # entering words
     layout_keyboard = LetterOnlyKeyboard
+    # word suggestions. 4 choices
     layout_suggestions = Suggestions
+    # going back to the previous screen
     layout_navigation = NavigationHeader
-    layout_quit_info = ExitFooter
+    # Dismiss the final, result screen ("your passphrase is correct / not correct) to go back to the welcome screen
     layout_dismiss = CenteredFooter
+    # classic welcome screen with tappable center
     use_case_home = UseCaseHomeExt
-
-    def exit(self):
-        did_raise = False
-        try:
-            self.home.quit()
-        except:
-            did_raise = True
-        if not did_raise:
-            raise RuntimeError("The application did not exit at this state")
+    # classic settings screen
+    use_case_settings = UseCaseSettings

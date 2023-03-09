@@ -1,24 +1,9 @@
-from pathlib import Path
-from time import time
+from ragger.navigator import NavIns
+from typing import Iterable, Union
 
-from ragger.backend import BackendInterface
-
-SCREENSHOTS = (Path(__file__).parent.parent / "screenshots").resolve()
+from .navigator import NavInsID
 
 
-def assert_current_equals(backend: BackendInterface, existing: Path):
-    current = backend._client.get_screenshot()
-    assert_equal(current, existing)
-
-
-def assert_equal(image: bytes, existing: Path):
-    error_file = existing.parent.parent / 'screenshots-tmp' / f'{existing.stem}_{time()}{existing.suffix}'
-    error_file.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        with existing.open('rb') as filee:
-            assert image == filee.read(), \
-                f"Given bytes does not match image '{existing}'. Check '{error_file}' for comparison"
-    except:
-        with error_file.open('wb') as filee:
-            filee.write(image)
-        raise
+def format_instructions(instructions: Iterable[Union[NavIns, NavInsID]]) -> Iterable[NavIns]:
+    return [NavIns(instruction) if isinstance(instruction, NavInsID) else instruction
+            for instruction in instructions]

@@ -1,44 +1,59 @@
-from pytest import fixture
-from ragger.backend import BackendInterface
+from ragger.navigator import NavIns
 
-from .app import Screen
-from .utils import assert_current_equals, SCREENSHOTS
+from .navigator import NavInsID, StaxNavigator
+from .utils import format_instructions
 
 
 SPECULOS_MNEMONIC = "glory promote mansion idle axis finger extra " \
     "february uncover one trip resource lawn turtle enact monster " \
     "seven myth punch hobby comfort wild raise skin"
 
-def test_check_info_then_leave(screen: Screen, backend: BackendInterface):
-    screen.home.info()
-    assert_current_equals(backend, SCREENSHOTS / "info.png")
-    screen.quit_info.tap()
-    assert_current_equals(backend, SCREENSHOTS / "welcome.png")
-    screen.exit()
+
+def test_check_info_then_leave(navigator: StaxNavigator, functional_test_directory: str):
+    instructions = format_instructions([
+        NavInsID.HOME_TO_SETTINGS,
+        NavInsID.SETTINGS_TO_HOME,
+        NavInsID.HOME_TO_QUIT
+    ])
+    navigator.navigate_and_compare(functional_test_directory,
+                                   "check_info_then_leave",
+                                   instructions,
+                                   screen_change_before_first_instruction=False,
+                                   screen_change_after_last_instruction=False)
 
 
-def test_check_all_passphrase_lengths(screen: Screen, backend: BackendInterface):
-    screen.home.action()
-    assert_current_equals(backend, SCREENSHOTS / "passphrase_length.png")
-    for choice, length in [(1, 24), (2, 18), (3, 12)]:
-        screen.choice_list.choose(choice)
-        assert_current_equals(backend, SCREENSHOTS / f"first_{length}.png")
-        screen.navigation.tap()
-        assert_current_equals(backend, SCREENSHOTS / "passphrase_length.png")
+def test_check_all_passphrase_lengths(navigator: StaxNavigator, functional_test_directory: str):
+    instructions = format_instructions([
+        NavInsID.HOME_TO_CHECK,
+        NavInsID.LENGTH_CHOOSE_24,
+        NavInsID.LENGTH_TO_PREVIOUS,
+        NavInsID.LENGTH_CHOOSE_18,
+        NavInsID.LENGTH_TO_PREVIOUS,
+        NavInsID.LENGTH_CHOOSE_12,
+        NavInsID.LENGTH_TO_PREVIOUS
+    ])
+    navigator.navigate_and_compare(functional_test_directory,
+                                   "check_all_passphrase_lengths",
+                                   instructions,
+                                   screen_change_before_first_instruction=False,
+                                   screen_change_after_last_instruction=True)
 
 
-def test_check_previous_word(screen: Screen, backend: BackendInterface):
-    screen.home.action()
-    screen.choice_list.choose(1)
-    assert_current_equals(backend, SCREENSHOTS / "first_24.png")
-    tries = ["rand", "ok"]
-    for word in tries:
-        screen.keyboard.write(word[:4])
-        screen.suggestions.choose(1)
-    # coming back N time, should bring back to the first word page
-    for _ in tries:
-        screen.navigation.tap()
-    assert_current_equals(backend, SCREENSHOTS / "first_24.png")
-    # one more 'back' tap will bring us to the passphrase length choice page
-    screen.navigation.tap()
-    assert_current_equals(backend, SCREENSHOTS / "passphrase_length.png")
+def test_check_previous_word(navigator: StaxNavigator, functional_test_directory: str):
+    instructions = format_instructions([
+        NavInsID.HOME_TO_CHECK,
+        NavInsID.LENGTH_CHOOSE_24,
+        NavIns(NavInsID.KEYBOARD_WRITE, args=("rand", )),
+        NavIns(NavInsID.KEYBOARD_SELECT_SUGGESTION, args=(1, )),
+        NavIns(NavInsID.KEYBOARD_WRITE, args=("ok", )),
+        NavIns(NavInsID.KEYBOARD_SELECT_SUGGESTION, args=(1, )),
+        NavInsID.KEYBOARD_TO_PREVIOUS,
+        NavInsID.KEYBOARD_TO_PREVIOUS,
+        NavInsID.KEYBOARD_TO_PREVIOUS,
+        NavInsID.LENGTH_TO_PREVIOUS
+    ])
+    navigator.navigate_and_compare(functional_test_directory,
+                                   "check_previous_word",
+                                   instructions,
+                                   screen_change_before_first_instruction=False,
+                                   screen_change_after_last_instruction=True)

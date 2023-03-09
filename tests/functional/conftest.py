@@ -1,9 +1,11 @@
+from pathlib import Path
 from pytest import fixture
 from ragger.backend import BackendInterface
 from ragger.conftest import configuration
+from ragger.firmware import Firmware
 
-from .app import Screen
-from .utils import assert_current_equals, SCREENSHOTS
+from .navigator import StaxNavigator
+
 
 ###########################
 ### CONFIGURATION START ###
@@ -19,12 +21,15 @@ from .utils import assert_current_equals, SCREENSHOTS
 # Pull all features from the base ragger conftest using the overridden configuration
 pytest_plugins = ("ragger.conftest.base_conftest", )
 
-from time import sleep
+FUNCTIONAL_TESTS_DIR = Path("tests/functional/").resolve()
+
+
+@fixture(scope="session")
+def functional_test_directory() -> Path:
+    yield FUNCTIONAL_TESTS_DIR
+
 
 @fixture
-def screen(backend: BackendInterface):
-    s = Screen(backend, backend.firmware)
-    backend.finger_touch(600, 0)
-    sleep(1)
-    assert_current_equals(backend, SCREENSHOTS / "welcome.png")
-    return s
+def navigator(backend: BackendInterface, firmware: Firmware) -> StaxNavigator:
+    navigator = StaxNavigator(backend, firmware)
+    yield navigator
