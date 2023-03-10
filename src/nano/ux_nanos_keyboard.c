@@ -19,8 +19,6 @@
 
 #ifdef TARGET_NANOS
 
-//#ifdef OS_IO_SEPROXYHAL
-
 const bagl_element_t screen_common_keyboard_elements[] = {
 
     // erase

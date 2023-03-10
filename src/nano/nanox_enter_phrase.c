@@ -280,7 +280,6 @@ const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(const u
                 G_ux.tmp_element.component.x +=
                     1 + G_ux.tmp_element.component.width / 2 - C_icon_backspace.width / 2;
                 G_ux.tmp_element.component.y -= 7;
-                // G_ux.tmp_element.component.y = 5;
                 G_ux.tmp_element.component.height = C_icon_backspace.height;
                 G_ux.tmp_element.component.type = BAGL_ICON;
                 G_ux.tmp_element.component.icon_id = 0;
@@ -290,7 +289,6 @@ const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(const u
                     G_ux.tmp_element.text = (const char*) &C_icon_backspace;
                 }
             } else {
-                // G_ux.string_buffer[0] = G_ux.string_buffer[32+value]-'a'+'A'; // render as
                 // uppercase, always
                 G_ux.string_buffer[0] =
                     G_ux.string_buffer[32 + value];  // render as lowercase, always
@@ -400,8 +398,6 @@ const bagl_element_t* screen_onboarding_4_restore_word_before_element_display_ca
 }
 
 uint8_t compare_recovery_phrase(void) {
-    // io_seproxyhal_general_status();
-
     // convert mnemonic to hex-seed
     uint8_t buffer[64];
 

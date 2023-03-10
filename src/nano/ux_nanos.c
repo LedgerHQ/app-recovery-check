@@ -19,8 +19,6 @@
 
 #if defined(TARGET_NANOS)
 
-//#ifdef OS_IO_SEPROXYHAL
-
 bolos_ux_context_t G_bolos_ux_context;
 
 unsigned short io_timeout(unsigned short last_timeout) {

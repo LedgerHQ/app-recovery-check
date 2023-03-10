@@ -40,7 +40,7 @@ void passphrase_length_configure_buttons(nbgl_button_t **buttons,
                                          const size_t size,
                                          nbgl_touchCallback_t callback) {
     nbgl_button_t *button;
-    for (uint8_t i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++) {
         button = buttons[i];
         button->innerColor = WHITE;
         button->borderColor = LIGHT_GRAY;
