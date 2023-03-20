@@ -22,6 +22,11 @@
 
 typedef unsigned int (*callback_t)(unsigned int);
 
+enum e_state {
+    STATIC_SCREEN,
+    DYNAMIC_SCREEN,
+};
+
 // bolos ux context (not mandatory if redesigning a bolos ux)
 typedef struct bolos_ux_context {
 #define BOLOS_UX_ONBOARDING_NEW        1
@@ -71,6 +76,14 @@ typedef struct bolos_ux_context {
     // for CheckSeed app only
     uint8_t processing;
 
+    // State of the dynamic display.
+    enum e_state current_state;
+
+    uint8_t sskr_share_count;
+    uint8_t sskr_share_index;
+    unsigned int sskr_group_descriptor[1][2];
+    unsigned int sskr_words_buffer_len;
+    char sskr_words_buffer[];
 } bolos_ux_context_t;
 
 extern bolos_ux_context_t G_bolos_ux_context;
@@ -84,7 +97,11 @@ void screen_common_keyboard_init(unsigned int stack_slot,
                                  unsigned int nb_elements,
                                  keyboard_callback_t callback);
 
+void screen_processing_init(void);
+void generate_sskr(void);
+
 #include "ux_common/common_bip39.h"
+#include "ux_common/common_sskr.h"
 
 extern const bagl_element_t screen_onboarding_word_list_elements[9];
 

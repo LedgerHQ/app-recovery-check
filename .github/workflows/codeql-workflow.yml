@@ -1,3 +1,4 @@
+---
 name: "CodeQL"
 
 on:
@@ -5,6 +6,8 @@ on:
     branches:
       - master
       - develop
+    tags:
+      - '**'
   pull_request:
     # Excluded path: add the paths you want to ignore instead of deleting the workflow
     paths-ignore:
@@ -17,7 +20,7 @@ jobs:
     strategy:
       matrix:
         sdk: [ "$NANOS_SDK", "$NANOX_SDK", "$NANOSP_SDK" ]
-        #'cpp' covers C and C++
+        # 'cpp' covers C and C++
         language: [ 'cpp' ]
     runs-on: ubuntu-latest
     container:

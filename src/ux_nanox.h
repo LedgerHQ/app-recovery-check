@@ -20,6 +20,11 @@
 
 #if defined(HAVE_BOLOS_UX) && (defined(TARGET_NANOX) || defined(TARGET_NANOS2))
 
+enum e_state {
+    STATIC_SCREEN,
+    DYNAMIC_SCREEN,
+};
+
 // bolos ux context (not mandatory if redesigning a bolos ux)
 typedef struct bolos_ux_context {
 #define BOLOS_UX_ONBOARDING_NEW        1
@@ -41,6 +46,9 @@ typedef struct bolos_ux_context {
     unsigned int onboarding_words_checked;
 
     unsigned int words_buffer_length;
+    // after an int to make sure it's aligned
+    char string_buffer[MAX(64, sizeof(bagl_icon_details_t) + BOLOS_APP_ICON_SIZE_B - 1)];
+
     // 128 of words (215 => hashed to 64, or 128) + HMAC_LENGTH*2 = 256
 #define WORDS_BUFFER_MAX_SIZE_B 257
     char words_buffer[WORDS_BUFFER_MAX_SIZE_B];
@@ -88,6 +96,14 @@ typedef struct bolos_ux_context {
     // for CheckSeed app only
     uint8_t processing;
 
+    // State of the dynamic display.
+    enum e_state current_state;
+
+    uint8_t sskr_share_count;
+    uint8_t sskr_share_index;
+    unsigned int sskr_group_descriptor[1][2];
+    unsigned int sskr_words_buffer_len;
+    char sskr_words_buffer[];
 } bolos_ux_context_t;
 
 extern bolos_ux_context_t G_bolos_ux_context;
@@ -101,7 +117,10 @@ void screen_common_keyboard_init(unsigned int stack_slot,
                                  unsigned int nb_elements,
                                  keyboard_callback_t callback);
 
+void generate_sskr(void);
+
 #include "ux_common/common_bip39.h"
+#include "ux_common/common_sskr.h"
 
 // to be included into all flow that needs to go back to the dashboard
 extern const ux_flow_step_t ux_ob_goto_dashboard_step;

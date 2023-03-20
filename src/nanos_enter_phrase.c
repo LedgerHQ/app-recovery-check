@@ -25,6 +25,7 @@ const bagl_element_t* screen_onboarding_4_restore_word_before_element_display_ca
     const bagl_element_t* element);
 
 void screen_onboarding_4_restore_word_display_auto_complete(void);
+
 UX_STEP_CB(restore_4_intro_1, nn, screen_onboarding_4_restore_word_display_auto_complete();
            , {"Enter", G_ux.string_buffer});
 
@@ -35,7 +36,7 @@ UX_STEP_CB(restore_4_invalid_1, pbb, screen_onboarding_3_restore_init();
 
 UX_FLOW(restore_4_invalid, &restore_4_invalid_1);
 
-UX_STEP_NOCB(ux_nomatch_step_1, pbb, {&C_icon_warning, "Phrase", "doesn't match"});
+UX_STEP_NOCB(ux_nomatch_step_1, pbb, {&C_icon_warning, "BIP39 Phrase", "doesn't match"});
 UX_STEP_NOCB(ux_nomatch_step_2,
              nn,
              {
@@ -46,9 +47,17 @@ UX_STEP_VALID(ux_nomatch_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to
 
 UX_FLOW(flow_final_nomatch, &ux_nomatch_step_1, &ux_nomatch_step_2, &ux_nomatch_step_3);
 
-UX_STEP_CB(step_final_match, pbb, os_sched_exit(0);, {&C_icon_validate_14, "Phrase", "is correct"});
+UX_STEP_CB(ux_match_step_1, pbb, os_sched_exit(0);,
+                                                  {
+                                                      &C_icon_validate_14,
+                                                      "BIP39 Phrase",
+                                                      "is correct",
+                                                  });
+UX_STEP_CB(ux_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
+UX_STEP_CB(ux_match_step_3, pbb, generate_sskr();
+           , {&C_nanos_app_sskr_check, "Generate", "SSKR phrases"});
 
-UX_FLOW(flow_final_match, &step_final_match);
+UX_FLOW(flow_final_match, &ux_match_step_1, &ux_match_step_2, &ux_match_step_3);
 
 void screen_processing_postinit(unsigned int stack_slot) {
     // ensure when pin is modal over the processing screen( at end of install) the processing screen
@@ -227,11 +236,9 @@ void compare_recovery_phrase(void) {
 
     // convert mnemonic to hex-seed
     uint8_t buffer[64];
-
-    bolos_ux_mnemonic_to_seed((unsigned char*) G_bolos_ux_context.words_buffer,
-                              G_bolos_ux_context.words_buffer_length,
-                              buffer);
-    PRINTF("Input seed:\n %.*H\n", 64, buffer);
+    bolos_ux_bip39_mnemonic_to_seed((unsigned char*) G_bolos_ux_context.words_buffer,
+                                    G_bolos_ux_context.words_buffer_length,
+                                    buffer);
 
     // get rootkey from hex-seed
     cx_hmac_sha512_t ctx;
@@ -239,7 +246,7 @@ void compare_recovery_phrase(void) {
 
     cx_hmac_sha512_init(&ctx, (const uint8_t*) key, strlen(key));
     cx_hmac((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64);
-    PRINTF("Root key from input:\n%.*H\n", 64, buffer);
+    PRINTF("Root key from BIP39 input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
     uint8_t buffer_device[64];
@@ -249,6 +256,7 @@ void compare_recovery_phrase(void) {
 
     // compare both rootkey
     if (os_secure_memcmp(buffer, buffer_device, 64)) {
+        memset(G_bolos_ux_context.words_buffer, 0, G_bolos_ux_context.words_buffer_length);
         ux_flow_init(0, flow_final_nomatch, NULL);
     } else {
         ux_flow_init(0, flow_final_match, NULL);
@@ -331,17 +339,17 @@ void screen_onboarding_4_restore_word_validate(void) {
 #ifdef HAVE_ELECTRUM
         // if we've entered all the words, then check the phrase
         if (G_bolos_ux_context.onboarding_algorithm == BOLOS_UX_ONBOARDING_ALGORITHM_ELECTRUM) {
-            valid =
-                bolos_ux_electrum_mnemonic_check(ELECTRUM_SEED_PREFIX_STANDARD,
-                                                 (unsigned char*) G_bolos_ux_context.words_buffer,
-                                                 G_bolos_ux_context.words_buffer_length);
+            valid = bolos_ux_electrum_bip39_mnemonic_check(
+                ELECTRUM_SEED_PREFIX_STANDARD,
+                (unsigned char*) G_bolos_ux_context.words_buffer,
+                G_bolos_ux_context.words_buffer_length);
         } else {
-            valid = bolos_ux_mnemonic_check((unsigned char*) G_bolos_ux_context.words_buffer,
-                                            G_bolos_ux_context.words_buffer_length);
+            valid = bolos_ux_bip39_mnemonic_check((unsigned char*) G_bolos_ux_context.words_buffer,
+                                                  G_bolos_ux_context.words_buffer_length);
         }
 #else
-        valid = bolos_ux_mnemonic_check((unsigned char*) G_bolos_ux_context.words_buffer,
-                                        G_bolos_ux_context.words_buffer_length);
+        valid = bolos_ux_bip39_mnemonic_check((unsigned char*) G_bolos_ux_context.words_buffer,
+                                              G_bolos_ux_context.words_buffer_length);
 #endif
         if (!valid) {
             ux_flow_init(0, restore_4_invalid, NULL);

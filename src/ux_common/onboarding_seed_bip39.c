@@ -7,8 +7,8 @@
 #include "common.h"
 
 // separated function to lower the stack usage when jumping into pbkdf algorithm
-unsigned int bolos_ux_mnemonic_to_seed_hash_length128(unsigned char* mnemonic,
-                                                      unsigned int mnemonicLength) {
+unsigned int bolos_ux_bip39_mnemonic_to_seed_hash_length128(unsigned char* mnemonic,
+                                                            unsigned int mnemonicLength) {
     if (mnemonicLength > 128) {
         cx_hash_sha512(mnemonic, mnemonicLength, mnemonic, 64);
         // new mnemonic length
@@ -17,29 +17,37 @@ unsigned int bolos_ux_mnemonic_to_seed_hash_length128(unsigned char* mnemonic,
     return mnemonicLength;
 }
 
-void bolos_ux_mnemonic_to_seed(unsigned char* mnemonic,
-                               unsigned int mnemonicLength,
-                               unsigned char* seed) {
+void bolos_ux_bip39_mnemonic_to_seed(unsigned char* mnemonic,
+                                     unsigned int mnemonicLength,
+                                     unsigned char* seed) {
+    // Need to keep BIP39 mnemonic in case we want to generate SSKR from it
+    // It will be zeroed later if not needed
+    unsigned char mnemonic_hash[mnemonicLength];
+    memcpy(mnemonic_hash, mnemonic, mnemonicLength);
     unsigned char passphrase[BIP39_MNEMONIC_LENGTH + 4];
-    mnemonicLength = bolos_ux_mnemonic_to_seed_hash_length128(mnemonic, mnemonicLength);
-
+    mnemonicLength = bolos_ux_bip39_mnemonic_to_seed_hash_length128(mnemonic_hash, mnemonicLength);
     memcpy(passphrase, BIP39_MNEMONIC, BIP39_MNEMONIC_LENGTH);
-    cx_pbkdf2_sha512(mnemonic,
+    cx_pbkdf2_sha512(mnemonic_hash,
                      mnemonicLength,
                      passphrase,
                      BIP39_MNEMONIC_LENGTH,
                      BIP39_PBKDF2_ROUNDS,
                      seed,
                      64);
-
-    // what happen to the second block for a very short seed ?
+    memset(mnemonic_hash, 0, mnemonicLength);
+    PRINTF("BIP39 seed:\n %.*H\n", 64, seed);
 }
 
-unsigned int bolos_ux_mnemonic_check(unsigned char* mnemonic, unsigned int mnemonicLength) {
+unsigned int bolos_ux_bip39_mnemonic_decode(unsigned char* mnemonic,
+                                            unsigned int mnemonicLength,
+                                            unsigned char* bits,
+                                            unsigned int bitslength) {
     unsigned int i, n = 0;
     unsigned int bi;
-    unsigned char bits[32 + 1];
+    unsigned char buffer[32];
     unsigned char mask;
+
+    PRINTF("BIP39 mnemonic phrase:\n %.*s\n", mnemonicLength, mnemonic);
 
     for (i = 0; i < mnemonicLength; i++) {
         if (mnemonic[i] == ' ') {
@@ -50,7 +58,7 @@ unsigned int bolos_ux_mnemonic_check(unsigned char* mnemonic, unsigned int mnemo
     if (n != 12 && n != 18 && n != 24) {
         return 0;
     }
-    memset(bits, 0, sizeof(bits));
+    memset(bits, 0, bitslength);
     i = 0;
     bi = 0;
     while (i < mnemonicLength) {
@@ -60,6 +68,7 @@ unsigned int bolos_ux_mnemonic_check(unsigned char* mnemonic, unsigned int mnemo
         j = 0;
         while (i < mnemonicLength && mnemonic[i] != ' ') {
             if (j >= sizeof(current_word)) {
+                memset(bits, 0, bitslength);
                 return 0;
             }
             current_word[j] = mnemonic[i];
@@ -72,9 +81,9 @@ unsigned int bolos_ux_mnemonic_check(unsigned char* mnemonic, unsigned int mnemo
         }
         current_word_size++;
         for (k = 0; k < BIP39_WORDLIST_OFFSETS_LENGTH - 1; k++) {
-            if ((memcmp(current_word,
-                        BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[k],
-                        current_word_size) == 0) &&
+            if ((os_secure_memcmp(current_word,
+                                  (void*) (BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[k]),
+                                  current_word_size) == 0) &&
                 ((unsigned int) (BIP39_WORDLIST_OFFSETS[k + 1] - BIP39_WORDLIST_OFFSETS[k]) ==
                  current_word_size)) {
                 for (ki = 0; ki < 11; ki++) {
@@ -87,14 +96,16 @@ unsigned int bolos_ux_mnemonic_check(unsigned char* mnemonic, unsigned int mnemo
             }
         }
         if (k == (unsigned int) (BIP39_WORDLIST_OFFSETS_LENGTH - 1)) {
+            memset(bits, 0, bitslength);
             return 0;
         }
     }
     if (bi != n * 11) {
+        memset(bits, 0, bitslength);
         return 0;
     }
-    bits[32] = bits[n * 4 / 3];
-    cx_hash_sha256(bits, n * 4 / 3, bits, 32);
+
+    cx_hash_sha256(bits, n * 4 / 3, buffer, 32);
     switch (n) {
         case 12:
             mask = 0xF0;
@@ -106,7 +117,21 @@ unsigned int bolos_ux_mnemonic_check(unsigned char* mnemonic, unsigned int mnemo
             mask = 0xFF;
             break;
     }
-    if ((bits[0] & mask) != (bits[32] & mask)) {
+    if ((buffer[0] & mask) != (bits[n * 4 / 3] & mask)) {
+        memset(bits, 0, bitslength);
+        return 0;
+    }
+
+    // alright mnemonic is ok
+    PRINTF("BIP39 mnemonic decoded in hex:\n %.*H\n", bitslength, bits);
+    return 1;
+}
+
+unsigned int bolos_ux_bip39_mnemonic_check(unsigned char* mnemonic, unsigned int mnemonicLength) {
+    unsigned char bits[32 + 1];
+
+    if (bolos_ux_bip39_mnemonic_decode(mnemonic, mnemonicLength, bits, 32 + 1) != 1) {
+        memset(bits, 0, 32 + 1);
         return 0;
     }
 

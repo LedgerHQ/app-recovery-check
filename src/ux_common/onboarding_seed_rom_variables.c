@@ -817,8 +817,6 @@ unsigned char const SSKR_WORDLIST[] = {
     'y', 'e', 'l', 'l', 'y', 'o', 'g', 'a', 'y', 'u', 'r', 't', 'z', 'a', 'p', 's', 'z', 'e', 'r',
     'o', 'z', 'e', 's', 't', 'z', 'i', 'n', 'c', 'z', 'o', 'n', 'e', 'z', 'o', 'o', 'm'};
 
-unsigned short const SSKR_WORDLIST_OFFSET = 4;
-
 #ifdef HAVE_ELECTRUM
 
 unsigned char const ELECTRUM_SEED_VERSION[] =

@@ -31,9 +31,9 @@ int cx_math_shiftr_11(unsigned char *r, unsigned int len) {
     return b11;
 }
 
-static unsigned int bolos_ux_electrum_mnemonic_encode(const uint8_t *seed17,
-                                                      uint8_t *out,
-                                                      size_t outLength) {
+static unsigned int bolos_ux_electrum_bip39_mnemonic_encode(const uint8_t *seed17,
+                                                            uint8_t *out,
+                                                            size_t outLength) {
     unsigned char tmp[17];
     unsigned int i;
     unsigned int offset = 0;
@@ -57,9 +57,9 @@ static unsigned int bolos_ux_electrum_mnemonic_encode(const uint8_t *seed17,
     return offset;
 }
 
-unsigned int bolos_ux_electrum_new_mnemonic(unsigned int version,
-                                            unsigned char *out,
-                                            unsigned int outLength) {
+unsigned int bolos_ux_electrum_new_bip39_mnemonic(unsigned int version,
+                                                  unsigned char *out,
+                                                  unsigned int outLength) {
     unsigned char seed[17];
     unsigned int nonce;
     unsigned int offset;
@@ -79,17 +79,17 @@ unsigned int bolos_ux_electrum_new_mnemonic(unsigned int version,
         seed[sizeof(seed) - 3] = (nonce >> 16);
         seed[sizeof(seed) - 2] = (nonce >> 8);
         seed[sizeof(seed) - 1] = nonce;
-        offset = bolos_ux_electrum_mnemonic_encode(seed, out, outLength);
-        if (bolos_ux_electrum_mnemonic_check(version, out, offset)) {
+        offset = bolos_ux_electrum_bip39_mnemonic_encode(seed, out, outLength);
+        if (bolos_ux_electrum_bip39_mnemonic_check(version, out, offset)) {
             break;
         }
     }
     return offset;
 }
 
-unsigned int bolos_ux_electrum_mnemonic_check(unsigned int version,
-                                              unsigned char *mnemonic,
-                                              unsigned int mnemonicLength) {
+unsigned int bolos_ux_electrum_bip39_mnemonic_check(unsigned int version,
+                                                    unsigned char *mnemonic,
+                                                    unsigned int mnemonicLength) {
     unsigned char tmp[64];
     cx_hmac_sha512(ELECTRUM_SEED_VERSION,
                    ELECTRUM_SEED_VERSION_LENGTH,

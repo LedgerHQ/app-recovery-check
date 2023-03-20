@@ -430,7 +430,7 @@ static int combine_shards_internal(sskr_shard *shards,   // array of shard struc
     return secret_len;
 }
 
-static int combine_shards(const sskr_shard *shards,  // array of shard structures
+/*static int combine_shards(const sskr_shard *shards,  // array of shard structures
                           uint16_t shards_count,     // number of shards in array
                           uint8_t *buffer,           // working space, and place to return secret
                           size_t buffer_len          // total amount of working space
@@ -447,7 +447,7 @@ static int combine_shards(const sskr_shard *shards,  // array of shard structure
     memzero(working_shards, sizeof(working_shards));
 
     return result;
-}
+}*/
 
 /////////////////////////////////////////////////
 // sskr_combine

@@ -43,7 +43,7 @@ void screen_onboarding_3_restore_init(void) {
 UX_STEP_VALID(ux_idle_flow_1_step, pbb, screen_onboarding_3_restore_init();,
                                                                            {
                                                                                &C_badge,
-                                                                               "Check your",
+                                                                               "Check BIP39",
                                                                                "recovery phrase",
                                                                            });
 
@@ -107,9 +107,9 @@ UX_STEP_VALID(ux_instruction_step,
               nnn,
               ux_menulist_init(0, number_of_words_getter, number_of_words_selector),
               {
-                  "Select the number",
-                  "of words written on",
-                  "your Recovery Sheet",
+                  "Select the number of",
+                  "BIP39 words written on",
+                  "on your Recovery Sheet",
               });
 
 UX_FLOW(ux_instruction_flow, &ux_instruction_step);
@@ -121,7 +121,7 @@ UX_STEP_VALID(ux_idle_flow_1_step,
               ux_flow_init(0, ux_instruction_flow, NULL),
               {
                   &C_badge,
-                  "Check your",
+                  "Check BIP39",
                   "recovery phrase",
               });
 UX_STEP_NOCB(ux_idle_flow_3_step,

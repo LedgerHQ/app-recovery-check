@@ -1,0 +1,52 @@
+---
+name: Create Release
+
+on:
+  workflow_run:
+    workflows: ['Compilation & tests']
+    types:
+      - completed
+
+jobs:
+  create_release:
+    name: Create Release
+    if: github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Clone
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+
+      - name: Set VERSION variable from tag
+        run: |
+          HEAD_BRANCH=${{ github.event.workflow_run.head_branch }}
+          VERSION_NUMBER=${HEAD_BRANCH#v}
+          echo "VERSION_NUMBER=${VERSION_NUMBER}" >> ${GITHUB_ENV}
+          echo "VERSION_NAME=${HEAD_BRANCH//./_}" >> ${GITHUB_ENV}
+
+      - name: Download app binaries
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          name: apps
+          path: ./bin/
+          commit: ${{ github.event.workflow_run.head_sha }}
+          workflow: ci-workflow.yml
+          workflow_conclusion: success
+          skip_unpack: true
+
+      - name: Rename app binaries
+        run: ls -la ./bin/ && sudo mv ./bin/apps.zip ./bin/apps.${VERSION_NAME}.zip && ls -la ./bin/
+
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: Sharded Secret Key Reconstruction (SSKR) Check application for Ledger - Release ${{ env.VERSION_NUMBER }}
+          artifacts: ./bin/*.zip
+          artifactContentType: application/zip
+          bodyFile: CHANGELOG.md
+          tag: ${{ github.event.workflow_run.head_branch }}
+          makeLatest: true
+          allowUpdates: true
