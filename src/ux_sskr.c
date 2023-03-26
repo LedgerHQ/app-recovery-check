@@ -134,7 +134,7 @@ void generate_sskr(void) {
 
     bolos_ux_bip39_to_sskr_convert((unsigned char*) G_bolos_ux_context.words_buffer,
                                    G_bolos_ux_context.words_buffer_length,
-                                   G_bolos_ux_context.onboarding_kind,
+                                   G_bolos_ux_context.bip39_onboarding_kind,
                                    G_bolos_ux_context.sskr_group_descriptor[0],
                                    &G_bolos_ux_context.sskr_share_count,
                                    (unsigned char*) G_bolos_ux_context.sskr_words_buffer,

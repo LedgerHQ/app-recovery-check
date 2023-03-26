@@ -38,7 +38,7 @@ uint32_t crc32_nbo(const uint8_t *bytes, size_t len) {
     return htonl(crc32(bytes, len));
 }
 
-unsigned int bolos_ux_sskr_size_get(unsigned int onboarding_kind,
+unsigned int bolos_ux_sskr_size_get(unsigned int bip39_onboarding_kind,
                                     unsigned int groups_threshold,
                                     unsigned int *group_descriptor,
                                     unsigned int groups_len,
@@ -50,7 +50,7 @@ unsigned int bolos_ux_sskr_size_get(unsigned int onboarding_kind,
     }
 
     unsigned int share_count_expected = sskr_count_shards(groups_threshold, groups, groups_len);
-    *share_len = onboarding_kind * 4 / 3 + METADATA_LENGTH_BYTES;
+    *share_len = bip39_onboarding_kind * 4 / 3 + METADATA_LENGTH_BYTES;
 
     return share_count_expected;
 }
@@ -127,13 +127,13 @@ unsigned int bolos_ux_sskr_mnemonic_encode(unsigned char *input,
 
 unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                                             unsigned int bip39_words_buffer_length,
-                                            unsigned int onboarding_kind,
+                                            unsigned int bip39_onboarding_kind,
                                             unsigned int *group_descriptor,
                                             uint8_t *share_count,
                                             unsigned char *mnemonics,
                                             unsigned int *mnemonics_len) {
     // get seed from bip39 mnemonic
-    uint8_t seed_len = onboarding_kind * 4 / 3;
+    uint8_t seed_len = bip39_onboarding_kind * 4 / 3;
     uint8_t seed_buffer[seed_len + 1];
 
     if (bolos_ux_bip39_mnemonic_decode(bip39_words_buffer,
@@ -145,7 +145,7 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
         size_t groups_len = 1;
         size_t groups_threshold = 1;
         size_t share_len_expected = 0;
-        size_t share_count_expected = bolos_ux_sskr_size_get(onboarding_kind,
+        size_t share_count_expected = bolos_ux_sskr_size_get(bip39_onboarding_kind,
                                                              groups_threshold,
                                                              group_descriptor,
                                                              groups_len,

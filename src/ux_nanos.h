@@ -27,6 +27,11 @@ enum e_state {
     DYNAMIC_SCREEN,
 };
 
+enum e_onboarding_type {
+    BIP39_ONBOARDING,
+    SSKR_ONBOARDING,
+};
+
 // bolos ux context (not mandatory if redesigning a bolos ux)
 typedef struct bolos_ux_context {
 #define BOLOS_UX_ONBOARDING_NEW        1
@@ -37,7 +42,7 @@ typedef struct bolos_ux_context {
 #define BOLOS_UX_ONBOARDING_RESTORE_12 12
 #define BOLOS_UX_ONBOARDING_RESTORE_18 18
 #define BOLOS_UX_ONBOARDING_RESTORE_24 24
-    unsigned int onboarding_kind;
+    unsigned int bip39_onboarding_kind;
 
 #ifdef HAVE_ELECTRUM
     unsigned int onboarding_algorithm;
@@ -76,8 +81,11 @@ typedef struct bolos_ux_context {
     // for CheckSeed app only
     uint8_t processing;
 
-    // State of the dynamic display.
+    // State of the dynamic display
     enum e_state current_state;
+
+    // Type of onboarding we are performing (BIP39 or SSKR)
+    enum e_onboarding_type onboarding_type;
 
     uint8_t sskr_share_count;
     uint8_t sskr_share_index;

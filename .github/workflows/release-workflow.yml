@@ -23,8 +23,7 @@ jobs:
       - name: Set VERSION variable from tag
         run: |
           HEAD_BRANCH=${{ github.event.workflow_run.head_branch }}
-          VERSION_NUMBER=${HEAD_BRANCH#v}
-          echo "VERSION_NUMBER=${VERSION_NUMBER}" >> ${GITHUB_ENV}
+          echo "VERSION_NUMBER=${HEAD_BRANCH#v}" >> ${GITHUB_ENV}
           echo "VERSION_NAME=${HEAD_BRANCH//./_}" >> ${GITHUB_ENV}
 
       - name: Download app binaries

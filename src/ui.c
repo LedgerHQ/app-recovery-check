@@ -10,42 +10,56 @@ bolos_ux_params_t G_ux_params;
 
 #if defined(TARGET_NANOS)
 
-UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
-           screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
+UX_STEP_CB(restore_1_1_1, bb, G_bolos_ux_context.bip39_onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
+           screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
                "Recovery phrase",
                "with 24 words",
            });
 
-UX_STEP_CB(restore_3_1_2, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
-           screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
+UX_STEP_CB(restore_1_1_2, bb, G_bolos_ux_context.bip39_onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
+           screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
                "Recovery phrase",
                "with 18 words",
            });
 
-UX_STEP_CB(restore_3_1_3, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
-           screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
+UX_STEP_CB(restore_1_1_3, bb, G_bolos_ux_context.bip39_onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
+           screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
                "Recovery phrase",
                "with 12 words",
            });
 
-UX_FLOW(restore_3_1, &restore_3_1_1, &restore_3_1_2, &restore_3_1_3);
+UX_FLOW(restore_1_1, &restore_1_1_1, &restore_1_1_2, &restore_1_1_3);
 
-void screen_onboarding_3_restore_init(void) {
-    ux_flow_init(0, restore_3_1, NULL);
+void screen_onboarding_1_restore_init(void) {
+    G_bolos_ux_context.onboarding_type = BIP39_ONBOARDING;
+    ux_flow_init(0, restore_1_1, NULL);
 }
 
-UX_STEP_VALID(ux_idle_flow_1_step, pbb, screen_onboarding_3_restore_init();,
+void screen_onboarding_2_restore_init(void) {
+    G_bolos_ux_context.onboarding_type = SSKR_ONBOARDING;
+    screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
+}
+
+UX_STEP_VALID(ux_idle_flow_1_step, pbb, screen_onboarding_1_restore_init();,
                                                                            {
                                                                                &C_badge,
                                                                                "Check BIP39",
                                                                                "recovery phrase",
                                                                            });
+
+UX_STEP_VALID(ux_idle_flow_2_step, pbb, screen_onboarding_2_restore_init();
+              ,
+              {
+                  &C_nanos_app_sskr_check,
+                  "Check SSKR",
+                  "recovery phrase",
+              });
 
 UX_STEP_NOCB(ux_idle_flow_3_step,
              bn,
@@ -62,66 +76,99 @@ UX_STEP_VALID(ux_idle_flow_4_step,
                   "Quit",
               });
 
-UX_FLOW(ux_idle_flow, &ux_idle_flow_1_step, &ux_idle_flow_3_step, &ux_idle_flow_4_step);
+UX_FLOW(ux_idle_flow,
+        &ux_idle_flow_1_step,
+        &ux_idle_flow_2_step,
+        &ux_idle_flow_3_step,
+        &ux_idle_flow_4_step);
 
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
 //////////////////////////////////////////////////////////////////////
 
-const char* const number_of_words_getter_values[] = {
+const char* const number_of_bip39_words_values[] = {
     "12 words",
     "18 words",
     "24 words",
     "Back",
 };
 
-const char* number_of_words_getter(unsigned int idx) {
-    if (idx < ARRAYLEN(number_of_words_getter_values)) {
-        return number_of_words_getter_values[idx];
+const char* number_of_bip39_words_get(unsigned int idx) {
+    if (idx < ARRAYLEN(number_of_bip39_words_values)) {
+        return number_of_bip39_words_values[idx];
     }
     return NULL;
 }
 
-void number_of_words_selector(unsigned int idx) {
+void number_of_bip39_words_selector(unsigned int idx) {
     switch (idx) {
         case 0:
-            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
-            screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
+            G_bolos_ux_context.bip39_onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
+            screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
             break;
         case 1:
-            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
-            screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
+            G_bolos_ux_context.bip39_onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
+            screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
             break;
         case 2:
-            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
-            screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
+            G_bolos_ux_context.bip39_onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
+            screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
             break;
         default:
             ui_idle_init();
     }
 }
 
+void screen_onboarding_1_restore_init(void) {
+    G_bolos_ux_context.onboarding_type = BIP39_ONBOARDING;
+    ux_menulist_init(0, number_of_bip39_words_get, number_of_bip39_words_selector);
+}
+
+void screen_onboarding_2_restore_init(void) {
+    G_bolos_ux_context.onboarding_type = SSKR_ONBOARDING;
+    screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
+}
+
 //////////////////////////////////////////////////////////////////////
 
-UX_STEP_VALID(ux_instruction_step,
+UX_STEP_VALID(ux_instruction_1_1_step,
               nnn,
-              ux_menulist_init(0, number_of_words_getter, number_of_words_selector),
+              screen_onboarding_1_restore_init(),
               {
                   "Select the number of",
-                  "BIP39 words written on",
-                  "on your Recovery Sheet",
+                  "words written on",
+                  "your Recovery Sheet",
               });
 
-UX_FLOW(ux_instruction_flow, &ux_instruction_step);
+UX_FLOW(ux_instruction_1_flow, &ux_instruction_1_1_step);
+
+UX_STEP_VALID(ux_instruction_2_1_step,
+              nnn,
+              screen_onboarding_2_restore_init(),
+              {
+                  "Enter first word of",
+                  "first share of SSKR",
+                  "recovery phrase",
+              });
+
+UX_FLOW(ux_instruction_2_flow, &ux_instruction_2_1_step);
 
 //////////////////////////////////////////////////////////////////////
 
 UX_STEP_VALID(ux_idle_flow_1_step,
               pbb,
-              ux_flow_init(0, ux_instruction_flow, NULL),
+              ux_flow_init(0, ux_instruction_1_flow, NULL),
               {
                   &C_badge,
                   "Check BIP39",
+                  "recovery phrase",
+              });
+UX_STEP_VALID(ux_idle_flow_2_step,
+              pbb,
+              ux_flow_init(0, ux_instruction_2_flow, NULL),
+              {
+                  &C_nanox_app_sskr_check,
+                  "Check SSKR",
                   "recovery phrase",
               });
 UX_STEP_NOCB(ux_idle_flow_3_step,
@@ -137,7 +184,11 @@ UX_STEP_VALID(ux_idle_flow_4_step,
                   &C_icon_dashboard_x,
                   "Quit",
               });
-UX_FLOW(ux_idle_flow, &ux_idle_flow_1_step, &ux_idle_flow_3_step, &ux_idle_flow_4_step);
+UX_FLOW(ux_idle_flow,
+        &ux_idle_flow_1_step,
+        &ux_idle_flow_2_step,
+        &ux_idle_flow_3_step,
+        &ux_idle_flow_4_step);
 
 #endif
 

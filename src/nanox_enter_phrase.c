@@ -18,11 +18,11 @@
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
-const bagl_element_t* screen_onboarding_4_restore_word_before_element_display_callback(
+const bagl_element_t* screen_onboarding_restore_word_before_element_display_callback(
     const bagl_element_t* element);
 
 // show intro
-const bagl_element_t screen_onboarding_4_restore_word_intro_elements[] = {
+const bagl_element_t screen_onboarding_restore_word_intro_elements[] = {
     // erase
     {{BAGL_RECTANGLE, 0x00, 0, 0, 128, 64, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
 
@@ -85,7 +85,7 @@ const bagl_element_t screen_onboarding_4_restore_word_intro_elements[] = {
 };
 
 // word selection + word clear
-const bagl_element_t screen_onboarding_4_restore_word_select_elements[] = {
+const bagl_element_t screen_onboarding_restore_word_select_elements[] = {
     // erase
     {{BAGL_RECTANGLE, 0x00, 0, 0, 128, 64, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
 
@@ -177,13 +177,13 @@ UX_STEP_CB(ux_success_step_3, pbb, generate_sskr();
 
 UX_FLOW(ux_succesfull_check_flow, &ux_success_step_1, &ux_success_step_2, &ux_success_step_3);
 
-unsigned int screen_onboarding_4_restore_word_select_button(unsigned int button_mask,
-                                                            unsigned int button_mask_counter);
+unsigned int screen_onboarding_restore_word_select_button(unsigned int button_mask,
+                                                          unsigned int button_mask_counter);
 
-const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigned int event,
-                                                                         unsigned int value);
+const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned int event,
+                                                                       unsigned int value);
 
-void screen_onboarding_4_restore_word_display_auto_complete(void) {
+void screen_onboarding_restore_word_display_auto_complete(void) {
     unsigned int auto_complete_count = bolos_ux_bip39_get_word_next_letters_starting_with(
         (unsigned char*) G_ux.string_buffer + 16,
         strlen(G_ux.string_buffer + 16),
@@ -212,33 +212,32 @@ void screen_onboarding_4_restore_word_display_auto_complete(void) {
             (strlen(G_ux.string_buffer + 16)
                  ? 1
                  : 0) /* backspace if a stem is already entered, else no backspace */,
-        screen_onboarding_4_restore_word_keyboard_callback);
+        screen_onboarding_restore_word_keyboard_callback);
     // append the special backspace to allow for easier dispatch in the keyboard callback
     ((unsigned char*) (G_ux.string_buffer + 32))[auto_complete_count] = '\b';
 }
 
-void screen_onboarding_4_restore_word_display_word_selection(void) {
+void screen_onboarding_restore_word_display_word_selection(void) {
     ux_stack_init(0);
-    G_ux.stack[0].button_push_callback = screen_onboarding_4_restore_word_select_button;
-    G_ux.stack[0].element_arrays[0].element_array =
-        screen_onboarding_4_restore_word_select_elements;
+    G_ux.stack[0].button_push_callback = screen_onboarding_restore_word_select_button;
+    G_ux.stack[0].element_arrays[0].element_array = screen_onboarding_restore_word_select_elements;
     G_ux.stack[0].element_arrays[0].element_array_count =
-        ARRAYLEN(screen_onboarding_4_restore_word_select_elements);
+        ARRAYLEN(screen_onboarding_restore_word_select_elements);
     G_ux.stack[0].element_arrays_count = 1;
     G_ux.stack[0].screen_before_element_display_callback =
-        screen_onboarding_4_restore_word_before_element_display_callback;
+        screen_onboarding_restore_word_before_element_display_callback;
     ux_stack_display(0);
 }
 
-const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigned int event,
-                                                                         unsigned int value) {
+const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned int event,
+                                                                       unsigned int value) {
     switch (event) {
         case KEYBOARD_ITEM_VALIDATED:
             // depending on the chosen class, interpret the click
             if (G_ux.string_buffer[32 + value] == '\b') {
                 if (strlen(G_ux.string_buffer + 16)) {
                     G_ux.string_buffer[16 + strlen(G_ux.string_buffer + 16) - 1] = 0;
-                    screen_onboarding_4_restore_word_display_auto_complete();
+                    screen_onboarding_restore_word_display_auto_complete();
                 }
             } else {
                 unsigned int nb_words_matching_stem;
@@ -252,7 +251,7 @@ const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigne
                     strlen(G_ux.string_buffer + 16));
                 if (nb_words_matching_stem > ONBOARDING_WORD_COMPLETION_MAX_ITEMS) {
                     // too much words for slider word completion, await another letter
-                    screen_onboarding_4_restore_word_display_auto_complete();
+                    screen_onboarding_restore_word_display_auto_complete();
                 } else {
                     // always init stem count
                     // index of the first word matching the stem
@@ -264,7 +263,7 @@ const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigne
                     // update the slider's possible words
                     // account for the extra "last" (clear) item
                     bolos_ux_hslider3_init(nb_words_matching_stem + 1);
-                    screen_onboarding_4_restore_word_display_word_selection();
+                    screen_onboarding_restore_word_display_word_selection();
                 }
                 return NULL;
             }
@@ -333,7 +332,7 @@ const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigne
     return &G_ux.tmp_element;
 }
 
-const bagl_element_t* screen_onboarding_4_restore_word_before_element_display_callback(
+const bagl_element_t* screen_onboarding_restore_word_before_element_display_callback(
     const bagl_element_t* element) {
     switch (element->component.userid) {
         case 0x30:
@@ -348,12 +347,14 @@ const bagl_element_t* screen_onboarding_4_restore_word_before_element_display_ca
             break;
         case 0x32:
             if (G_bolos_ux_context.onboarding_step == 0 ||
-                G_bolos_ux_context.onboarding_step == G_bolos_ux_context.onboarding_kind - 1) {
+                G_bolos_ux_context.onboarding_step ==
+                    G_bolos_ux_context.bip39_onboarding_kind - 1) {
                 return NULL;  // don't display
             }
             break;
         case 0x33:
-            if (G_bolos_ux_context.onboarding_step != G_bolos_ux_context.onboarding_kind - 1) {
+            if (G_bolos_ux_context.onboarding_step !=
+                G_bolos_ux_context.bip39_onboarding_kind - 1) {
                 return NULL;  // don't display
             }
             break;
@@ -429,7 +430,7 @@ uint8_t compare_recovery_phrase(void) {
     return os_secure_memcmp(buffer, buffer_device, 64) ? 0 : 1;
 }
 
-void screen_onboarding_4_restore_word_validate(void) {
+void screen_onboarding_restore_word_validate(void) {
     bolos_ux_bip39_idx_strcpy(
         G_bolos_ux_context.onboarding_index + G_bolos_ux_context.hslider3_current,
         (unsigned char*) (G_bolos_ux_context.words_buffer +
@@ -439,7 +440,7 @@ void screen_onboarding_4_restore_word_validate(void) {
     // a word has been added
     G_bolos_ux_context.onboarding_step++;
 
-    if (G_bolos_ux_context.onboarding_step == G_bolos_ux_context.onboarding_kind) {
+    if (G_bolos_ux_context.onboarding_step == G_bolos_ux_context.bip39_onboarding_kind) {
         unsigned char valid;
 #ifdef HAVE_ELECTRUM
         // if we've entered all the words, then check the phrase
@@ -475,12 +476,12 @@ void screen_onboarding_4_restore_word_validate(void) {
         G_bolos_ux_context.words_buffer[G_bolos_ux_context.words_buffer_length++] = ' ';
 
         // enter the next word
-        screen_onboarding_4_restore_word_init(0);
+        screen_onboarding_restore_word_init(0);
     }
 }
 
-unsigned int screen_onboarding_4_restore_word_select_button(unsigned int button_mask,
-                                                            unsigned int button_mask_counter) {
+unsigned int screen_onboarding_restore_word_select_button(unsigned int button_mask,
+                                                          unsigned int button_mask_counter) {
     UNUSED(button_mask_counter);
     switch (button_mask) {
         case BUTTON_EVT_FAST | BUTTON_LEFT:
@@ -502,35 +503,35 @@ unsigned int screen_onboarding_4_restore_word_select_button(unsigned int button_
             bolos_ux_hslider3_next();
 
         redraw:
-            screen_onboarding_4_restore_word_display_word_selection();
+            screen_onboarding_restore_word_display_word_selection();
             break;
 
         case BUTTON_EVT_RELEASED | BUTTON_LEFT | BUTTON_RIGHT:
             if (G_bolos_ux_context.hslider3_current == G_bolos_ux_context.hslider3_total - 1) {
                 // clear current word
-                screen_onboarding_4_restore_word_init(0);
+                screen_onboarding_restore_word_init(0);
             } else {
                 // confirm word, and prepare entering a new one or validate the seed
-                screen_onboarding_4_restore_word_validate();
+                screen_onboarding_restore_word_validate();
             }
             break;
     }
     return 0;
 }
 
-unsigned int screen_onboarding_4_restore_word_intro_button(unsigned int button_mask,
-                                                           unsigned int button_mask_counter) {
+unsigned int screen_onboarding_restore_word_intro_button(unsigned int button_mask,
+                                                         unsigned int button_mask_counter) {
     UNUSED(button_mask_counter);
     switch (button_mask) {
         case BUTTON_EVT_RELEASED | BUTTON_LEFT | BUTTON_RIGHT: {
-            screen_onboarding_4_restore_word_display_auto_complete();
+            screen_onboarding_restore_word_display_auto_complete();
             break;
         }
     }
     return 0;
 }
 
-void screen_onboarding_4_restore_word_init(unsigned int firstWord) {
+void screen_onboarding_restore_word_init(unsigned int firstWord) {
     ux_stack_init(0);
 
     if (firstWord) {
@@ -549,18 +550,18 @@ void screen_onboarding_4_restore_word_init(unsigned int firstWord) {
     // (word completion possibilities)
 
 #ifdef RESTORE_INTRO_WORD
-    G_ux.stack[0].button_push_callback = screen_onboarding_4_restore_word_intro_button;
+    G_ux.stack[0].button_push_callback = screen_onboarding_restore_word_intro_button;
     G_ux.stack[0].screen_before_element_display_callback =
-        screen_onboarding_4_restore_word_before_element_display_callback;
+        screen_onboarding_restore_word_before_element_display_callback;
 
     // elements to be displayed
-    G_ux.stack[0].element_arrays[0].element_array = screen_onboarding_4_restore_word_intro_elements;
+    G_ux.stack[0].element_arrays[0].element_array = screen_onboarding_restore_word_intro_elements;
     G_ux.stack[0].element_arrays[0].element_array_count =
-        ARRAYLEN(screen_onboarding_4_restore_word_intro_elements);
+        ARRAYLEN(screen_onboarding_restore_word_intro_elements);
     G_ux.stack[0].element_arrays_count = 1;
     ux_stack_display(0);
 #else  // RESTORE_INTRO_WORD
-    screen_onboarding_4_restore_word_display_auto_complete();
+    screen_onboarding_restore_word_display_auto_complete();
 #endif  // RESTORE_INTRO_WORD
 }
 
