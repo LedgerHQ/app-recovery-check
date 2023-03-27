@@ -15,7 +15,7 @@
 
 #include "../ux_common/common_bip39.h"
 #include "../ui.h"
-#include "./ux_stax.h"
+#include "./mnemonic.h"
 #include "./passphrase_length_screen.h"
 
 #define HEADER_SIZE 50

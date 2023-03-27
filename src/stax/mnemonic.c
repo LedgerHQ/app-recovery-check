@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "../ux_common/common_bip39.h"
-#include "./ux_stax.h"
+#include "./mnemonic.h"
 
 #if defined(TARGET_STAX)
 
