@@ -7,14 +7,16 @@
 
 #define UPPER_MARGIN    4
 #define BUTTON_DIAMETER 80
+#define ICON_X          0
+#define ICON_Y          148
 
 nbgl_image_t *passphrase_length_set_icon() {
     nbgl_image_t *image = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, 0);
     image->foregroundColor = BLACK;
     image->buffer = &C_stax_recovery_64px;
     image->bpp = NBGL_BPP_1;
-    image->alignmentMarginX = 0;
-    image->alignmentMarginY = 148;
+    image->alignmentMarginX = ICON_X;
+    image->alignmentMarginY = ICON_Y;
     image->alignment = TOP_MIDDLE;
     image->alignTo = NULL;
     return image;

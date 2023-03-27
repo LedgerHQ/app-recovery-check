@@ -55,7 +55,7 @@ static void on_quit(void) {
  * About menu
  */
 static const char *const infoTypes[] = {"Version", "Recovery Check"};
-static const char *const infoContents[] = {APPVERSION, "(c) 2022 Ledger"};
+static const char *const infoContents[] = {APPVERSION, "(c) 2023 Ledger"};
 
 static bool on_infos(uint8_t page, nbgl_pageContent_t *content) {
     if (page == 0) {
@@ -138,6 +138,8 @@ static void passphrase_length_page(void) {
 /*
  * Word recover page
  */
+#define BUTTON_VMARGIN 32
+
 static char textToEnter[MAX_WORD_LENGTH + 1] = {0};
 static int textIndex, suggestionIndex, keyboardIndex = 0;
 // the biggest word of BIP39 list is 8 char (9 with trailing '\0'), and
@@ -240,7 +242,7 @@ static void display_keyboard_page() {
                                           get_current_word_number() + 1,  // number to use
                                           textToEnter,                    // text to display
                                           false,                          // not grayed-out
-                                          32,  // vertical margin from the buttons
+                                          BUTTON_VMARGIN,  // vertical margin from the buttons
                                           KBD_TEXT_TOKEN);
     nbgl_layoutDraw(layout);
 }
