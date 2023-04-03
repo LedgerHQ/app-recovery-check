@@ -8,17 +8,6 @@
 #include "common_bip39.h"
 #include "bc-sskr/bc-sskr.h"
 
-uint32_t htonl(x) uint32_t x;
-{
-#if BYTE_ORDER == BIG_ENDIAN
-    return x;
-#elif BYTE_ORDER == LITTLE_ENDIAN
-    return os_swap_u32(x);
-#else
-#error "What kind of system is this?"
-#endif
-}
-
 uint32_t crc32(const uint8_t *data, size_t len) {
     uint32_t crc = ~0;
     const uint8_t *end = data + len;
@@ -35,7 +24,13 @@ uint32_t crc32(const uint8_t *data, size_t len) {
 
 // Returns the CRC-32 checksum of the input buffer in network byte order (big endian).
 uint32_t crc32_nbo(const uint8_t *bytes, size_t len) {
-    return htonl(crc32(bytes, len));
+#if BYTE_ORDER == BIG_ENDIAN
+    return crc32(bytes, len);
+#elif BYTE_ORDER == LITTLE_ENDIAN
+    return os_swap_u32(crc32(bytes, len));
+#else
+#error "What kind of system is this?"
+#endif
 }
 
 unsigned int bolos_ux_sskr_size_get(unsigned int bip39_onboarding_kind,
@@ -53,6 +48,52 @@ unsigned int bolos_ux_sskr_size_get(unsigned int bip39_onboarding_kind,
     *share_len = bip39_onboarding_kind * 4 / 3 + METADATA_LENGTH_BYTES;
 
     return share_count_expected;
+}
+
+unsigned int bolos_ux_sskr_hex_decode(unsigned char *mnemonic_hex,
+                                      unsigned int mnemonic_length,
+                                      unsigned int sskr_shares_count,
+                                      unsigned char *output) {
+    const uint8_t *ptr_sskr_shares[sskr_shares_count];
+    uint8_t sskr_share_len = mnemonic_hex[3] & 0x1F;
+    if (sskr_share_len > 23) {
+        sskr_share_len = mnemonic_hex[4];
+    }
+
+    for (uint8_t i = 0; i < sskr_shares_count; i++) {
+        ptr_sskr_shares[i] =
+            mnemonic_hex + (i * mnemonic_length / sskr_shares_count) + 4 + (sskr_share_len > 23);
+    }
+
+    int output_len = sskr_combine(ptr_sskr_shares, sskr_share_len, sskr_shares_count, output, 32);
+
+    if (output_len < 1) {
+        memset(mnemonic_hex, 0, mnemonic_length);
+        return 0;
+    }
+
+    PRINTF("SSKR decoded shares:\n %.*H\n", output_len, output);
+    return (unsigned int) output_len;
+}
+
+void bolos_ux_sskr_hex_to_seed(unsigned char *mnemonic_hex,
+                               unsigned int mnemonic_length,
+                               unsigned int sskr_shares_count,
+                               unsigned char *words_buffer,
+                               unsigned int *words_buffer_length,
+                               unsigned char *seed) {
+    PRINTF("SSKR mnemonic in hex:\n %.*H\n", mnemonic_length, mnemonic_hex);
+
+    uint8_t seed_buffer[32] = {0};
+    uint8_t seed_buffer_len =
+        bolos_ux_sskr_hex_decode(mnemonic_hex, mnemonic_length, sskr_shares_count, seed_buffer);
+
+    *words_buffer_length = bolos_ux_bip39_mnemonic_encode(seed_buffer,
+                                                          (uint8_t) seed_buffer_len,
+                                                          words_buffer,
+                                                          *words_buffer_length);
+    memset(seed_buffer, 0, sizeof(seed_buffer));
+    bolos_ux_bip39_mnemonic_to_seed(words_buffer, *words_buffer_length, seed);
 }
 
 unsigned int bolos_ux_sskr_generate(unsigned int groups_threshold,
@@ -196,8 +237,8 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                        share_buffer + share_len * share,
                        share_len);
                 // TODO
-                // During testing cx_crc32_hw() gave an incorrect CRC32 so disabling for now and
-                // using own crc32() function instead checksum =
+                // During testing cx_crc32_hw() gave an incorrect CRC32 so disabling for
+                // now and using own crc32() function instead checksum =
                 // cx_crc32_hw_nbo(cbor_share_crc_buffer, cbor_len + share_len);
                 checksum = crc32_nbo(cbor_share_crc_buffer, cbor_len + share_len);
                 memcpy(cbor_share_crc_buffer + cbor_len + share_len, &checksum, checksum_len);
@@ -223,4 +264,125 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
     memset(bip39_words_buffer, 0, bip39_words_buffer_length);
 
     return 1;
+}
+
+unsigned int bolos_ux_sskr_hex_check(unsigned char *mnemonic_hex,
+                                     unsigned int mnemonic_length,
+                                     unsigned int sskr_shares_count) {
+    uint8_t cbor[] = {0xD9, 0x01, 0x35};  // CBOR tag
+    uint32_t checksum = 0;
+    uint8_t checksum_len = sizeof(checksum);
+
+    for (unsigned int i = 0; i < sskr_shares_count; i++) {
+        checksum = crc32_nbo(mnemonic_hex + i * (mnemonic_length / sskr_shares_count),
+                             (mnemonic_length / sskr_shares_count) - checksum_len);
+        // First 8 bytes of all shares in group should be same
+        // Test checksum
+        if ((os_secure_memcmp(cbor, mnemonic_hex + i * mnemonic_length / sskr_shares_count, 3) !=
+             0) ||
+            (i > 0 && os_secure_memcmp(mnemonic_hex,
+                                       mnemonic_hex + i * mnemonic_length / sskr_shares_count,
+                                       8) != 0) ||
+            (os_secure_memcmp(
+                 &checksum,
+                 mnemonic_hex + ((mnemonic_length / sskr_shares_count) * (i + 1)) - checksum_len,
+                 checksum_len) != 0)) {
+            memset(mnemonic_hex, 0, mnemonic_length);
+            checksum = 0;
+            return 0;
+        };
+        checksum = 0;
+    }
+    // alright hex decoded mnemonic is ok
+    return 1;
+}
+
+unsigned int bolos_ux_sskr_idx_strcpy(unsigned int index, unsigned char *buffer) {
+    if (index < SSKR_WORDLIST_LENGTH / SSKR_MNEMONIC_LENGTH && buffer) {
+        size_t word_length = SSKR_MNEMONIC_LENGTH;
+        memcpy(buffer, SSKR_WORDLIST + SSKR_MNEMONIC_LENGTH * index, word_length);
+        buffer[word_length] = 0;  // EOS
+        return word_length;
+    }
+    // no word at that index
+    // buffer[0] = 0; // EOS
+    return 0;
+}
+
+unsigned int bolos_ux_sskr_get_word_idx_starting_with(unsigned char *prefix,
+                                                      unsigned int prefixlength) {
+    unsigned int i;
+    for (i = 0; i < SSKR_WORDLIST_LENGTH / SSKR_MNEMONIC_LENGTH; i++) {
+        unsigned int j = 0;
+        while (j < (unsigned int) (SSKR_MNEMONIC_LENGTH) && j < prefixlength &&
+               SSKR_WORDLIST[SSKR_MNEMONIC_LENGTH * i + j] == prefix[j]) {
+            j++;
+        }
+        if (j == prefixlength) {
+            return i;
+        }
+    }
+    // no match, sry
+    return SSKR_WORDLIST_LENGTH / SSKR_MNEMONIC_LENGTH;
+}
+
+unsigned int bolos_ux_sskr_get_word_count_starting_with(unsigned char *prefix,
+                                                        unsigned int prefixlength) {
+    unsigned int i;
+    unsigned int count = 0;
+    for (i = 0; i < SSKR_WORDLIST_LENGTH / SSKR_MNEMONIC_LENGTH; i++) {
+        unsigned int j = 0;
+        while (j < (unsigned int) (SSKR_MNEMONIC_LENGTH) && j < prefixlength &&
+               SSKR_WORDLIST[SSKR_MNEMONIC_LENGTH * i + j] == prefix[j]) {
+            j++;
+        }
+        if (j == prefixlength) {
+            count++;
+        }
+        // don't seek till the end, abort when the prefix is not matched anymore
+        else if (count > 0) {
+            break;
+        }
+    }
+    // return number of matched word starting with the given prefix
+    return count;
+}
+
+// allocate at most 26 letters for next possibilities
+// algorithm considers the SSKR words are alphabetically ordered in the wordlist
+unsigned int bolos_ux_sskr_get_word_next_letters_starting_with(unsigned char *prefix,
+                                                               unsigned int prefixlength,
+                                                               unsigned char *next_letters_buffer) {
+    unsigned int i;
+    unsigned int letter_count = 0;
+    for (i = 0; i < SSKR_WORDLIST_LENGTH / SSKR_MNEMONIC_LENGTH; i++) {
+        unsigned int j = 0;
+        while (j < (unsigned int) (SSKR_MNEMONIC_LENGTH) && j < prefixlength &&
+               SSKR_WORDLIST[SSKR_MNEMONIC_LENGTH * i + j] == prefix[j]) {
+            j++;
+        }
+        if (j == prefixlength) {
+            if (j < (unsigned int) (SSKR_MNEMONIC_LENGTH)) {
+                // j is inc during previous loop, don't touch it
+                unsigned char next_letter = SSKR_WORDLIST[SSKR_MNEMONIC_LENGTH * i + j];
+                // add the first next_letter inconditionnally
+                if (letter_count == 0) {
+                    next_letters_buffer[0] = next_letter;
+                    letter_count = 1;
+                }
+                // the next_letter is different
+                else if (next_letters_buffer[0] != next_letter) {
+                    next_letters_buffer++;
+                    next_letters_buffer[0] = next_letter;
+                    letter_count++;
+                }
+            }
+        }
+        // don't seek till the end, abort when the prefix is not matched anymore
+        else if (letter_count > 0) {
+            break;
+        }
+    }
+    // return number of matched word starting with the given prefix
+    return letter_count;
 }

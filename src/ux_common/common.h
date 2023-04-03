@@ -53,6 +53,7 @@ void bolos_ux_hslider3_previous(void);
 
 // all screens
 void screen_onboarding_1_restore_init(void);
+void screen_onboarding_2_restore_init(void);
 #define RESTORE_WORD_ACTION_REENTER_WORD 0
 #define RESTORE_WORD_ACTION_FIRST_WORD   1
 void screen_onboarding_restore_word_init(unsigned int action);

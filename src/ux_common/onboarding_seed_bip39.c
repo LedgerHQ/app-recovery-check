@@ -8,38 +8,39 @@
 
 // separated function to lower the stack usage when jumping into pbkdf algorithm
 unsigned int bolos_ux_bip39_mnemonic_to_seed_hash_length128(unsigned char* mnemonic,
-                                                            unsigned int mnemonicLength) {
-    if (mnemonicLength > 128) {
-        cx_hash_sha512(mnemonic, mnemonicLength, mnemonic, 64);
+                                                            unsigned int mnemonic_length) {
+    if (mnemonic_length > 128) {
+        cx_hash_sha512(mnemonic, mnemonic_length, mnemonic, 64);
         // new mnemonic length
-        mnemonicLength = 64;
+        mnemonic_length = 64;
     }
-    return mnemonicLength;
+    return mnemonic_length;
 }
 
 void bolos_ux_bip39_mnemonic_to_seed(unsigned char* mnemonic,
-                                     unsigned int mnemonicLength,
+                                     unsigned int mnemonic_length,
                                      unsigned char* seed) {
     // Need to keep BIP39 mnemonic in case we want to generate SSKR from it
     // It will be zeroed later if not needed
-    unsigned char mnemonic_hash[mnemonicLength];
-    memcpy(mnemonic_hash, mnemonic, mnemonicLength);
+    unsigned char mnemonic_hash[mnemonic_length];
+    memcpy(mnemonic_hash, mnemonic, mnemonic_length);
     unsigned char passphrase[BIP39_MNEMONIC_LENGTH + 4];
-    mnemonicLength = bolos_ux_bip39_mnemonic_to_seed_hash_length128(mnemonic_hash, mnemonicLength);
+    mnemonic_length =
+        bolos_ux_bip39_mnemonic_to_seed_hash_length128(mnemonic_hash, mnemonic_length);
     memcpy(passphrase, BIP39_MNEMONIC, BIP39_MNEMONIC_LENGTH);
     cx_pbkdf2_sha512(mnemonic_hash,
-                     mnemonicLength,
+                     mnemonic_length,
                      passphrase,
                      BIP39_MNEMONIC_LENGTH,
                      BIP39_PBKDF2_ROUNDS,
                      seed,
                      64);
-    memset(mnemonic_hash, 0, mnemonicLength);
+    memset(mnemonic_hash, 0, mnemonic_length);
     PRINTF("BIP39 seed:\n %.*H\n", 64, seed);
 }
 
 unsigned int bolos_ux_bip39_mnemonic_decode(unsigned char* mnemonic,
-                                            unsigned int mnemonicLength,
+                                            unsigned int mnemonic_length,
                                             unsigned char* bits,
                                             unsigned int bitslength) {
     unsigned int i, n = 0;
@@ -47,9 +48,9 @@ unsigned int bolos_ux_bip39_mnemonic_decode(unsigned char* mnemonic,
     unsigned char buffer[32];
     unsigned char mask;
 
-    PRINTF("BIP39 mnemonic phrase:\n %.*s\n", mnemonicLength, mnemonic);
+    PRINTF("BIP39 mnemonic phrase:\n %.*s\n", mnemonic_length, mnemonic);
 
-    for (i = 0; i < mnemonicLength; i++) {
+    for (i = 0; i < mnemonic_length; i++) {
         if (mnemonic[i] == ' ') {
             n++;
         }
@@ -61,12 +62,12 @@ unsigned int bolos_ux_bip39_mnemonic_decode(unsigned char* mnemonic,
     memset(bits, 0, bitslength);
     i = 0;
     bi = 0;
-    while (i < mnemonicLength) {
+    while (i < mnemonic_length) {
         unsigned char current_word[10];
         unsigned int current_word_size = 0;
         unsigned int j, k, ki;
         j = 0;
-        while (i < mnemonicLength && mnemonic[i] != ' ') {
+        while (i < mnemonic_length && mnemonic[i] != ' ') {
             if (j >= sizeof(current_word)) {
                 memset(bits, 0, bitslength);
                 return 0;
@@ -76,7 +77,7 @@ unsigned int bolos_ux_bip39_mnemonic_decode(unsigned char* mnemonic,
             i++;
             j++;
         }
-        if (i < mnemonicLength) {
+        if (i < mnemonic_length) {
             i++;
         }
         current_word_size++;
@@ -127,13 +128,62 @@ unsigned int bolos_ux_bip39_mnemonic_decode(unsigned char* mnemonic,
     return 1;
 }
 
-unsigned int bolos_ux_bip39_mnemonic_check(unsigned char* mnemonic, unsigned int mnemonicLength) {
+unsigned int bolos_ux_bip39_mnemonic_encode(const uint8_t* seed,
+                                            uint8_t seed_len,
+                                            char* out,
+                                            size_t out_len) {
+    if (seed_len % 4 || seed_len < 16 || seed_len > 32) {
+        return 0;
+    }
+    uint8_t bits[32 + 1];
+    cx_hash_sha256(seed, seed_len, bits, 32);
+
+    // checksum
+    bits[seed_len] = bits[0];
+    // data
+    memcpy(bits, seed, seed_len);
+
+    PRINTF("seed_len is %d\n", seed_len);
+    PRINTF("out_len is %d\n", out_len);
+
+    unsigned int i, j, idx;
+    unsigned int offset = 0;
+    for (i = 0; i < (seed_len * 3 / 4); i++) {
+        uint8_t word_len;
+        idx = 0;
+        for (j = 0; j < 11; j++) {
+            idx <<= 1;
+            idx += (bits[(i * 11 + j) / 8] & (1 << (7 - ((i * 11 + j) % 8)))) > 0;
+        }
+        word_len = BIP39_WORDLIST_OFFSETS[idx + 1] - BIP39_WORDLIST_OFFSETS[idx];
+        if ((offset + word_len) > out_len) {
+            memset(bits, 0, sizeof(bits));
+            return 0;
+        }
+        memcpy(out + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx], word_len);
+        offset += word_len;
+        if (offset > out_len) {
+            memset(bits, 0, sizeof(bits));
+            return 0;
+        }
+        if (i < (seed_len * 3 / 4) - 1) {
+            out[offset++] = ' ';
+        }
+    }
+    memset(bits, 0, sizeof(bits));
+
+    PRINTF("BIP39 encoded mnemonic:\n %.*s\n", offset, out);
+    return offset;
+}
+
+unsigned int bolos_ux_bip39_mnemonic_check(unsigned char* mnemonic, unsigned int mnemonic_length) {
     unsigned char bits[32 + 1];
 
-    if (bolos_ux_bip39_mnemonic_decode(mnemonic, mnemonicLength, bits, 32 + 1) != 1) {
+    if (bolos_ux_bip39_mnemonic_decode(mnemonic, mnemonic_length, bits, 32 + 1) != 1) {
         memset(bits, 0, 32 + 1);
         return 0;
     }
+    memset(bits, 0, 32 + 1);
 
     // alright mnemonic is ok
     return 1;
@@ -141,10 +191,10 @@ unsigned int bolos_ux_bip39_mnemonic_check(unsigned char* mnemonic, unsigned int
 
 unsigned int bolos_ux_bip39_idx_strcpy(unsigned int index, unsigned char* buffer) {
     if (index < BIP39_WORDLIST_OFFSETS_LENGTH - 1 && buffer) {
-        size_t wordLength = BIP39_WORDLIST_OFFSETS[index + 1] - BIP39_WORDLIST_OFFSETS[index];
-        memcpy(buffer, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[index], wordLength);
-        buffer[wordLength] = 0;  // EOS
-        return wordLength;
+        size_t word_length = BIP39_WORDLIST_OFFSETS[index + 1] - BIP39_WORDLIST_OFFSETS[index];
+        memcpy(buffer, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[index], word_length);
+        buffer[word_length] = 0;  // EOS
+        return word_length;
     }
     // no word at that index
     // buffer[0] = 0; // EOS

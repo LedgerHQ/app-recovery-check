@@ -31,33 +31,69 @@ UX_STEP_CB(restore_1_intro_1, nn, screen_onboarding_restore_word_display_auto_co
 
 UX_FLOW(restore_1_intro, &restore_1_intro_1);
 
-UX_STEP_CB(restore_1_invalid_1, pbb, screen_onboarding_1_restore_init();
+UX_STEP_CB(restore_1_bip39_invalid_step_1, pbb, screen_onboarding_1_restore_init();
            , {&C_icon_warning, "BIP39 Recovery", "phrase invalid"});
 
-UX_FLOW(restore_1_invalid, &restore_1_invalid_1);
+UX_FLOW(restore_1_bip39_invalid, &restore_1_bip39_invalid_step_1);
 
-UX_STEP_NOCB(ux_nomatch_step_1, pbb, {&C_icon_warning, "BIP39 Phrase", "doesn't match"});
-UX_STEP_NOCB(ux_nomatch_step_2,
+UX_STEP_NOCB(ux_bip39_nomatch_step_1, pbb, {&C_icon_warning, "BIP39 Phrase", "doesn't match"});
+UX_STEP_NOCB(ux_bip39_nomatch_step_2,
              nn,
              {
                  "Check length",
                  "order and spelling",
              });
-UX_STEP_VALID(ux_nomatch_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to menu"});
+UX_STEP_VALID(ux_bip39_nomatch_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to menu"});
 
-UX_FLOW(flow_final_nomatch, &ux_nomatch_step_1, &ux_nomatch_step_2, &ux_nomatch_step_3);
+UX_FLOW(flow_final_bip39_nomatch,
+        &ux_bip39_nomatch_step_1,
+        &ux_bip39_nomatch_step_2,
+        &ux_bip39_nomatch_step_3);
 
-UX_STEP_CB(ux_match_step_1, pbb, os_sched_exit(0);,
-                                                  {
-                                                      &C_icon_validate_14,
-                                                      "BIP39 Phrase",
-                                                      "is correct",
-                                                  });
-UX_STEP_CB(ux_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
-UX_STEP_CB(ux_match_step_3, pbb, generate_sskr();
+UX_STEP_CB(ux_bip39_match_step_1, pbb, os_sched_exit(0);,
+                                                        {
+                                                            &C_icon_validate_14,
+                                                            "BIP39 Phrase",
+                                                            "is correct",
+                                                        });
+UX_STEP_CB(ux_bip39_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
+UX_STEP_CB(ux_bip39_match_step_3, pbb, generate_sskr();
            , {&C_nanos_app_sskr_check, "Generate", "SSKR phrases"});
 
-UX_FLOW(flow_final_match, &ux_match_step_1, &ux_match_step_2, &ux_match_step_3);
+UX_FLOW(flow_final_bip39_match,
+        &ux_bip39_match_step_1,
+        &ux_bip39_match_step_2,
+        &ux_bip39_match_step_3);
+
+UX_STEP_CB(restore_1_sskr_invalid_step_1, pbb, screen_onboarding_2_restore_init();
+           , {&C_icon_warning, "SSKR Recovery", "phrase invalid"});
+
+UX_FLOW(restore_1_sskr_invalid, &restore_1_sskr_invalid_step_1);
+
+UX_STEP_NOCB(ux_sskr_nomatch_step_1, pbb, {&C_icon_warning, "SSKR Phrase", "doesn't match"});
+UX_STEP_NOCB(ux_sskr_nomatch_step_2,
+             nn,
+             {
+                 "Check length",
+                 "order and spelling",
+             });
+UX_STEP_VALID(ux_sskr_nomatch_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to menu"});
+
+UX_FLOW(flow_final_sskr_nomatch,
+        &ux_sskr_nomatch_step_1,
+        &ux_sskr_nomatch_step_2,
+        &ux_sskr_nomatch_step_3);
+
+UX_STEP_CB(ux_sskr_match_step_1, pbb, os_sched_exit(0);,
+                                                       {
+                                                           &C_icon_validate_14,
+                                                           "SSKR Phrase",
+                                                           "is correct",
+                                                       });
+UX_STEP_CB(ux_sskr_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
+UX_STEP_CB(ux_sskr_match_step_3, pbb, generate_bip39();, {&C_badge, "Generate", "BIP39 phrase"});
+
+UX_FLOW(flow_final_sskr_match, &ux_sskr_match_step_1, &ux_sskr_match_step_2, &ux_sskr_match_step_3);
 
 void screen_processing_postinit(unsigned int stack_slot) {
     // ensure when pin is modal over the processing screen( at end of install) the processing screen
@@ -88,10 +124,17 @@ const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned 
                                                                        unsigned int value);
 
 void screen_onboarding_restore_word_display_auto_complete(void) {
-    unsigned int auto_complete_count = bolos_ux_bip39_get_word_next_letters_starting_with(
-        (unsigned char*) G_ux.string_buffer + 16,
-        strlen(G_ux.string_buffer + 16),
-        (unsigned char*) G_ux.string_buffer + 32);
+    unsigned int auto_complete_count =
+        (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39
+             ? bolos_ux_bip39_get_word_next_letters_starting_with(
+                   (unsigned char*) G_ux.string_buffer + 16,
+                   strlen(G_ux.string_buffer + 16),
+                   (unsigned char*) G_ux.string_buffer + 32)
+             : bolos_ux_sskr_get_word_next_letters_starting_with(
+                   (unsigned char*) G_ux.string_buffer + 16,
+                   strlen(G_ux.string_buffer + 16),
+                   (unsigned char*) G_ux.string_buffer + 32));
+
     // display added letter and refresh slider
     screen_common_keyboard_init(
         0,
@@ -138,9 +181,13 @@ const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned 
 
                 // continue displaying until less than X words matches the stem
                 G_bolos_ux_context.onboarding_words_checked =
-                    bolos_ux_bip39_get_word_count_starting_with(
-                        (unsigned char*) G_ux.string_buffer + 16,
-                        strlen(G_ux.string_buffer + 16));
+                    G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39
+                        ? bolos_ux_bip39_get_word_count_starting_with(
+                              (unsigned char*) G_ux.string_buffer + 16,
+                              strlen(G_ux.string_buffer + 16))
+                        : bolos_ux_sskr_get_word_count_starting_with(
+                              (unsigned char*) G_ux.string_buffer + 16,
+                              strlen(G_ux.string_buffer + 16));
                 if (G_bolos_ux_context.onboarding_words_checked >
                     ONBOARDING_WORD_COMPLETION_MAX_ITEMS) {
                     // too much words for slider word completion, await another letter
@@ -148,9 +195,14 @@ const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned 
                 } else {
                     // always init stem count
                     // index of the first word matching the stem
-                    G_bolos_ux_context.onboarding_index = bolos_ux_bip39_get_word_idx_starting_with(
-                        (unsigned char*) G_ux.string_buffer + 16,
-                        strlen(G_ux.string_buffer + 16));
+                    G_bolos_ux_context.onboarding_index =
+                        G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39
+                            ? bolos_ux_bip39_get_word_idx_starting_with(
+                                  (unsigned char*) G_ux.string_buffer + 16,
+                                  strlen(G_ux.string_buffer + 16))
+                            : bolos_ux_sskr_get_word_idx_starting_with(
+                                  (unsigned char*) G_ux.string_buffer + 16,
+                                  strlen(G_ux.string_buffer + 16));
 
                     // multiple possibilities
                     // update the slider's possible words
@@ -231,14 +283,23 @@ const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned 
 
 void compare_recovery_phrase(void) {
     G_bolos_ux_context.processing = 0;
-
     io_seproxyhal_general_status();
 
     // convert mnemonic to hex-seed
-    uint8_t buffer[64];
-    bolos_ux_bip39_mnemonic_to_seed((unsigned char*) G_bolos_ux_context.words_buffer,
-                                    G_bolos_ux_context.words_buffer_length,
-                                    buffer);
+    uint8_t buffer[64] = {0};
+    if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39) {
+        bolos_ux_bip39_mnemonic_to_seed((unsigned char*) G_bolos_ux_context.words_buffer,
+                                        G_bolos_ux_context.words_buffer_length,
+                                        buffer);
+    } else if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_SSKR) {
+        G_bolos_ux_context.words_buffer_length = sizeof(G_bolos_ux_context.words_buffer);
+        bolos_ux_sskr_hex_to_seed((unsigned char*) G_bolos_ux_context.sskr_words_buffer,
+                                  G_bolos_ux_context.sskr_words_buffer_length,
+                                  G_bolos_ux_context.sskr_share_count,
+                                  (unsigned char*) &G_bolos_ux_context.words_buffer,
+                                  &G_bolos_ux_context.words_buffer_length,
+                                  buffer);
+    }
 
     // get rootkey from hex-seed
     cx_hmac_sha512_t ctx;
@@ -246,7 +307,7 @@ void compare_recovery_phrase(void) {
 
     cx_hmac_sha512_init(&ctx, (const uint8_t*) key, strlen(key));
     cx_hmac((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64);
-    PRINTF("Root key from BIP39 input:\n%.*H\n", 64, buffer);
+    PRINTF("Root key from input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
     uint8_t buffer_device[64];
@@ -257,9 +318,13 @@ void compare_recovery_phrase(void) {
     // compare both rootkey
     if (os_secure_memcmp(buffer, buffer_device, 64)) {
         memset(G_bolos_ux_context.words_buffer, 0, G_bolos_ux_context.words_buffer_length);
-        ux_flow_init(0, flow_final_nomatch, NULL);
+        (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39)
+            ? ux_flow_init(0, flow_final_bip39_nomatch, NULL)
+            : ux_flow_init(0, flow_final_sskr_nomatch, NULL);
     } else {
-        ux_flow_init(0, flow_final_match, NULL);
+        (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39)
+            ? ux_flow_init(0, flow_final_bip39_match, NULL)
+            : ux_flow_init(0, flow_final_sskr_match, NULL);
     }
 }
 
@@ -282,9 +347,13 @@ const bagl_element_t* screen_onboarding_restore_word_before_element_display_call
                 return NULL;
             }
             // display matching word from the slider's current index
-            bolos_ux_bip39_idx_strcpy(
-                G_bolos_ux_context.onboarding_index + G_bolos_ux_context.hslider3_current,
-                (unsigned char*) G_ux.string_buffer);
+            (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39)
+                ? bolos_ux_bip39_idx_strcpy(
+                      G_bolos_ux_context.onboarding_index + G_bolos_ux_context.hslider3_current,
+                      (unsigned char*) G_ux.string_buffer)
+                : bolos_ux_sskr_idx_strcpy(
+                      G_bolos_ux_context.onboarding_index + G_bolos_ux_context.hslider3_current,
+                      (unsigned char*) G_ux.string_buffer);
             break;
 
         case 0x03:
@@ -324,48 +393,130 @@ const bagl_element_t* screen_onboarding_restore_word_before_element_display_call
 }
 
 void screen_onboarding_restore_word_validate(void) {
-    bolos_ux_bip39_idx_strcpy(
-        G_bolos_ux_context.onboarding_index + G_bolos_ux_context.hslider3_current,
-        (unsigned char*) (G_bolos_ux_context.words_buffer +
-                          G_bolos_ux_context.words_buffer_length));
-    G_bolos_ux_context.words_buffer_length = strlen(G_bolos_ux_context.words_buffer);
+    if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39) {
+        bolos_ux_bip39_idx_strcpy(
+            G_bolos_ux_context.onboarding_index + G_bolos_ux_context.hslider3_current,
+            (unsigned char*) (G_bolos_ux_context.words_buffer +
+                              G_bolos_ux_context.words_buffer_length));
+        G_bolos_ux_context.words_buffer_length = strlen(G_bolos_ux_context.words_buffer);
+    } else if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_SSKR) {
+        G_bolos_ux_context.sskr_words_buffer[G_bolos_ux_context.sskr_words_buffer_length] =
+            G_bolos_ux_context.onboarding_index + G_bolos_ux_context.hslider3_current;
+        switch (G_bolos_ux_context.onboarding_step) {
+            // 4th byte of CBOR header contains number of data bytes to follow
+            case 3:
+                // SSKR bytes = 4 bytes CBOR + n bytes share + 4 bytes CRC checksum
+                G_bolos_ux_context.onboarding_kind =
+                    4 +
+                    (G_bolos_ux_context
+                         .sskr_words_buffer[G_bolos_ux_context.sskr_words_buffer_length] &
+                     0x1F) +
+                    sizeof(uint32_t);
+                break;
+            case 4:
+                if ((G_bolos_ux_context.sskr_words_buffer[3] & 0x1F) == 24) {
+                    G_bolos_ux_context.onboarding_kind =
+                        4 + 1 +
+                        G_bolos_ux_context
+                            .sskr_words_buffer[G_bolos_ux_context.sskr_words_buffer_length] +
+                        sizeof(uint32_t);
+                }
+                PRINTF("SSKR number of words: %d\n", G_bolos_ux_context.onboarding_kind);
+                break;
+            // 8th byte of SSKR phrase contains member-threshold
+            case 7:
+                if ((G_bolos_ux_context.sskr_words_buffer[3] & 0x1F) < 24) {
+                    G_bolos_ux_context.sskr_share_count =
+                        (G_bolos_ux_context
+                             .sskr_words_buffer[G_bolos_ux_context.sskr_words_buffer_length] &
+                         0x0F) +
+                        1;
+                }
+                break;
+            case 8:
+                if ((G_bolos_ux_context.sskr_words_buffer[3] & 0x1F) == 24) {
+                    G_bolos_ux_context.sskr_share_count = G_bolos_ux_context.sskr_share_count =
+                        (G_bolos_ux_context
+                             .sskr_words_buffer[G_bolos_ux_context.sskr_words_buffer_length] &
+                         0x0F) +
+                        1;
+                }
+                PRINTF("SSKR member threshold: %d\n", G_bolos_ux_context.sskr_share_count);
+                break;
+        }
+        G_bolos_ux_context.sskr_words_buffer_length++;
+    }
 
     // a word has been added
     G_bolos_ux_context.onboarding_step++;
 
-    if (G_bolos_ux_context.onboarding_step == G_bolos_ux_context.bip39_onboarding_kind) {
-        unsigned int valid;
+    if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39) {
+        if (G_bolos_ux_context.onboarding_step == G_bolos_ux_context.onboarding_kind) {
+            unsigned int valid;
 
 #ifdef HAVE_ELECTRUM
-        // if we've entered all the words, then check the phrase
-        if (G_bolos_ux_context.onboarding_algorithm == BOLOS_UX_ONBOARDING_ALGORITHM_ELECTRUM) {
-            valid = bolos_ux_electrum_bip39_mnemonic_check(
-                ELECTRUM_SEED_PREFIX_STANDARD,
-                (unsigned char*) G_bolos_ux_context.words_buffer,
-                G_bolos_ux_context.words_buffer_length);
-        } else {
+            // if we've entered all the words, then check the phrase
+            if (G_bolos_ux_context.onboarding_algorithm == BOLOS_UX_ONBOARDING_ALGORITHM_ELECTRUM) {
+                valid = bolos_ux_electrum_bip39_mnemonic_check(
+                    ELECTRUM_SEED_PREFIX_STANDARD,
+                    (unsigned char*) G_bolos_ux_context.words_buffer,
+                    G_bolos_ux_context.words_buffer_length);
+            } else {
+                valid =
+                    bolos_ux_bip39_mnemonic_check((unsigned char*) G_bolos_ux_context.words_buffer,
+                                                  G_bolos_ux_context.words_buffer_length);
+            }
+#else
             valid = bolos_ux_bip39_mnemonic_check((unsigned char*) G_bolos_ux_context.words_buffer,
                                                   G_bolos_ux_context.words_buffer_length);
-        }
-#else
-        valid = bolos_ux_bip39_mnemonic_check((unsigned char*) G_bolos_ux_context.words_buffer,
-                                              G_bolos_ux_context.words_buffer_length);
 #endif
-        if (!valid) {
-            ux_flow_init(0, restore_1_invalid, NULL);
+            if (!valid) {
+                ux_flow_init(0, restore_1_bip39_invalid, NULL);
+            } else {
+                // alright, the recovery phrase looks ok, finish onboarding
+                // Display processing warning to user
+                screen_processing_init();
+                G_bolos_ux_context.processing = 1;
+            }
         } else {
-            // alright, the recovery phrase looks ok, finish onboarding
-            // Display processing warning to user
-            screen_processing_init();
-            G_bolos_ux_context.processing = 1;
-        }
-    } else {
-        // add a space before next word
-        G_bolos_ux_context.words_buffer[G_bolos_ux_context.words_buffer_length++] = ' ';
+            // add a space before next word
+            G_bolos_ux_context.words_buffer[G_bolos_ux_context.words_buffer_length++] = ' ';
 
-        // enter the next word
-        /*indexes have been preincremented, it's therefore the next word we're reentering*/
-        screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_REENTER_WORD);
+            // enter the next word
+            // indexes have been preincremented, it's therefore the next word we're reentering
+            screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_REENTER_WORD);
+        }
+    } else if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_SSKR) {
+        if (G_bolos_ux_context.onboarding_step == G_bolos_ux_context.onboarding_kind) {
+            G_bolos_ux_context.sskr_share_index++;
+
+            if (G_bolos_ux_context.sskr_share_index < G_bolos_ux_context.sskr_share_count) {
+                G_bolos_ux_context.onboarding_step = 0;
+
+                // enter the next word
+                // indexes have been preincremented, it's therefore the next word we're
+                // reentering
+                screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_REENTER_WORD);
+            } else {
+                unsigned int valid;
+                valid =
+                    bolos_ux_sskr_hex_check((unsigned char*) G_bolos_ux_context.sskr_words_buffer,
+                                            G_bolos_ux_context.sskr_words_buffer_length,
+                                            G_bolos_ux_context.sskr_share_count);
+                if (!valid) {
+                    ux_flow_init(0, restore_1_sskr_invalid, NULL);
+                } else {
+                    // alright, the recovery phrase looks ok, finish onboarding
+                    // Display processing warning to user
+                    screen_processing_init();
+                    G_bolos_ux_context.processing = 1;
+                }
+            }
+        } else {
+            // enter the next word
+            // indexes have been preincremented, it's therefore the next word we're reentering
+            screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_REENTER_WORD);
+        }
     }
 }
 
@@ -414,8 +565,8 @@ unsigned int screen_onboarding_restore_word_select_button(unsigned int button_ma
                 while (word_to_delete--) {
                     if (G_bolos_ux_context.onboarding_step &&
                         G_bolos_ux_context.words_buffer_length) {
-                        // remove the last space and up to the previous space (but keep the previous
-                        // space)
+                        // remove the last space and up to the previous space (but keep the
+                        // previous space)
                         do {
                             G_bolos_ux_context
                                 .words_buffer[G_bolos_ux_context.words_buffer_length - 1] = 0;
@@ -429,6 +580,11 @@ unsigned int screen_onboarding_restore_word_select_button(unsigned int button_ma
 
                         // decrement onboarding_step (current word #)
                         G_bolos_ux_context.onboarding_step--;
+                    }
+                    if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_SSKR) {
+                        G_bolos_ux_context
+                            .sskr_words_buffer[G_bolos_ux_context.sskr_words_buffer_length - 1] = 0;
+                        G_bolos_ux_context.sskr_words_buffer_length--;
                     }
                 }
                 // log_debug(G_bolos_ux_context.words_buffer);
@@ -446,10 +602,13 @@ void screen_onboarding_restore_word_init(unsigned int action) {
         case RESTORE_WORD_ACTION_FIRST_WORD:
             // start by restore first word (+1 when displayed)
             G_bolos_ux_context.onboarding_step = 0;
+            G_bolos_ux_context.sskr_share_index = 0;
+            G_bolos_ux_context.sskr_share_count = 0;
 
             // flush the words first
             memset(G_bolos_ux_context.words_buffer, 0, sizeof(G_bolos_ux_context.words_buffer));
             G_bolos_ux_context.words_buffer_length = 0;
+            G_bolos_ux_context.sskr_words_buffer_length = 0;
             break;
 
         case RESTORE_WORD_ACTION_REENTER_WORD:
@@ -457,7 +616,6 @@ void screen_onboarding_restore_word_init(unsigned int action) {
             // buffer)
             break;
     }
-
     memset(G_ux.string_buffer, 0, sizeof(G_ux.string_buffer));
     // offset 0: the display buffer for various placement
     // offset 16: the entered stem for the current word restoration
@@ -465,8 +623,12 @@ void screen_onboarding_restore_word_init(unsigned int action) {
     // (word completion possibilities)
 
     // elements to be displayed
-    SPRINTF(G_ux.string_buffer, "word #%d", G_bolos_ux_context.onboarding_step + 1);
-
+    (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39)
+        ? SPRINTF(G_ux.string_buffer, "word #%d", G_bolos_ux_context.onboarding_step + 1)
+        : SPRINTF(G_ux.string_buffer,
+                  "Share#%d Word#%d",
+                  G_bolos_ux_context.sskr_share_index + 1,
+                  G_bolos_ux_context.onboarding_step + 1);
     ux_flow_init(0, restore_1_intro, NULL);
 }
 

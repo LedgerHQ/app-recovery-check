@@ -22,16 +22,6 @@
 
 typedef unsigned int (*callback_t)(unsigned int);
 
-enum e_state {
-    STATIC_SCREEN,
-    DYNAMIC_SCREEN,
-};
-
-enum e_onboarding_type {
-    BIP39_ONBOARDING,
-    SSKR_ONBOARDING,
-};
-
 // bolos ux context (not mandatory if redesigning a bolos ux)
 typedef struct bolos_ux_context {
 #define BOLOS_UX_ONBOARDING_NEW        1
@@ -42,7 +32,17 @@ typedef struct bolos_ux_context {
 #define BOLOS_UX_ONBOARDING_RESTORE_12 12
 #define BOLOS_UX_ONBOARDING_RESTORE_18 18
 #define BOLOS_UX_ONBOARDING_RESTORE_24 24
-    unsigned int bip39_onboarding_kind;
+    unsigned int onboarding_kind;
+
+// Type of onboarding we are performing (BIP39 or SSKR)
+#define BOLOS_UX_ONBOARDING_BIP39 0U
+#define BOLOS_UX_ONBOARDING_SSKR  1U
+    unsigned int onboarding_type;
+
+// State of the dynamic display
+#define STATIC_SCREEN  0U
+#define DYNAMIC_SCREEN 1U
+    unsigned int current_state;
 
 #ifdef HAVE_ELECTRUM
     unsigned int onboarding_algorithm;
@@ -81,16 +81,10 @@ typedef struct bolos_ux_context {
     // for CheckSeed app only
     uint8_t processing;
 
-    // State of the dynamic display
-    enum e_state current_state;
-
-    // Type of onboarding we are performing (BIP39 or SSKR)
-    enum e_onboarding_type onboarding_type;
-
     uint8_t sskr_share_count;
     uint8_t sskr_share_index;
     unsigned int sskr_group_descriptor[1][2];
-    unsigned int sskr_words_buffer_len;
+    unsigned int sskr_words_buffer_length;
     char sskr_words_buffer[];
 } bolos_ux_context_t;
 
@@ -107,6 +101,7 @@ void screen_common_keyboard_init(unsigned int stack_slot,
 
 void screen_processing_init(void);
 void generate_sskr(void);
+void generate_bip39(void);
 
 #include "ux_common/common_bip39.h"
 #include "ux_common/common_sskr.h"

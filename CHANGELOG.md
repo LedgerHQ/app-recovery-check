@@ -1,9 +1,14 @@
 # Ghange log
 
-## [1.1.0] - 2023-03-26
+## [1.1.0] - 2023-04-03
 ### Added
 - Generate BIP39 mnemonic phrases from SSKR shares
-   - Add SSKR Check menu option
+   - Add 'SSKR Check' menu option
+   - Add flow to the 'SSKR Check' menu
+   - Write SSKR to BIP39 functionality
+   - Test with 29-word SSKR shares
+   - Test with 46-word SSKR shares
+   - Test on nanos
 
 ### Changed
 -

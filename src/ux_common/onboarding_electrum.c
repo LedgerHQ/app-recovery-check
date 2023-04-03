@@ -33,22 +33,22 @@ int cx_math_shiftr_11(unsigned char *r, unsigned int len) {
 
 static unsigned int bolos_ux_electrum_bip39_mnemonic_encode(const uint8_t *seed17,
                                                             uint8_t *out,
-                                                            size_t outLength) {
+                                                            size_t out_length) {
     unsigned char tmp[17];
     unsigned int i;
     unsigned int offset = 0;
     memcpy(tmp, seed17, sizeof(tmp));
     for (i = 0; i < 12; i++) {
-        unsigned char wordLength;
+        unsigned char word_length;
         unsigned int idx = cx_math_shiftr_11(tmp, sizeof(tmp));
-        wordLength = BIP39_WORDLIST_OFFSETS[idx + 1] - BIP39_WORDLIST_OFFSETS[idx];
-        if ((offset + wordLength) > outLength) {
+        word_length = BIP39_WORDLIST_OFFSETS[idx + 1] - BIP39_WORDLIST_OFFSETS[idx];
+        if ((offset + word_length) > out_length) {
             THROW(INVALID_PARAMETER);
         }
-        memcpy(out + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx], wordLength);
-        offset += wordLength;
+        memcpy(out + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx], word_length);
+        offset += word_length;
         if (i < 11) {
-            if (offset > outLength) {
+            if (offset > out_length) {
                 THROW(INVALID_PARAMETER);
             }
             out[offset++] = ' ';
@@ -59,7 +59,7 @@ static unsigned int bolos_ux_electrum_bip39_mnemonic_encode(const uint8_t *seed1
 
 unsigned int bolos_ux_electrum_new_bip39_mnemonic(unsigned int version,
                                                   unsigned char *out,
-                                                  unsigned int outLength) {
+                                                  unsigned int out_length) {
     unsigned char seed[17];
     unsigned int nonce;
     unsigned int offset;
@@ -79,7 +79,7 @@ unsigned int bolos_ux_electrum_new_bip39_mnemonic(unsigned int version,
         seed[sizeof(seed) - 3] = (nonce >> 16);
         seed[sizeof(seed) - 2] = (nonce >> 8);
         seed[sizeof(seed) - 1] = nonce;
-        offset = bolos_ux_electrum_bip39_mnemonic_encode(seed, out, outLength);
+        offset = bolos_ux_electrum_bip39_mnemonic_encode(seed, out, out_length);
         if (bolos_ux_electrum_bip39_mnemonic_check(version, out, offset)) {
             break;
         }
@@ -89,12 +89,12 @@ unsigned int bolos_ux_electrum_new_bip39_mnemonic(unsigned int version,
 
 unsigned int bolos_ux_electrum_bip39_mnemonic_check(unsigned int version,
                                                     unsigned char *mnemonic,
-                                                    unsigned int mnemonicLength) {
+                                                    unsigned int mnemonic_length) {
     unsigned char tmp[64];
     cx_hmac_sha512(ELECTRUM_SEED_VERSION,
                    ELECTRUM_SEED_VERSION_LENGTH,
                    mnemonic,
-                   mnemonicLength,
+                   mnemonic_length,
                    tmp,
                    64);
     return (tmp[0] == version);

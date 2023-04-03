@@ -10,7 +10,7 @@ bolos_ux_params_t G_ux_params;
 
 #if defined(TARGET_NANOS)
 
-UX_STEP_CB(restore_1_1_1, bb, G_bolos_ux_context.bip39_onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
+UX_STEP_CB(restore_1_1_1, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
            screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
@@ -18,7 +18,7 @@ UX_STEP_CB(restore_1_1_1, bb, G_bolos_ux_context.bip39_onboarding_kind = BOLOS_U
                "with 24 words",
            });
 
-UX_STEP_CB(restore_1_1_2, bb, G_bolos_ux_context.bip39_onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
+UX_STEP_CB(restore_1_1_2, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
            screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
@@ -26,7 +26,7 @@ UX_STEP_CB(restore_1_1_2, bb, G_bolos_ux_context.bip39_onboarding_kind = BOLOS_U
                "with 18 words",
            });
 
-UX_STEP_CB(restore_1_1_3, bb, G_bolos_ux_context.bip39_onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
+UX_STEP_CB(restore_1_1_3, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
            screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
@@ -37,12 +37,12 @@ UX_STEP_CB(restore_1_1_3, bb, G_bolos_ux_context.bip39_onboarding_kind = BOLOS_U
 UX_FLOW(restore_1_1, &restore_1_1_1, &restore_1_1_2, &restore_1_1_3);
 
 void screen_onboarding_1_restore_init(void) {
-    G_bolos_ux_context.onboarding_type = BIP39_ONBOARDING;
+    G_bolos_ux_context.onboarding_type = BOLOS_UX_ONBOARDING_BIP39;
     ux_flow_init(0, restore_1_1, NULL);
 }
 
 void screen_onboarding_2_restore_init(void) {
-    G_bolos_ux_context.onboarding_type = SSKR_ONBOARDING;
+    G_bolos_ux_context.onboarding_type = BOLOS_UX_ONBOARDING_SSKR;
     screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
 }
 
@@ -103,15 +103,15 @@ const char* number_of_bip39_words_get(unsigned int idx) {
 void number_of_bip39_words_selector(unsigned int idx) {
     switch (idx) {
         case 0:
-            G_bolos_ux_context.bip39_onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
-            screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
-            break;
+            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
+            goto word_init;
         case 1:
-            G_bolos_ux_context.bip39_onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
-            screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
-            break;
+            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
+            goto word_init;
         case 2:
-            G_bolos_ux_context.bip39_onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
+            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
+            goto word_init;
+        word_init:
             screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
             break;
         default:
@@ -120,12 +120,12 @@ void number_of_bip39_words_selector(unsigned int idx) {
 }
 
 void screen_onboarding_1_restore_init(void) {
-    G_bolos_ux_context.onboarding_type = BIP39_ONBOARDING;
+    G_bolos_ux_context.onboarding_type = BOLOS_UX_ONBOARDING_BIP39;
     ux_menulist_init(0, number_of_bip39_words_get, number_of_bip39_words_selector);
 }
 
 void screen_onboarding_2_restore_init(void) {
-    G_bolos_ux_context.onboarding_type = SSKR_ONBOARDING;
+    G_bolos_ux_context.onboarding_type = BOLOS_UX_ONBOARDING_SSKR;
     screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
 }
 

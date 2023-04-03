@@ -6,16 +6,22 @@
 
 // convert mnemonic phrase to bits return 0 if mnemonic is invalid
 unsigned int bolos_ux_bip39_mnemonic_decode(unsigned char *mnemonic,
-                                            unsigned int mnemonicLength,
+                                            unsigned int mnemonic_length,
                                             unsigned char *bits,
                                             unsigned int bitslength);
 
+// convert input bytes to a mnemonic phrase return 0 if mnemonic is invalid
+unsigned int bolos_ux_bip39_mnemonic_encode(const uint8_t *seed,
+                                            uint8_t seed_len,
+                                            unsigned char *out,
+                                            size_t out_len);
+
 // return 0 if mnemonic is invalid
-unsigned int bolos_ux_bip39_mnemonic_check(unsigned char *mnemonic, unsigned int mnemonicLength);
+unsigned int bolos_ux_bip39_mnemonic_check(unsigned char *mnemonic, unsigned int mnemonic_length);
 
 // passphrase will be prefixed with "MNEMONIC" from BIP39, the passphrase content shall start @ 8
 void bolos_ux_bip39_mnemonic_to_seed(unsigned char *mnemonic,
-                                     unsigned int mnemonicLength,
+                                     unsigned int mnemonic_length,
                                      unsigned char *seed /*, unsigned char *workBuffer*/);
 
 unsigned int bolos_ux_bip39_get_word_idx_starting_with(unsigned char *prefix,
@@ -31,9 +37,9 @@ unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(unsigned char *p
 
 unsigned int bolos_ux_electrum_new_bip39_mnemonic(unsigned int version,
                                                   unsigned char *out,
-                                                  unsigned int outLength);
+                                                  unsigned int out_length);
 unsigned int bolos_ux_electrum_bip39_mnemonic_check(unsigned int version,
                                                     unsigned char *mnemonic,
-                                                    unsigned int mnemonicLength);
+                                                    unsigned int mnemonic_length);
 
 #endif

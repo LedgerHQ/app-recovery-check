@@ -347,14 +347,12 @@ const bagl_element_t* screen_onboarding_restore_word_before_element_display_call
             break;
         case 0x32:
             if (G_bolos_ux_context.onboarding_step == 0 ||
-                G_bolos_ux_context.onboarding_step ==
-                    G_bolos_ux_context.bip39_onboarding_kind - 1) {
+                G_bolos_ux_context.onboarding_step == G_bolos_ux_context.onboarding_kind - 1) {
                 return NULL;  // don't display
             }
             break;
         case 0x33:
-            if (G_bolos_ux_context.onboarding_step !=
-                G_bolos_ux_context.bip39_onboarding_kind - 1) {
+            if (G_bolos_ux_context.onboarding_step != G_bolos_ux_context.onboarding_kind - 1) {
                 return NULL;  // don't display
             }
             break;
@@ -440,7 +438,7 @@ void screen_onboarding_restore_word_validate(void) {
     // a word has been added
     G_bolos_ux_context.onboarding_step++;
 
-    if (G_bolos_ux_context.onboarding_step == G_bolos_ux_context.bip39_onboarding_kind) {
+    if (G_bolos_ux_context.onboarding_step == G_bolos_ux_context.onboarding_kind) {
         unsigned char valid;
 #ifdef HAVE_ELECTRUM
         // if we've entered all the words, then check the phrase

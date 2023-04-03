@@ -24,11 +24,12 @@ bool get_next_data(bool share_step) {
         SPRINTF(G_bolos_ux_context.string_buffer,
                 "SSKR Share #%d",
                 G_bolos_ux_context.sskr_share_index);
-        memcpy(G_bolos_ux_context.words_buffer,
-               G_bolos_ux_context.sskr_words_buffer + (G_bolos_ux_context.sskr_share_index - 1) *
-                                                          G_bolos_ux_context.sskr_words_buffer_len /
-                                                          G_bolos_ux_context.sskr_share_count,
-               G_bolos_ux_context.sskr_words_buffer_len / G_bolos_ux_context.sskr_share_count);
+        memcpy(
+            G_bolos_ux_context.words_buffer,
+            G_bolos_ux_context.sskr_words_buffer + (G_bolos_ux_context.sskr_share_index - 1) *
+                                                       G_bolos_ux_context.sskr_words_buffer_length /
+                                                       G_bolos_ux_context.sskr_share_count,
+            G_bolos_ux_context.sskr_words_buffer_length / G_bolos_ux_context.sskr_share_count);
 
         G_bolos_ux_context.sskr_share_index += share_step ? 1 : -1;
         return true;
@@ -51,8 +52,8 @@ void bnnn_paging_edgecase(void) {
 }
 
 void sskr_clean_exit(void) {
-    memset(G_bolos_ux_context.sskr_words_buffer, 0, G_bolos_ux_context.sskr_words_buffer_len);
-    G_bolos_ux_context.sskr_words_buffer_len = 0;
+    memset(G_bolos_ux_context.sskr_words_buffer, 0, G_bolos_ux_context.sskr_words_buffer_length);
+    G_bolos_ux_context.sskr_words_buffer_length = 0;
     G_bolos_ux_context.sskr_share_index = 0;
     memset(G_bolos_ux_context.words_buffer, 0, sizeof(G_bolos_ux_context.words_buffer));
     memset(G_bolos_ux_context.string_buffer, 0, sizeof(G_bolos_ux_context.string_buffer));
@@ -109,13 +110,13 @@ UX_STEP_NOCB(step_display_shares,
 
 UX_STEP_INIT(step_lower_delimiter, NULL, NULL, { display_next_state(false); });
 
-UX_STEP_CB(step_clean_exit, pb, sskr_clean_exit(), {&C_icon_dashboard_x, "Quit"});
+UX_STEP_CB(step_sskr_clean_exit, pb, sskr_clean_exit(), {&C_icon_dashboard_x, "Quit"});
 
 UX_FLOW(dynamic_flow,
         &step_upper_delimiter,
         &step_display_shares,
         &step_lower_delimiter,
-        &step_clean_exit,
+        &step_sskr_clean_exit,
         FLOW_LOOP);
 
 void generate_sskr(void) {
@@ -130,15 +131,15 @@ void generate_sskr(void) {
     G_bolos_ux_context.sskr_group_descriptor[0][1] = 3;
 
     G_bolos_ux_context.sskr_share_count = 0;
-    G_bolos_ux_context.sskr_words_buffer_len = 0;
+    G_bolos_ux_context.sskr_words_buffer_length = 0;
 
     bolos_ux_bip39_to_sskr_convert((unsigned char*) G_bolos_ux_context.words_buffer,
                                    G_bolos_ux_context.words_buffer_length,
-                                   G_bolos_ux_context.bip39_onboarding_kind,
+                                   G_bolos_ux_context.onboarding_kind,
                                    G_bolos_ux_context.sskr_group_descriptor[0],
                                    &G_bolos_ux_context.sskr_share_count,
                                    (unsigned char*) G_bolos_ux_context.sskr_words_buffer,
-                                   &G_bolos_ux_context.sskr_words_buffer_len);
+                                   &G_bolos_ux_context.sskr_words_buffer_length);
 #if defined(TARGET_NANOS)
     G_bolos_ux_context.processing = 0;
 #endif
@@ -148,11 +149,12 @@ void generate_sskr(void) {
                G_bolos_ux_context.sskr_share_count);
         for (uint8_t share = 0; share < G_bolos_ux_context.sskr_share_count; share++) {
             PRINTF("SSKR share %d:\n", share + 1);
-            PRINTF("%.*s\n",
-                   G_bolos_ux_context.sskr_words_buffer_len / G_bolos_ux_context.sskr_share_count,
-                   G_bolos_ux_context.sskr_words_buffer +
-                       share * G_bolos_ux_context.sskr_words_buffer_len /
-                           G_bolos_ux_context.sskr_share_count);
+            PRINTF(
+                "%.*s\n",
+                G_bolos_ux_context.sskr_words_buffer_length / G_bolos_ux_context.sskr_share_count,
+                G_bolos_ux_context.sskr_words_buffer +
+                    share * G_bolos_ux_context.sskr_words_buffer_length /
+                        G_bolos_ux_context.sskr_share_count);
         }
     }
     G_bolos_ux_context.sskr_share_index = 1;

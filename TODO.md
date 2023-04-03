@@ -10,13 +10,13 @@
 ### In Progress
 
 - [ ] Generate BIP39 mnemonic phrases from SSKR shares
-  - [ ] Add SSKR Check menu option
+  - [x] Add SSKR Check menu option
+  - [x] Add flow to the Check SSKR menu
   - [x] Write SSKR to BIP39 functionality
-  - [ ] Add flow to the Check SSKR menu
-  - [ ] Test with 29-word SSKR shares
+  - [x] Test with 29-word SSKR shares
   - [ ] Test with 38-word SSKR shares
-  - [ ] Test with 46-word SSKR shares
-  - [ ] Test on nanos
+  - [x] Test with 46-word SSKR shares
+  - [x] Test on nanos
   - [ ] Test on nanosp
   - [ ] Test on nanox
 
