@@ -5,6 +5,7 @@
 - [ ] Add Ledger Stax to list of devices app works on
 - [ ] Currently hardcoded to use a k-of-n threshold of 2-of-3. Add flow to set threshold values
 - [ ] Save memory by setting the SSKR word buffer (G_bolos_ux_context.sskr_words_buffer) to a sensible size. Maybe just store SSKR Bytewords as shorter two letter minimal Bytewords rather than a 4 letter Byteword plus spaace for each share. Convert minimal ByteWords back to four letter Bytewords just prior to display.
+- [ ] Add automated tests
 
 ### In Progress
 

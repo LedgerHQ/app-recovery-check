@@ -39,9 +39,9 @@ unsigned int bolos_ux_sskr_size_get(unsigned int bip39_onboarding_kind,
                                     unsigned int groups_len,
                                     unsigned int *share_len) {
     sskr_group_descriptor groups[groups_len];
-    for (uint8_t i = 0; i < groups_len; i++) {
-        groups[i].threshold = *(group_descriptor + i * sizeof(*(group_descriptor) / groups_len));
-        groups[i].count = *(group_descriptor + 1 + i * sizeof(*(group_descriptor) / groups_len));
+    for (uint8_t i = 0; i < (uint8_t)groups_len; i++) {
+        groups[i].threshold = *(group_descriptor + i * sizeof(*(group_descriptor)) / groups_len);
+        groups[i].count = *(group_descriptor + 1 + i * sizeof(*(group_descriptor)) / groups_len);
     }
 
     unsigned int share_count_expected = sskr_count_shards(groups_threshold, groups, groups_len);
@@ -60,7 +60,7 @@ unsigned int bolos_ux_sskr_hex_decode(unsigned char *mnemonic_hex,
         sskr_share_len = mnemonic_hex[4];
     }
 
-    for (uint8_t i = 0; i < sskr_shares_count; i++) {
+    for (uint8_t i = 0; i < (uint8_t)sskr_shares_count; i++) {
         ptr_sskr_shares[i] =
             mnemonic_hex + (i * mnemonic_length / sskr_shares_count) + 4 + (sskr_share_len > 23);
     }
@@ -107,7 +107,7 @@ unsigned int bolos_ux_sskr_generate(unsigned int groups_threshold,
                                     unsigned int share_len_expected,
                                     unsigned int share_count_expected) {
     sskr_group_descriptor groups[groups_len];
-    for (uint8_t i = 0; i < groups_len; i++) {
+    for (uint8_t i = 0; i < (uint8_t)groups_len; i++) {
         groups[i].threshold = *(group_descriptor + i * 2);
         groups[i].count = *(group_descriptor + 1 + i * 2);
     }
@@ -148,7 +148,7 @@ unsigned int bolos_ux_sskr_mnemonic_encode(unsigned char *input,
     unsigned int position = 0;
     unsigned int offset = 0;
 
-    for (uint8_t i = 0; i < input_len; i++) {
+    for (uint8_t i = 0; i < (uint8_t)input_len; i++) {
         offset = SSKR_MNEMONIC_LENGTH * input[i];
         if ((position + SSKR_MNEMONIC_LENGTH <= output_len) &&
             (offset <= SSKR_WORDLIST_LENGTH - SSKR_MNEMONIC_LENGTH)) {

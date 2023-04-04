@@ -1,4 +1,14 @@
-# Ghange log
+# Change log
+
+## [1.1.1] - 2023-04-05
+### Added
+-
+
+### Changed
+-
+
+### Fixed
+-  Some CodeQL suggested tidy ups
 
 ## [1.1.0] - 2023-04-04
 ### Added
