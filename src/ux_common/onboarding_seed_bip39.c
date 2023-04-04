@@ -143,9 +143,6 @@ unsigned int bolos_ux_bip39_mnemonic_encode(const uint8_t* seed,
     // data
     memcpy(bits, seed, seed_len);
 
-    PRINTF("seed_len is %d\n", seed_len);
-    PRINTF("out_len is %d\n", out_len);
-
     unsigned int i, j, idx;
     unsigned int offset = 0;
     for (i = 0; i < (seed_len * 3 / 4); i++) {
