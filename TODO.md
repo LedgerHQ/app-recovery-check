@@ -9,10 +9,11 @@
 
 ### In Progress
 
-- [ ] Fix issue with using 'cx_crc32_hw()' function in 'onboarding_seed_sskr.c' when testing with Speculos
+- [ ] Currently hardcoded to use a k-of-n threshold of 2-of-3. Add flow to set threshold values
 
 ### Done ✓
 
+- [x] Fix issue with using 'cx_crc32_hw()' function in 'onboarding_seed_sskr.c' when testing with Speculos
 - [x] Generate BIP39 mnemonic phrases from SSKR shares
   - [x] Add SSKR Check menu option
   - [x] Add flow to the Check SSKR menu

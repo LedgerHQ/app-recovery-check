@@ -1,6 +1,6 @@
 # Change log
 
-## [1.1.1] - 2023-04-05
+## [1.1.1] - 2023-04-06
 ### Added
 -
 
@@ -8,6 +8,7 @@
 -
 
 ### Fixed
+-  Fix issue with using 'cx_crc32_hw()' function in 'onboarding_seed_sskr.c' when testing with Speculos
 -  Some CodeQL suggested tidy ups
 
 ## [1.1.0] - 2023-04-04
