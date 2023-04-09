@@ -1,7 +1,7 @@
 # App testing on Speculos
 
 Below are some manual tests for testing `BIP-39 Check` and `SSKR Check` flows.
-There are a couple of ways of running each test. Using curl POST to send data to the Speculos API or using the --automation parameter of the speculos.py command line. 
+There are a couple of ways of running each test. Using curl to POST button pushes to the Speculos API or using the --automation parameter of the speculos.py command line. 
 
 ## BIP-39
 ### 12 Word Tests
@@ -64,7 +64,7 @@ done < ./test/speculos/nanos-sskr-128bit.test > /dev/null 2>&1 &
 ```
 #### Speculos automation
 ```bash
-../speculos.py --automation file:../app-sskr-check/test/speculos/nanos-sskr-128bit.json ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "fly mule excess resource treat plunge nose soda reflect adult ramp planet"
+./speculos.py --automation file:../app-sskr-check/test/speculos/nanos-sskr-128bit.json ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "fly mule excess resource treat plunge nose soda reflect adult ramp planet"
 ```
 ### 256-bit seed
 Tests taken from the [SSKR Example & Test Vector]( https://github.com/BlockchainCommons/crypto-commons/blob/master/Docs/sskr-test-vector.md#256-bit-seed) page.
@@ -80,5 +80,5 @@ done < ./test/speculos/nanos-sskr-256bit.test > /dev/null 2>&1 &
 ```
 #### Speculos automation
 ```bash
-/speculos.py --automation file:../app-sskr-check/test/speculos/nanos-sskr-256bit.json ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "toe priority custom gauge jacket theme arrest bargain gloom wide ill fit eagle prepare capable fish limb cigar reform other priority speak rough imitate"
+./speculos.py --automation file:../app-sskr-check/test/speculos/nanos-sskr-256bit.json ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "toe priority custom gauge jacket theme arrest bargain gloom wide ill fit eagle prepare capable fish limb cigar reform other priority speak rough imitate"
 ```

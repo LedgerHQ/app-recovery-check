@@ -52,7 +52,7 @@
     -  Test with 24-word BIP39 phrases
     -  Test on nanos
     -  Test on nanosp
-    -  Test on nano
+    -  Test on nanox
 
 ### Changed
 -
