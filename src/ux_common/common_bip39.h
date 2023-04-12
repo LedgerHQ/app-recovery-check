@@ -25,7 +25,7 @@ unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(const unsigned c
 size_t bolos_ux_bip39_fill_with_candidates(const unsigned char *startingChars,
                                            const size_t startingCharsLength,
                                            char wordCandidatesBuffer[],
-                                           char *wordIndexorBuffer[]);
+                                           const char *wordIndexorBuffer[]);
 uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char *prefix,
                                           const unsigned int prefixLength);
 #endif

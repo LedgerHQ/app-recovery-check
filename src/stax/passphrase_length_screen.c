@@ -38,9 +38,7 @@ nbgl_text_area_t *passphrase_length_set_title(nbgl_obj_t *align_to) {
     return textArea;
 }
 
-void passphrase_length_configure_buttons(nbgl_button_t **buttons,
-                                         const size_t size,
-                                         nbgl_touchCallback_t callback) {
+void passphrase_length_configure_buttons(nbgl_button_t **buttons, const size_t size) {
     nbgl_button_t *button;
     for (size_t i = 0; i < size; i++) {
         button = buttons[i];
@@ -58,11 +56,10 @@ void passphrase_length_configure_buttons(nbgl_button_t **buttons,
         button->alignment = BOTTOM_MIDDLE;
         button->alignTo = NULL;
         button->touchMask = (1 << TOUCHED);
-        button->touchCallback = callback;
     }
 }
 
-nbgl_button_t *passphrase_length_set_back_button(nbgl_touchCallback_t callback) {
+nbgl_button_t *passphrase_length_set_back_button() {
     nbgl_button_t *button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, 0);
     button->innerColor = WHITE;
     button->borderColor = WHITE;
@@ -77,7 +74,6 @@ nbgl_button_t *passphrase_length_set_back_button(nbgl_touchCallback_t callback) 
     button->alignment = TOP_LEFT;
     button->alignTo = NULL;
     button->touchMask = (1 << TOUCHED);
-    button->touchCallback = callback;
     return button;
 }
 

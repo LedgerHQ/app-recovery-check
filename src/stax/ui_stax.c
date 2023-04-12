@@ -40,7 +40,7 @@ enum {
 /*
  * Utils
  */
-static char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
+static const char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
 
 static void reset_globals() {
     reset_mnemonic();
@@ -84,7 +84,7 @@ enum {
 
 #define NB_BUTTONS 3
 
-static char *passphraseLength[] = {"12 words", "18 words", "24 words"};
+static const char *passphraseLength[] = {"12 words", "18 words", "24 words"};
 static void passphrase_length_callback(nbgl_obj_t *obj, nbgl_touchType_t eventType) {
     nbgl_obj_t **screenChildren = nbgl_screenGetElements(0);
     if (eventType != TOUCHED) {
@@ -110,7 +110,7 @@ static void passphrase_length_page(void) {
     nbgl_obj_t **screenChildren;
 
     // 3 buttons + icon + text + subText
-    nbgl_screenSet(&screenChildren, 6, NULL);
+    nbgl_screenSet(&screenChildren, 6, NULL, (nbgl_touchCallback_t) &passphrase_length_callback);
 
     screenChildren[ICON_INDEX] = (nbgl_obj_t *) passphrase_length_set_icon();
     screenChildren[TEXT_INDEX] =
@@ -119,8 +119,7 @@ static void passphrase_length_page(void) {
     // create nb words buttons
     nbgl_objPoolGetArray(BUTTON, NB_BUTTONS, 0, (nbgl_obj_t **) &screenChildren[BUTTON_12_INDEX]);
     passphrase_length_configure_buttons((nbgl_button_t **) &screenChildren[BUTTON_12_INDEX],
-                                        NB_BUTTONS,
-                                        (nbgl_touchCallback_t) &passphrase_length_callback);
+                                        NB_BUTTONS);
     ((nbgl_button_t *) screenChildren[BUTTON_12_INDEX])->text = passphraseLength[0];
     ((nbgl_button_t *) screenChildren[BUTTON_18_INDEX])->text = passphraseLength[1];
     ((nbgl_button_t *) screenChildren[BUTTON_24_INDEX])->text = passphraseLength[2];
@@ -129,8 +128,7 @@ static void passphrase_length_page(void) {
     ((nbgl_button_t *) screenChildren[BUTTON_24_INDEX])->foregroundColor = WHITE;
 
     // create back button
-    screenChildren[BACK_BUTTON_INDEX] = (nbgl_obj_t *) passphrase_length_set_back_button(
-        (nbgl_touchCallback_t) &passphrase_length_callback);
+    screenChildren[BACK_BUTTON_INDEX] = (nbgl_obj_t *) passphrase_length_set_back_button();
 
     nbgl_screenRedraw();
 }
@@ -271,7 +269,7 @@ static void display_home_page() {
 /*
  * Result page
  */
-static char *possible_results[2][2] = {
+static const char *possible_results[2][2] = {
     {"Incorrect Secret\nRecovery Phrase",
      "The Recovery Phrase you have\nentered doesn't match the one\npresent on this Ledger Stax."},
     {"Correct Secret\nRecovery Phrase",
