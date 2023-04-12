@@ -1,6 +1,6 @@
 from ragger.navigator import NavIns
 
-from .navigator import NavInsID, StaxNavigator
+from .navigator import CustomNavInsID, StaxNavigator
 from .utils import format_instructions
 
 
@@ -11,9 +11,9 @@ SPECULOS_MNEMONIC = "glory promote mansion idle axis finger extra " \
 
 def test_check_info_then_leave(navigator: StaxNavigator, functional_test_directory: str):
     instructions = format_instructions([
-        NavInsID.HOME_TO_SETTINGS,
-        NavInsID.SETTINGS_TO_HOME,
-        NavInsID.HOME_TO_QUIT
+        CustomNavInsID.HOME_TO_SETTINGS,
+        CustomNavInsID.SETTINGS_TO_HOME,
+        CustomNavInsID.HOME_TO_QUIT
     ])
     navigator.navigate_and_compare(functional_test_directory,
                                    "check_info_then_leave",
@@ -24,13 +24,13 @@ def test_check_info_then_leave(navigator: StaxNavigator, functional_test_directo
 
 def test_check_all_passphrase_lengths(navigator: StaxNavigator, functional_test_directory: str):
     instructions = format_instructions([
-        NavInsID.HOME_TO_CHECK,
-        NavInsID.LENGTH_CHOOSE_24,
-        NavInsID.LENGTH_TO_PREVIOUS,
-        NavInsID.LENGTH_CHOOSE_18,
-        NavInsID.LENGTH_TO_PREVIOUS,
-        NavInsID.LENGTH_CHOOSE_12,
-        NavInsID.LENGTH_TO_PREVIOUS
+        CustomNavInsID.HOME_TO_CHECK,
+        CustomNavInsID.LENGTH_CHOOSE_24,
+        CustomNavInsID.LENGTH_TO_PREVIOUS,
+        CustomNavInsID.LENGTH_CHOOSE_18,
+        CustomNavInsID.LENGTH_TO_PREVIOUS,
+        CustomNavInsID.LENGTH_CHOOSE_12,
+        CustomNavInsID.LENGTH_TO_PREVIOUS
     ])
     navigator.navigate_and_compare(functional_test_directory,
                                    "check_all_passphrase_lengths",
@@ -41,16 +41,16 @@ def test_check_all_passphrase_lengths(navigator: StaxNavigator, functional_test_
 
 def test_check_previous_word(navigator: StaxNavigator, functional_test_directory: str):
     instructions = format_instructions([
-        NavInsID.HOME_TO_CHECK,
-        NavInsID.LENGTH_CHOOSE_24,
-        NavIns(NavInsID.KEYBOARD_WRITE, args=("rand", )),
-        NavIns(NavInsID.KEYBOARD_SELECT_SUGGESTION, args=(1, )),
-        NavIns(NavInsID.KEYBOARD_WRITE, args=("ok", )),
-        NavIns(NavInsID.KEYBOARD_SELECT_SUGGESTION, args=(1, )),
-        NavInsID.KEYBOARD_TO_PREVIOUS,
-        NavInsID.KEYBOARD_TO_PREVIOUS,
-        NavInsID.KEYBOARD_TO_PREVIOUS,
-        NavInsID.LENGTH_TO_PREVIOUS
+        CustomNavInsID.HOME_TO_CHECK,
+        CustomNavInsID.LENGTH_CHOOSE_24,
+        NavIns(CustomNavInsID.KEYBOARD_WRITE, args=("rand", )),
+        NavIns(CustomNavInsID.KEYBOARD_SELECT_SUGGESTION, args=(1, )),
+        NavIns(CustomNavInsID.KEYBOARD_WRITE, args=("ok", )),
+        NavIns(CustomNavInsID.KEYBOARD_SELECT_SUGGESTION, args=(1, )),
+        CustomNavInsID.KEYBOARD_TO_PREVIOUS,
+        CustomNavInsID.KEYBOARD_TO_PREVIOUS,
+        CustomNavInsID.KEYBOARD_TO_PREVIOUS,
+        CustomNavInsID.LENGTH_TO_PREVIOUS
     ])
     navigator.navigate_and_compare(functional_test_directory,
                                    "check_previous_word",
