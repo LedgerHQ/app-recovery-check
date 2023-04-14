@@ -13,10 +13,25 @@ on:
     paths-ignore:
       - '.github/workflows/*.yml'
 
-
 jobs:
   nano_build:
-    name: Build application for NanoS, X and S+
+    name: Build application using the reusable workflow
+    uses: LedgerHQ/ledger-app-workflows/.github/workflows/reusable_build.yml@v1
+    with:
+      upload_app_binaries_artifact: compiled_app_binaries
+      run_for_devices: '["nanos", "nanox", "nanosp"]'
+
+  nano_test:
+    name: Run ragger tests using the reusable workflow
+    needs: nano_build
+    uses: LedgerHQ/ledger-app-workflows/.github/workflows/reusable_ragger_tests.yml@v1
+    with:
+      download_app_binaries_artifact: compiled_app_binaries
+      test_dir: tests/functional
+      run_for_devices: '["nanos", "nanox", "nanosp"]'
+
+  nano_scan:
+    name: Clang Static Analyzer
     strategy:
       matrix:
         include:
@@ -33,31 +48,10 @@ jobs:
       - name: Clone
         uses: actions/checkout@v3
 
-      - name: Build
-        run: |
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          make BOLOS_SDK=${{ matrix.SDK }}
-          mv bin/app.elf "bin/${{ matrix.model }}.elf"
-
-      - name: Upload app binary
-        uses: actions/upload-artifact@v3
-        with:
-          name: apps
-          path: bin/*.elf
-
-  job_scan_build:
-    name: Clang Static Analyzer
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
-    steps:
-      - name: Clone
-        uses: actions/checkout@v3
-
       - name: Build with Clang Static Analyzer
         run: |
           make clean
-          scan-build --use-cc=clang -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist -disable-checker core.VLASize -o scan-build --status-bugs make default
+          scan-build --use-cc=clang -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist -disable-checker core.VLASize -o scan-build --status-bugs make -j BOLOS_SDK=${{ matrix.SDK }}
 
       - name: Upload scan result
         uses: actions/upload-artifact@v3

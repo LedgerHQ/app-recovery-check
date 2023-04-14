@@ -120,6 +120,7 @@ void screen_common_keyboard_init(unsigned int stack_slot,
                                  keyboard_callback_t callback);
 
 void generate_sskr(void);
+void generate_bip39(void);
 
 #include "ux_common/common_bip39.h"
 #include "ux_common/common_sskr.h"

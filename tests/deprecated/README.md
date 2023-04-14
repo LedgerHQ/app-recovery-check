@@ -40,6 +40,7 @@ done < ./test/speculos/nanos-bip39-18-word.test > /dev/null 2>&1 &
 ./speculos.py ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "toe priority custom gauge jacket theme arrest bargain gloom wide ill fit eagle prepare capable fish limb cigar reform other priority speak rough imitate"
 ```
 ```bash
+while read -a LINE
 do
     curl -d '{"action":"press-and-release"}' -X ${LINE[0]} http://127.0.0.1:5000${LINE[1]}
 done < ./test/speculos/nanos-bip39-24-word.test > /dev/null 2>&1 &

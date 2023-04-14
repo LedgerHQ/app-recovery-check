@@ -243,12 +243,12 @@ void screen_onboarding_restore_word_display_auto_complete(void) {
         0,
 #ifdef HAVE_BOLOS_NOT_SHUFFLED_RESTORE
         0, /*always restart from the first element in the list*/
-#else  // HAVE_BOLOS_NOT_SHUFFLED_RESTORE
+#else      // HAVE_BOLOS_NOT_SHUFFLED_RESTORE
         (strlen(G_ux.string_buffer + 16)
              ? 0
              : cx_rng_u8() % auto_complete_count), /* start from a random element in the list for
                                                       the word start letter, else keep the order */
-#endif  // HAVE_BOLOS_NOT_SHUFFLED_RESTORE
+#endif     // HAVE_BOLOS_NOT_SHUFFLED_RESTORE
         // recompute alphabet and set the number of elements in the keyboard
         auto_complete_count +
             (strlen(G_ux.string_buffer + 16)
@@ -328,7 +328,6 @@ const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned 
                 x:57 w:14
                 iconw: 11
                 */
-                value = 3;
                 G_ux.tmp_element.component.width = C_icon_backspace.width;
                 G_ux.tmp_element.component.x +=
                     1 + G_ux.tmp_element.component.width / 2 - C_icon_backspace.width / 2;
@@ -717,7 +716,7 @@ void screen_onboarding_restore_word_init(unsigned int firstWord) {
         ARRAYLEN(screen_onboarding_restore_word_intro_elements);
     G_ux.stack[0].element_arrays_count = 1;
     ux_stack_display(0);
-#else  // RESTORE_INTRO_WORD
+#else   // RESTORE_INTRO_WORD
     screen_onboarding_restore_word_display_auto_complete();
 #endif  // RESTORE_INTRO_WORD
 }

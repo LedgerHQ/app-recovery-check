@@ -1,0 +1,1 @@
+ragger[tests,speculos]>=1.7.0

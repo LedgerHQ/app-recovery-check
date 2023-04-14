@@ -37,7 +37,7 @@ jobs:
           skip_unpack: true
 
       - name: Rename app binaries
-        run: ls -la ./bin/ && sudo mv ./bin/apps.zip ./bin/apps.${VERSION_NAME}.zip && ls -la ./bin/
+        run: ls -la ./bin/ && sudo mv ./bin/compiled_app_binaries.zip ./bin/compiled_app_binaries.${VERSION_NAME}.zip && ls -la ./bin/
 
       - name: Create Release
         uses: ncipollo/release-action@v1
