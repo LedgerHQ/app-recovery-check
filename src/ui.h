@@ -20,11 +20,11 @@
 
 #if defined(TARGET_NANOS)
 
-#include "./ux_nanos.h"
+#include "nano/ux_nanos.h"
 
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
-#include "./ux_nanox.h"
+#include "nano/ux_nanox.h"
 
 #endif
 

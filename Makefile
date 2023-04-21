@@ -31,7 +31,7 @@ APPVERSION_N = 2
 APPVERSION_P = 0
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
-APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1 --path ""
+APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --curve secp256k1 --path ""
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
     ICONNAME=icons/nanos_app_recovery_check.gif
@@ -51,8 +51,6 @@ DEFINES += LEDGER_PATCH_VERSION=$(APPVERSION_P)
 DEFINES += OS_IO_SEPROXYHAL
 DEFINES += UNUSED\(x\)=\(void\)x
 
-DEFINES += HAVE_UX_FLOW
-
 DEFINES += BOLOS_APP_ICON_SIZE_B=\(9+32\)
 #DEFINES += HAVE_ELECTRUM
 DEFINES += IO_USB_MAX_ENDPOINTS=4 IO_HID_EP_LENGTH=64
@@ -60,11 +58,10 @@ DEFINES += HAVE_SPRINTF
 
 ifneq ($(TARGET_NAME), TARGET_STAX)
     $(info Using BAGL)
-    DEFINES += HAVE_BAGL
+    DEFINES += HAVE_BAGL HAVE_UX_FLOW
 else
-    $(info Usgin NBGL)
+    $(info Using NBGL)
     DEFINES += NBGL_KEYBOARD
-    APP_LOAD_PARAMS += --appFlags 0x200
 endif
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
@@ -126,11 +123,10 @@ include $(BOLOS_SDK)/Makefile.glyphs
 
 APP_SOURCE_PATH += src
 
-ifeq ($(TARGET_NAME), TARGET_STAX)
-    SDK_SOURCE_PATH += lib_nbgl/src
-    SDK_SOURCE_PATH += lib_ux_stax
-else ifneq ($(TARGET_NAME), TARGET_NANOS)
-    SDK_SOURCE_PATH  += lib_ux
+ifneq ($(TARGET_NAME), TARGET_NANOS)
+    ifneq ($(TARGET_NAME), TARGET_STAX)
+        SDK_SOURCE_PATH  += lib_ux
+    endif
 endif
 
 # Main rules

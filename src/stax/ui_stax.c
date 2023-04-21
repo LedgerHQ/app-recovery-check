@@ -61,8 +61,8 @@ static bool on_infos(uint8_t page, nbgl_pageContent_t *content) {
     if (page == 0) {
         content->type = INFOS_LIST;
         content->infosList.nbInfos = 2;
-        content->infosList.infoTypes = (const char **) infoTypes;
-        content->infosList.infoContents = (const char **) infoContents;
+        content->infosList.infoTypes = infoTypes;
+        content->infosList.infoContents = infoContents;
         return true;
     }
     return false;
@@ -218,10 +218,9 @@ static void display_keyboard_page() {
                                               .icon = NULL,
                                               .offsetY = 0,
                                               .onTop = true};
-    strlcpy(textToEnter, "", 1);
-    memset(buttonTexts, 0, NB_MAX_SUGGESTION_BUTTONS);
+    textToEnter[0] = '\0';
+    memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
     layout = nbgl_layoutGet(&layoutDescription);
-    memset(headerText, 0, HEADER_SIZE);
     snprintf(headerText,
              HEADER_SIZE,
              "Enter word n. %d/%d from your\nRecovery Sheet",

@@ -45,7 +45,7 @@ jobs:
       # CodeQL will create the database during the compilation
       - name: Build
         run: |
-          make BOLOS_SDK=${{ matrix.SDK }} TARGET=${{ matrix.name }}
+          make BOLOS_SDK=${{ matrix.SDK }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
