@@ -18,13 +18,9 @@
 
 #include <os.h>
 
-#if defined(TARGET_NANOS)
+#if defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
-#include "nano/ux_nanos.h"
-
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-
-#include "nano/ux_nanox.h"
+#include "nano/ux_nano.h"
 
 #endif
 

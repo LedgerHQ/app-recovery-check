@@ -18,7 +18,7 @@
 
 #include "ux_common/common.h"
 
-#if (defined(TARGET_NANOX) || defined(TARGET_NANOS2))
+#if (defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2))
 
 // bolos ux context (not mandatory if redesigning a bolos ux)
 typedef struct bolos_ux_context {
@@ -33,17 +33,20 @@ typedef struct bolos_ux_context {
     unsigned int onboarding_words_checked;
 
     unsigned int words_buffer_length;
+
     // 128 of words (215 => hashed to 64, or 128) + HMAC_LENGTH*2 = 256
 #define WORDS_BUFFER_MAX_SIZE_B 257
     char words_buffer[WORDS_BUFFER_MAX_SIZE_B];
-#define MAX_PIN_LENGTH 8
-#define MIN_PIN_LENGTH 4
-    char pin_digit_buffer;  // digit to be displayed
 
-    appmain_t flow_end_callback;
-
+#if defined(TARGET_NANOS)
+    // after an int to make sure it's aligned
+    char string_buffer[MAX(
+        64,
+        sizeof(bagl_icon_details_t) + BOLOS_APP_ICON_SIZE_B - 1)];  // to store the seed wholly
+#else
     // label line for common PIN and common keyboard screen (displayed over the entry)
     const char* common_label;
+#endif  // defined(TARGET_NANOS)
 
     // slider management / menu list management
     unsigned int hslider3_before;
@@ -52,31 +55,6 @@ typedef struct bolos_ux_context {
     unsigned int hslider3_total;
 
     keyboard_callback_t keyboard_callback;
-
-    unsigned int overlay_refresh;
-    unsigned int battery_percentage;
-    unsigned int status_batt_level;
-    unsigned int status_flags;
-    unsigned int batt_low_displayed;
-    unsigned int batt_critical_displayed;
-
-#define BATTERY_FULL_CHARGE_MV          4200  // 100%
-#define BATTERY_SUFFICIENT_CHARGE_MV    3840  //  40%
-#define BATTERY_LOW_LEVEL_MV            3750  //  25%
-#define BATTERY_CRITICAL_LEVEL_MV       3460  //  10%
-#define BATTERY_AUTO_POWER_OFF_LEVEL_MV 3200  //   0%
-
-#define BATTERY_FULL_CHARGE_PERCENT          95
-#define BATTERY_SUFFICIENT_CHARGE_PERCENT    40
-#define BATTERY_LOW_LEVEL_PERCENT            25
-#define BATTERY_CRITICAL_LEVEL_PERCENT       10
-#define BATTERY_AUTO_POWER_OFF_LEVEL_PERCENT 2
-
-    // detect stack/global variable overlap
-    // have a zero byte to avoid buffer overflow from strings in the ux (we never know)
-#define CANARY_MAGIC 0x7600E9AB
-    unsigned int canary;
-
     // for CheckSeed app only
     uint8_t processing;
 
@@ -95,7 +73,12 @@ void screen_common_keyboard_init(unsigned int stack_slot,
 
 #include "ux_common/common_bip39.h"
 
+#if defined(TARGET_NANOS)
+extern const bagl_element_t screen_onboarding_word_list_elements[9];
+void compare_recovery_phrase(void);
+#else
 // to be included into all flow that needs to go back to the dashboard
 extern const ux_flow_step_t ux_ob_goto_dashboard_step;
+#endif  // defined(TARGET_NANOS)
 
-#endif  // (TARGET_NANOX || TARGET_NANOS2)
+#endif  // (TARGET_NANOS || TARGET_NANOX || TARGET_NANOS2)

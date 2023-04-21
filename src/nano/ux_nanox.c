@@ -14,7 +14,7 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#include "ux_nanox.h"
+#include "ux_nano.h"
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
