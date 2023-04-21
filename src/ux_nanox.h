@@ -119,7 +119,7 @@ void screen_common_keyboard_init(unsigned int stack_slot,
                                  unsigned int nb_elements,
                                  keyboard_callback_t callback);
 
-void generate_sskr(void);
+void set_sskr_descriptor_values(void);
 void generate_bip39(void);
 
 #include "ux_common/common_bip39.h"

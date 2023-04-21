@@ -28,7 +28,7 @@ all: default
 APPNAME = "SSKR Check"
 APPVERSION_M = 1
 APPVERSION_N = 2
-APPVERSION_P = 1
+APPVERSION_P = 0
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1 --path ""
@@ -131,6 +131,3 @@ include $(BOLOS_SDK)/Makefile.rules
 
 listvariants:
 	@echo VARIANTS APP sskr_check
-
-test:
-	${MAKE} -C ./tests/unit/bc-shamir/ test

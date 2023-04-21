@@ -7,12 +7,12 @@
 
 ### In Progress
 
-- [ ] Currently hardcoded to use a k-of-n threshold of 2-of-3. Add flow to set threshold values
 - [ ] Update automated tests to test on nanox and nanosp
 - [ ] Add code coverage to GitHub actions
 
 ### Done ✓
 
+- [x] Add flow to set SSKR threshold values
 - [x] Add automated tests
 - [x] Fix issue with using 'cx_crc32_hw()' function in 'onboarding_seed_sskr.c' when testing with Speculos
 - [x] Generate BIP39 mnemonic phrases from SSKR shares

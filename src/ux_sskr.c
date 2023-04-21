@@ -120,15 +120,14 @@ UX_FLOW(dynamic_flow,
         FLOW_LOOP);
 
 void generate_sskr(void) {
+    PRINTF("generate_sskr threshold: %d\n", G_bolos_ux_context.sskr_group_descriptor[0][0]);
+    PRINTF("generate_sskr sskr number: %d\n", G_bolos_ux_context.sskr_group_descriptor[0][1]);
+
 #if defined(TARGET_NANOS)
     // Display processing warning to user
     screen_processing_init();
     G_bolos_ux_context.processing = 1;
 #endif
-
-    // Set k-of-n threshold
-    G_bolos_ux_context.sskr_group_descriptor[0][0] = 2;
-    G_bolos_ux_context.sskr_group_descriptor[0][1] = 3;
 
     G_bolos_ux_context.sskr_share_count = 0;
     G_bolos_ux_context.sskr_words_buffer_length = 0;
@@ -159,6 +158,67 @@ void generate_sskr(void) {
     }
     G_bolos_ux_context.sskr_share_index = 1;
     ux_flow_init(0, dynamic_flow, NULL);
+}
+
+const char* const sskr_descriptor_values[] = {
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+};
+
+const char* sskr_threshold_getter(unsigned int idx) {
+    if (idx < G_bolos_ux_context.sskr_group_descriptor[0][1]) {
+        return sskr_descriptor_values[idx];
+    }
+    return NULL;
+}
+
+void sskr_threshold_selector(unsigned int idx) {
+    G_bolos_ux_context.sskr_group_descriptor[0][0] = idx + 1;
+    generate_sskr();
+}
+
+UX_STEP_NOCB(ux_threshold_instruction_step, nn, {"Select", "threshold"});
+
+UX_STEP_MENULIST(ux_threshold_menu_step, sskr_threshold_getter, sskr_threshold_selector);
+
+UX_FLOW(ux_threshold_flow, &ux_threshold_instruction_step, &ux_threshold_menu_step);
+
+const char* sskr_shares_number_getter(unsigned int idx) {
+    if (idx < ARRAYLEN(sskr_descriptor_values)) {
+        return sskr_descriptor_values[idx];
+    }
+    return NULL;
+}
+
+void sskr_shares_number_selector(unsigned int idx) {
+    G_bolos_ux_context.sskr_group_descriptor[0][1] = idx + 1;
+    ux_flow_init(0, ux_threshold_flow, NULL);
+}
+
+UX_STEP_NOCB(ux_shares_number_instruction_step, nn, {"Select number", "of shares"});
+
+UX_STEP_MENULIST(ux_shares_number_menu_step,
+                 sskr_shares_number_getter,
+                 sskr_shares_number_selector);
+
+UX_FLOW(ux_shares_number_flow, &ux_shares_number_instruction_step, &ux_shares_number_menu_step);
+
+void set_sskr_descriptor_values(void) {
+    ux_flow_init(0, ux_shares_number_flow, NULL);
 }
 
 #endif

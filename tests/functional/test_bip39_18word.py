@@ -355,6 +355,19 @@ def test_bip39_18word(firmware, backend, navigator):
         backend.wait_for_text_on_screen("Generate", 1)
         backend.wait_for_text_on_screen("SSKR phrases", 1)
         navigator.navigate([NavInsID.BOTH_CLICK], screen_change_before_first_instruction=False)
+        backend.wait_for_text_on_screen("Select number", 1)
+        backend.wait_for_text_on_screen("of shares", 1)
+        navigator.navigate([NavInsID.RIGHT_CLICK,
+                            NavInsID.RIGHT_CLICK,
+                            NavInsID.RIGHT_CLICK,
+                            NavInsID.BOTH_CLICK],
+                            screen_change_before_first_instruction=False)
+        backend.wait_for_text_on_screen("Select", 1)
+        backend.wait_for_text_on_screen("threshold", 1)
+        navigator.navigate([NavInsID.RIGHT_CLICK,
+                            NavInsID.RIGHT_CLICK,
+                            NavInsID.BOTH_CLICK],
+                            screen_change_before_first_instruction=False)
         backend.wait_for_text_on_screen("SSKR Share #1", 5)
         backend.wait_for_text_on_screen("tuna acid epic hard", 1)
         navigator.navigate_until_text(NavInsID.RIGHT_CLICK, [], "SSKR Share #2", 20, screen_change_before_first_instruction=False)

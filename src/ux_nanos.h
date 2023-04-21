@@ -100,7 +100,7 @@ void screen_common_keyboard_init(unsigned int stack_slot,
                                  keyboard_callback_t callback);
 
 void screen_processing_init(void);
-void generate_sskr(void);
+void set_sskr_descriptor_values(void);
 void generate_bip39(void);
 
 #include "ux_common/common_bip39.h"

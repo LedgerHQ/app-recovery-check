@@ -61,27 +61,6 @@ UX_STEP_VALID(ux_idle_flow_2_step, pbb, screen_onboarding_2_restore_init();
                   "recovery phrase",
               });
 
-UX_STEP_NOCB(ux_idle_flow_3_step,
-             bn,
-             {
-                 "Version",
-                 APPVERSION,
-             });
-
-UX_STEP_VALID(ux_idle_flow_4_step,
-              pb,
-              os_sched_exit(-1),
-              {
-                  &C_icon_dashboard_x,
-                  "Quit",
-              });
-
-UX_FLOW(ux_idle_flow,
-        &ux_idle_flow_1_step,
-        &ux_idle_flow_2_step,
-        &ux_idle_flow_3_step,
-        &ux_idle_flow_4_step);
-
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
 //////////////////////////////////////////////////////////////////////
@@ -171,6 +150,8 @@ UX_STEP_VALID(ux_idle_flow_2_step,
                   "Check SSKR",
                   "recovery phrase",
               });
+#endif
+
 UX_STEP_NOCB(ux_idle_flow_3_step,
              bn,
              {
@@ -189,8 +170,6 @@ UX_FLOW(ux_idle_flow,
         &ux_idle_flow_2_step,
         &ux_idle_flow_3_step,
         &ux_idle_flow_4_step);
-
-#endif
 
 void ui_idle_init(void) {
     uiState = UI_IDLE;

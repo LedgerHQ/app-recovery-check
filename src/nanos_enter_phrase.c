@@ -57,7 +57,7 @@ UX_STEP_CB(ux_bip39_match_step_1, pbb, os_sched_exit(0);,
                                                             "is correct",
                                                         });
 UX_STEP_CB(ux_bip39_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
-UX_STEP_CB(ux_bip39_match_step_3, pbb, generate_sskr();
+UX_STEP_CB(ux_bip39_match_step_3, pbb, set_sskr_descriptor_values();
            , {&C_nanos_app_sskr_check, "Generate", "SSKR phrases"});
 
 UX_FLOW(flow_final_bip39_match,
