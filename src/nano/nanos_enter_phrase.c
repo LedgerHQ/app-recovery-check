@@ -14,9 +14,14 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include <os_io_seproxyhal.h>
+#include <lcx_hmac.h>
+
+#include "constants.h"
+#include "glyphs.h"
 #include "ui.h"
 
-#ifdef TARGET_NANOS
+#if defined(TARGET_NANOS)
 
 // allow to edit back any entered word
 #define RESTORE_WORD_MAX_BACKWARD_STEPS 24
@@ -198,19 +203,6 @@ const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigne
                 } else {
                     G_ux.string_buffer[0] = '_';
                 }
-                // will never occur on word stem, autocomplete always happen before that
-                // else {
-                //   // first char is '...' to notify continuing
-                //   if (value == 0) {
-                //     G_ux.string_buffer[0] = '.';
-                //     G_ux.string_buffer[1] = '.';
-                //     G_ux.string_buffer[2] = '.';
-                //     G_ux.string_buffer[3] = 0;
-                //   }
-                //   else {
-                //     G_ux.string_buffer[0] = (G_ux.string_buffer+16+l+1-8)[value];
-                //   }
-                // }
                 break;
             }
             return NULL;
@@ -423,7 +415,6 @@ unsigned int screen_onboarding_4_restore_word_select_button(unsigned int button_
                         G_bolos_ux_context.onboarding_step--;
                     }
                 }
-                // log_debug(G_bolos_ux_context.words_buffer);
 
                 // clear previous word
                 screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_REENTER_WORD);

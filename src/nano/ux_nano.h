@@ -18,20 +18,10 @@
 
 #include "ux_common/common.h"
 
-#if defined(HAVE_BOLOS_UX) && defined(TARGET_NANOS)
-
-typedef unsigned int (*callback_t)(unsigned int);
+#if (defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2))
 
 // bolos ux context (not mandatory if redesigning a bolos ux)
 typedef struct bolos_ux_context {
-#define BOLOS_UX_ONBOARDING_NEW        1
-#define BOLOS_UX_ONBOARDING_NEW_12     12
-#define BOLOS_UX_ONBOARDING_NEW_18     18
-#define BOLOS_UX_ONBOARDING_NEW_24     24
-#define BOLOS_UX_ONBOARDING_RESTORE    2
-#define BOLOS_UX_ONBOARDING_RESTORE_12 12
-#define BOLOS_UX_ONBOARDING_RESTORE_18 18
-#define BOLOS_UX_ONBOARDING_RESTORE_24 24
     unsigned int onboarding_kind;
 
 #ifdef HAVE_ELECTRUM
@@ -43,31 +33,28 @@ typedef struct bolos_ux_context {
     unsigned int onboarding_words_checked;
 
     unsigned int words_buffer_length;
+
+    // 128 of words (215 => hashed to 64, or 128) + HMAC_LENGTH*2 = 256
+#define WORDS_BUFFER_MAX_SIZE_B 257
+    char words_buffer[WORDS_BUFFER_MAX_SIZE_B];
+
+#if defined(TARGET_NANOS)
     // after an int to make sure it's aligned
     char string_buffer[MAX(
         64,
         sizeof(bagl_icon_details_t) + BOLOS_APP_ICON_SIZE_B - 1)];  // to store the seed wholly
+#else
+    // label line for common PIN and common keyboard screen (displayed over the entry)
+    const char* common_label;
+#endif  // defined(TARGET_NANOS)
 
-    char words_buffer[257];  // 128 of words (215 => hashed to 64, or 128) +
-                             // HMAC_LENGTH*2 = 256
-
-#define MAX_PIN_LENGTH 8
-#define MIN_PIN_LENGTH 4
-
-    // slider management
+    // slider management / menu list management
     unsigned int hslider3_before;
     unsigned int hslider3_current;
     unsigned int hslider3_after;
     unsigned int hslider3_total;
 
     keyboard_callback_t keyboard_callback;
-
-// detect stack/global variable overlap
-// have a zero byte to avoid buffer overflow from strings in the ux (we never
-// know)
-#define CANARY_MAGIC 0x7600E9AB
-    unsigned int canary;
-
     // for CheckSeed app only
     uint8_t processing;
 
@@ -86,6 +73,12 @@ void screen_common_keyboard_init(unsigned int stack_slot,
 
 #include "ux_common/common_bip39.h"
 
+#if defined(TARGET_NANOS)
 extern const bagl_element_t screen_onboarding_word_list_elements[9];
+void compare_recovery_phrase(void);
+#else
+// to be included into all flow that needs to go back to the dashboard
+extern const ux_flow_step_t ux_ob_goto_dashboard_step;
+#endif  // defined(TARGET_NANOS)
 
-#endif  // HAVE_BOLOS_UX && TARGET_NANOS
+#endif  // (TARGET_NANOS || TARGET_NANOX || TARGET_NANOS2)

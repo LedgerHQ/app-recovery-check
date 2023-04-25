@@ -14,11 +14,10 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include "constants.h"
 #include "ui.h"
 
 #ifdef TARGET_NANOS
-
-//#ifdef OS_IO_SEPROXYHAL
 
 const bagl_element_t screen_common_keyboard_elements[] = {
 

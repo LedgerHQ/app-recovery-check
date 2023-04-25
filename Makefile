@@ -27,14 +27,16 @@ all: default
 
 APPNAME = "Recovery Check"
 APPVERSION_M = 1
-APPVERSION_N = 1
+APPVERSION_N = 2
 APPVERSION_P = 0
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
-APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1 --path ""
+APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --curve secp256k1 --path ""
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
     ICONNAME=icons/nanos_app_recovery_check.gif
+else ifeq ($(TARGET_NAME), TARGET_STAX)
+    ICONNAME=icons/stax_recovery_check_32px.gif
 else
     ICONNAME=icons/nanox_app_recovery_check.gif
 endif
@@ -49,29 +51,38 @@ DEFINES += LEDGER_PATCH_VERSION=$(APPVERSION_P)
 DEFINES += OS_IO_SEPROXYHAL
 DEFINES += UNUSED\(x\)=\(void\)x
 
-DEFINES += HAVE_BAGL HAVE_UX_FLOW
-
 DEFINES += BOLOS_APP_ICON_SIZE_B=\(9+32\)
 #DEFINES += HAVE_ELECTRUM
 DEFINES += IO_USB_MAX_ENDPOINTS=4 IO_HID_EP_LENGTH=64
 DEFINES += HAVE_SPRINTF
-DEFINES += HAVE_BOLOS_UX
+
+ifneq ($(TARGET_NAME), TARGET_STAX)
+    $(info Using BAGL)
+    DEFINES += HAVE_BAGL HAVE_UX_FLOW
+else
+    $(info Using NBGL)
+    DEFINES += NBGL_KEYBOARD
+endif
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
     DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
 else
     DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
-    DEFINES += HAVE_GLO096
-    DEFINES += BAGL_WIDTH=128 BAGL_HEIGHT=64
-    DEFINES += HAVE_BAGL_ELLIPSIS # long label truncation feature
-    DEFINES += HAVE_BAGL_FONT_OPEN_SANS_REGULAR_11PX
-    DEFINES += HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX
-    DEFINES += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
-    DEFINES += HAVE_KEYBOARD_UX
+    ifneq ($(TARGET_NAME), TARGET_STAX)
+        DEFINES += HAVE_GLO096
+        DEFINES += BAGL_WIDTH=128 BAGL_HEIGHT=64
+        DEFINES += HAVE_BAGL_ELLIPSIS # long label truncation feature
+        DEFINES += HAVE_BAGL_FONT_OPEN_SANS_REGULAR_11PX
+        DEFINES += HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX
+        DEFINES += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
+        DEFINES += HAVE_KEYBOARD_UX
+    endif
 endif
 
 DEBUG = 0
+
 ifneq ($(DEBUG), 0)
+    $(info DEBUG enabled)
     DEFINES += HAVE_IO_USB HAVE_USB_APDU
     SDK_SOURCE_PATH  += lib_stusb lib_stusb_impl
     DEFINES += HAVE_PRINTF
@@ -112,8 +123,10 @@ include $(BOLOS_SDK)/Makefile.glyphs
 
 APP_SOURCE_PATH += src
 
-ifneq ($(TARGET_NAME),TARGET_NANOS)
-    SDK_SOURCE_PATH  += lib_ux
+ifneq ($(TARGET_NAME), TARGET_NANOS)
+    ifneq ($(TARGET_NAME), TARGET_STAX)
+        SDK_SOURCE_PATH  += lib_ux
+    endif
 endif
 
 # Main rules

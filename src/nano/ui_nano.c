@@ -1,16 +1,20 @@
 #include <ux.h>
 #include "ui.h"
 
+#if defined(HAVE_BAGL)
+
+#include "constants.h"
+#include "glyphs.h"
+
 enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
 
 enum UI_STATE uiState;
 
 ux_state_t G_ux;
-bolos_ux_params_t G_ux_params;
 
 #if defined(TARGET_NANOS)
 
-UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
+UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_24;
            screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
@@ -18,7 +22,7 @@ UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBO
                "with 24 words",
            });
 
-UX_STEP_CB(restore_3_1_2, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
+UX_STEP_CB(restore_3_1_2, bb, G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_18;
            screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
@@ -26,7 +30,7 @@ UX_STEP_CB(restore_3_1_2, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBO
                "with 18 words",
            });
 
-UX_STEP_CB(restore_3_1_3, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
+UX_STEP_CB(restore_3_1_3, bb, G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_12;
            screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
            ,
            {
@@ -85,15 +89,15 @@ const char* number_of_words_getter(unsigned int idx) {
 void number_of_words_selector(unsigned int idx) {
     switch (idx) {
         case 0:
-            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
+            G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_12;
             screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
             break;
         case 1:
-            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
+            G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_18;
             screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
             break;
         case 2:
-            G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
+            G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_24;
             screen_onboarding_4_restore_word_init(1 /*entering the first word*/);
             break;
         default:
@@ -150,3 +154,5 @@ void ui_idle_init(void) {
     }
     ux_flow_init(0, ux_idle_flow, NULL);
 }
+
+#endif

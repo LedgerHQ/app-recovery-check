@@ -14,7 +14,11 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#include "ui.h"
+#include <lcx_hmac.h>
+#include <lcx_rng.h>
+
+#include "../constants.h"
+#include "../ui.h"
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
@@ -226,8 +230,8 @@ void screen_onboarding_4_restore_word_display_word_selection(void) {
     ux_stack_display(0);
 }
 
-const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigned int event,
-                                                                         unsigned int value) {
+const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(const unsigned int event,
+                                                                         const unsigned int value) {
     switch (event) {
         case KEYBOARD_ITEM_VALIDATED:
             // depending on the chosen class, interpret the click
@@ -272,12 +276,10 @@ const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigne
                 x:57 w:14
                 iconw: 11
                 */
-                value = 3;
                 G_ux.tmp_element.component.width = C_icon_backspace.width;
                 G_ux.tmp_element.component.x +=
                     1 + G_ux.tmp_element.component.width / 2 - C_icon_backspace.width / 2;
                 G_ux.tmp_element.component.y -= 7;
-                // G_ux.tmp_element.component.y = 5;
                 G_ux.tmp_element.component.height = C_icon_backspace.height;
                 G_ux.tmp_element.component.type = BAGL_ICON;
                 G_ux.tmp_element.component.icon_id = 0;
@@ -287,7 +289,6 @@ const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigne
                     G_ux.tmp_element.text = (const char*) &C_icon_backspace;
                 }
             } else {
-                // G_ux.string_buffer[0] = G_ux.string_buffer[32+value]-'a'+'A'; // render as
                 // uppercase, always
                 G_ux.string_buffer[0] =
                     G_ux.string_buffer[32 + value];  // render as lowercase, always
@@ -397,8 +398,6 @@ const bagl_element_t* screen_onboarding_4_restore_word_before_element_display_ca
 }
 
 uint8_t compare_recovery_phrase(void) {
-    // io_seproxyhal_general_status();
-
     // convert mnemonic to hex-seed
     uint8_t buffer[64];
 
@@ -475,8 +474,9 @@ void screen_onboarding_4_restore_word_validate(void) {
     }
 }
 
-unsigned int screen_onboarding_4_restore_word_select_button(unsigned int button_mask,
-                                                            unsigned int button_mask_counter) {
+unsigned int screen_onboarding_4_restore_word_select_button(
+    const unsigned int button_mask,
+    const unsigned int button_mask_counter) {
     UNUSED(button_mask_counter);
     switch (button_mask) {
         case BUTTON_EVT_FAST | BUTTON_LEFT:
@@ -514,8 +514,8 @@ unsigned int screen_onboarding_4_restore_word_select_button(unsigned int button_
     return 0;
 }
 
-unsigned int screen_onboarding_4_restore_word_intro_button(unsigned int button_mask,
-                                                           unsigned int button_mask_counter) {
+unsigned int screen_onboarding_4_restore_word_intro_button(const unsigned int button_mask,
+                                                           const unsigned int button_mask_counter) {
     UNUSED(button_mask_counter);
     switch (button_mask) {
         case BUTTON_EVT_RELEASED | BUTTON_LEFT | BUTTON_RIGHT: {

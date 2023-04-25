@@ -17,18 +17,12 @@
 #pragma once
 
 #include <os.h>
-#include <os_io_seproxyhal.h>
-#include <string.h>
-#include <cx.h>
 
-#include "glyphs.h"
+#if defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
-#if defined(TARGET_NANOS)
-#include "ux_nanos.h"
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-#include "ux_nanox.h"
+#include "nano/ux_nano.h"
+
 #endif
 
-#define ARRAYLEN(array) (sizeof(array) / sizeof(array[0]))
-
+// NanoS, S+, X and Stax
 void ui_idle_init(void);

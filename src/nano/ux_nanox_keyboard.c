@@ -14,6 +14,7 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include "constants.h"
 #include "ui.h"
 
 #if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
