@@ -1,10 +1,11 @@
 # Change log
 
-## [1.2.0] - 2023-04-21
+## [1.3.0] - 2023-04-27
 ### Added
 -
 
 ### Changed
+- Removed duplicated Nano code
 - Simplified flow code
 
 ### Fixed

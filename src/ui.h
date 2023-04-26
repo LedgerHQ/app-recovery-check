@@ -22,14 +22,13 @@
 #include <cx.h>
 
 #include "glyphs.h"
+#include "ux_nano.h"
 
 #if defined(TARGET_NANOS)
-#include "ux_nanos.h"
 #define ARRAYLEN(array) (sizeof(array) / sizeof(array[0]))
 #define BIP39_ICON      C_bip39_nanos
 #define SSKR_ICON       C_sskr_nanos
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-#include "ux_nanox.h"
 #define BIP39_ICON C_bip39_nanox
 #define SSKR_ICON  C_sskr_nanox
 #endif

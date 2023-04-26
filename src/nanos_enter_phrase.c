@@ -21,6 +21,78 @@
 // allow to edit back any entered word
 #define RESTORE_WORD_MAX_BACKWARD_STEPS 24
 
+const bagl_element_t screen_onboarding_word_list_elements[] = {
+    // erase
+    {{BAGL_RECTANGLE, 0x00, 0, 0, 128, 32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
+
+    {{BAGL_LABELINE,
+      0x01,
+      0,
+      12,
+      128,
+      32,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_REGULAR_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     G_ux.string_buffer},
+    {{BAGL_RECTANGLE, 0x02, 32, 16, 64, 14, 0, 4, BAGL_FILL, 0xFFFFFF, 0x000000, 0, 0}, NULL},
+    {{BAGL_LABELINE,
+      0x02,
+      0,
+      26,
+      128,
+      32,
+      0,
+      0,
+      0,
+      0x000000,
+      0xFFFFFF,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     G_ux.string_buffer},
+
+    // left/rights icons
+    {{BAGL_ICON, 0x03, 3, 12, 4, 7, 0, 0, 0, 0xFFFFFF, 0x000000, 0, 0}, (const char*) &C_icon_left},
+    {{BAGL_ICON, 0x04, 121, 12, 4, 7, 0, 0, 0, 0xFFFFFF, 0x000000, 0, 0},
+     (const char*) &C_icon_right},
+
+    // supplementary static entry
+    {{BAGL_ICON, 0x05, 16, 9, 14, 14, 0, 0, 0, 0xFFFFFF, 0x000000, 0, 0},
+     (const char*) &C_icon_back},
+    {{BAGL_LABELINE,
+      0x05,
+      41,
+      12,
+      128,
+      32,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px,
+      0},
+     "Restart from"},
+    {{BAGL_LABELINE,
+      0x06,
+      41,
+      26,
+      128,
+      32,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px,
+      0},
+     G_ux.string_buffer},
+};
+
 const bagl_element_t* screen_onboarding_restore_word_before_element_display_callback(
     const bagl_element_t* element);
 
@@ -45,7 +117,7 @@ UX_STEP_NOCB(ux_bip39_nomatch_step_2,
              });
 UX_STEP_VALID(ux_bip39_nomatch_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to menu"});
 
-UX_FLOW(flow_final_bip39_nomatch,
+UX_FLOW(ux_bip39_nomatch_flow,
         &ux_bip39_nomatch_step_1,
         &ux_bip39_nomatch_step_2,
         &ux_bip39_nomatch_step_3);
@@ -60,7 +132,7 @@ UX_STEP_CB(ux_bip39_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Q
 UX_STEP_CB(ux_bip39_match_step_3, pbb, set_sskr_descriptor_values();
            , {&SSKR_ICON, "Generate", "SSKR phrases"});
 
-UX_FLOW(flow_final_bip39_match,
+UX_FLOW(ux_bip39_match_flow,
         &ux_bip39_match_step_1,
         &ux_bip39_match_step_2,
         &ux_bip39_match_step_3);
@@ -79,7 +151,7 @@ UX_STEP_NOCB(ux_sskr_nomatch_step_2,
              });
 UX_STEP_VALID(ux_sskr_nomatch_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to menu"});
 
-UX_FLOW(flow_final_sskr_nomatch,
+UX_FLOW(ux_sskr_nomatch_flow,
         &ux_sskr_nomatch_step_1,
         &ux_sskr_nomatch_step_2,
         &ux_sskr_nomatch_step_3);
@@ -93,7 +165,7 @@ UX_STEP_CB(ux_sskr_match_step_1, pbb, os_sched_exit(0);,
 UX_STEP_CB(ux_sskr_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
 UX_STEP_CB(ux_sskr_match_step_3, pbb, generate_bip39();, {&BIP39_ICON, "Generate", "BIP39 phrase"});
 
-UX_FLOW(flow_final_sskr_match, &ux_sskr_match_step_1, &ux_sskr_match_step_2, &ux_sskr_match_step_3);
+UX_FLOW(ux_sskr_match_flow, &ux_sskr_match_step_1, &ux_sskr_match_step_2, &ux_sskr_match_step_3);
 
 void screen_processing_postinit(unsigned int stack_slot) {
     // ensure when pin is modal over the processing screen( at end of install) the processing screen
@@ -319,12 +391,12 @@ void compare_recovery_phrase(void) {
     if (os_secure_memcmp(buffer, buffer_device, 64)) {
         memset(G_bolos_ux_context.words_buffer, 0, G_bolos_ux_context.words_buffer_length);
         (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39)
-            ? ux_flow_init(0, flow_final_bip39_nomatch, NULL)
-            : ux_flow_init(0, flow_final_sskr_nomatch, NULL);
+            ? ux_flow_init(0, ux_bip39_nomatch_flow, NULL)
+            : ux_flow_init(0, ux_sskr_nomatch_flow, NULL);
     } else {
         (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39)
-            ? ux_flow_init(0, flow_final_bip39_match, NULL)
-            : ux_flow_init(0, flow_final_sskr_match, NULL);
+            ? ux_flow_init(0, ux_bip39_match_flow, NULL)
+            : ux_flow_init(0, ux_sskr_match_flow, NULL);
     }
 }
 

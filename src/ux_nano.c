@@ -15,11 +15,9 @@
  *  limitations under the License.
  ********************************************************************************/
 
-#include "ux_nanos.h"
+#include "ux_nano.h"
 
-#if defined(TARGET_NANOS)
-
-//#ifdef OS_IO_SEPROXYHAL
+#ifdef OS_IO_SEPROXYHAL
 
 bolos_ux_context_t G_bolos_ux_context;
 
@@ -30,7 +28,7 @@ unsigned short io_timeout(unsigned short last_timeout) {
 }
 
 void io_seproxyhal_display(const bagl_element_t *element) {
-    io_seproxyhal_display_default(element);
+    io_seproxyhal_display_default((bagl_element_t *) element);
 }
 
 void bolos_ux_hslider3_init(unsigned int total_count) {
@@ -127,77 +125,4 @@ void bolos_ux_hslider3_previous(void) {
     }
 }
 
-const bagl_element_t screen_onboarding_word_list_elements[] = {
-    // erase
-    {{BAGL_RECTANGLE, 0x00, 0, 0, 128, 32, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
-
-    {{BAGL_LABELINE,
-      0x01,
-      0,
-      12,
-      128,
-      32,
-      0,
-      0,
-      0,
-      0xFFFFFF,
-      0x000000,
-      BAGL_FONT_OPEN_SANS_REGULAR_11px | BAGL_FONT_ALIGNMENT_CENTER,
-      0},
-     G_ux.string_buffer},
-    {{BAGL_RECTANGLE, 0x02, 32, 16, 64, 14, 0, 4, BAGL_FILL, 0xFFFFFF, 0x000000, 0, 0}, NULL},
-    {{BAGL_LABELINE,
-      0x02,
-      0,
-      26,
-      128,
-      32,
-      0,
-      0,
-      0,
-      0x000000,
-      0xFFFFFF,
-      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER,
-      0},
-     G_ux.string_buffer},
-
-    // left/rights icons
-    {{BAGL_ICON, 0x03, 3, 12, 4, 7, 0, 0, 0, 0xFFFFFF, 0x000000, 0, 0},
-     (const char *) &C_icon_left},
-    {{BAGL_ICON, 0x04, 121, 12, 4, 7, 0, 0, 0, 0xFFFFFF, 0x000000, 0, 0},
-     (const char *) &C_icon_right},
-
-    // supplementary static entry
-    {{BAGL_ICON, 0x05, 16, 9, 14, 14, 0, 0, 0, 0xFFFFFF, 0x000000, 0, 0},
-     (const char *) &C_icon_back},
-    {{BAGL_LABELINE,
-      0x05,
-      41,
-      12,
-      128,
-      32,
-      0,
-      0,
-      0,
-      0xFFFFFF,
-      0x000000,
-      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px,
-      0},
-     "Restart from"},
-    {{BAGL_LABELINE,
-      0x06,
-      41,
-      26,
-      128,
-      32,
-      0,
-      0,
-      0,
-      0xFFFFFF,
-      0x000000,
-      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px,
-      0},
-     G_ux.string_buffer},
-};
-
-#endif
+#endif  // OS_IO_SEPROXYHAL

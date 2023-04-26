@@ -18,9 +18,11 @@
 
 #include "ux_common/common.h"
 
-#if defined(HAVE_BOLOS_UX) && defined(TARGET_NANOS)
+#if defined(HAVE_BOLOS_UX)
 
+#if defined(TARGET_NANOS)
 typedef unsigned int (*callback_t)(unsigned int);
+#endif
 
 // bolos ux context (not mandatory if redesigning a bolos ux)
 typedef struct bolos_ux_context {
@@ -58,13 +60,42 @@ typedef struct bolos_ux_context {
         64,
         sizeof(bagl_icon_details_t) + BOLOS_APP_ICON_SIZE_B - 1)];  // to store the seed wholly
 
-    char words_buffer[257];  // 128 of words (215 => hashed to 64, or 128) +
-                             // HMAC_LENGTH*2 = 256
+    // 128 of words (215 => hashed to 64, or 128) + HMAC_LENGTH*2 = 256
+#define WORDS_BUFFER_MAX_SIZE_B 257
+    char words_buffer[WORDS_BUFFER_MAX_SIZE_B];
+
+    char pin_digit_buffer;  // digit to be displayed
+
+    appmain_t flow_end_callback;
+
+    // label line for common PIN and common keyboard screen (displayed over the entry)
+    const char* common_label;
+
+#if (defined(TARGET_NANOX) || defined(TARGET_NANOS2))
+    unsigned int overlay_refresh;
+    unsigned int battery_percentage;
+    unsigned int status_batt_level;
+    unsigned int status_flags;
+    unsigned int batt_low_displayed;
+    unsigned int batt_critical_displayed;
+
+#define BATTERY_FULL_CHARGE_MV          4200  // 100%
+#define BATTERY_SUFFICIENT_CHARGE_MV    3840  //  40%
+#define BATTERY_LOW_LEVEL_MV            3750  //  25%
+#define BATTERY_CRITICAL_LEVEL_MV       3460  //  10%
+#define BATTERY_AUTO_POWER_OFF_LEVEL_MV 3200  //   0%
+
+#define BATTERY_FULL_CHARGE_PERCENT          95
+#define BATTERY_SUFFICIENT_CHARGE_PERCENT    40
+#define BATTERY_LOW_LEVEL_PERCENT            25
+#define BATTERY_CRITICAL_LEVEL_PERCENT       10
+#define BATTERY_AUTO_POWER_OFF_LEVEL_PERCENT 2
+#endif
 
 #define MAX_PIN_LENGTH 8
 #define MIN_PIN_LENGTH 4
 
-    // slider management
+    // slider management / menu list management
     unsigned int hslider3_before;
     unsigned int hslider3_current;
     unsigned int hslider3_after;
@@ -72,9 +103,8 @@ typedef struct bolos_ux_context {
 
     keyboard_callback_t keyboard_callback;
 
-// detect stack/global variable overlap
-// have a zero byte to avoid buffer overflow from strings in the ux (we never
-// know)
+    // detect stack/global variable overlap
+    // have a zero byte to avoid buffer overflow from strings in the ux (we never know)
 #define CANARY_MAGIC 0x7600E9AB
     unsigned int canary;
 
@@ -99,13 +129,14 @@ void screen_common_keyboard_init(unsigned int stack_slot,
                                  unsigned int nb_elements,
                                  keyboard_callback_t callback);
 
-void screen_processing_init(void);
 void set_sskr_descriptor_values(void);
 void generate_bip39(void);
 
 #include "ux_common/common_bip39.h"
 #include "ux_common/common_sskr.h"
 
-extern const bagl_element_t screen_onboarding_word_list_elements[9];
+#if defined(TARGET_NANOS)
+void screen_processing_init(void);
+#endif
 
-#endif  // HAVE_BOLOS_UX && TARGET_NANOS
+#endif  // HAVE_BOLOS_UX_H

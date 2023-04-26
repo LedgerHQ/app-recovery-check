@@ -16,9 +16,9 @@
 
 #include "ui.h"
 
-#ifdef TARGET_NANOS
+#ifdef OS_IO_SEPROXYHAL
 
-//#ifdef OS_IO_SEPROXYHAL
+#if defined(TARGET_NANOS)
 
 const bagl_element_t screen_common_keyboard_elements[] = {
 
@@ -217,10 +217,216 @@ const bagl_element_t screen_common_keyboard_elements[] = {
     {{BAGL_ICON, 0x00, 121, 12, 4, 7, 0, 0, 0, 0xFFFFFF, 0x000000, 0, 0},
      (const char*) &C_icon_right},
 };
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+
+const bagl_element_t screen_common_keyboard_elements[] = {
+
+    // erase
+    {{BAGL_RECTANGLE, 0x00, 0, 0, 128, 64, 0, 0, BAGL_FILL, 0x000000, 0xFFFFFF, 0, 0}, NULL},
+
+    // title
+    {{BAGL_LABELINE,
+      0x04,
+      0,
+      20,
+      128,
+      32 - 5,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_REGULAR_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+
+    // typed word
+    {{BAGL_LABELINE,
+      0x10,
+      128 / 2 - 12 / 2 - 40,
+      48 + 5,
+      14,
+      14,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+    {{BAGL_LABELINE,
+      0x11,
+      128 / 2 - 12 / 2 - 30,
+      48 + 5,
+      14,
+      14,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+    {{BAGL_LABELINE,
+      0x12,
+      128 / 2 - 12 / 2 - 20,
+      48 + 5,
+      14,
+      14,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+    {{BAGL_LABELINE,
+      0x13,
+      128 / 2 - 12 / 2 - 10,
+      48 + 5,
+      14,
+      14,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+    {{BAGL_LABELINE,
+      0x14,
+      128 / 2 - 12 / 2,
+      48 + 5,
+      14,
+      14,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+    {{BAGL_LABELINE,
+      0x15,
+      128 / 2 - 12 / 2 + 10,
+      48 + 5,
+      14,
+      14,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+    {{BAGL_LABELINE,
+      0x16,
+      128 / 2 - 12 / 2 + 20,
+      48 + 5,
+      14,
+      14,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+    {{BAGL_LABELINE,
+      0x17,
+      128 / 2 - 12 / 2 + 30,
+      48 + 5,
+      14,
+      14,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+    {{BAGL_LABELINE,
+      0x18,
+      128 / 2 - 12 / 2 + 40,
+      48 + 5,
+      14,
+      14,
+      0,
+      0,
+      0,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+
+    // slider elements
+    {{BAGL_LABELINE,
+      0x01,
+      29,
+      36,
+      14,
+      13,
+      0,
+      0,
+      BAGL_FILL,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_REGULAR_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+    {{BAGL_LINE, 0x06, 48, 32, 4, 1, 0, 0, 0, 0xFFFFFF, 0x000000, 0, 0}, NULL},
+    {{BAGL_RECTANGLE, 0x00, 57, 36 - 10, 14, 14, 0, 4, BAGL_FILL, 0xFFFFFF, 0x000000, 0, 0}, NULL},
+    {{BAGL_LABELINE,
+      0x02,
+      58,
+      36,
+      12,
+      13,
+      0,
+      0,
+      BAGL_FILL,
+      0x000000,
+      0xFFFFFF,
+      BAGL_FONT_OPEN_SANS_EXTRABOLD_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+    {{BAGL_LINE, 0x07, 76, 32, 4, 1, 0, 0, 0, 0xFFFFFF, 0x000000, 0, 0}, NULL},
+    {{BAGL_LABELINE,
+      0x03,
+      85,
+      36,
+      14,
+      13,
+      0,
+      0,
+      BAGL_FILL,
+      0xFFFFFF,
+      0x000000,
+      BAGL_FONT_OPEN_SANS_REGULAR_11px | BAGL_FONT_ALIGNMENT_CENTER,
+      0},
+     NULL},
+
+    // left/rights icons
+    {{BAGL_ICON, 0x0A, 2, 28, 4, 7, 0, 0, 0, 0xFFFFFF, 0x000000, 0, 0}, (const char*) &C_icon_left},
+    {{BAGL_ICON, 0x0B, 122, 28, 4, 7, 0, 0, 0, 0xFFFFFF, 0x000000, 0, 0},
+     (const char*) &C_icon_right},
+};
+#endif  // TARGETS
 
 const bagl_element_t* screen_common_keyboard_before_element_display_callback(
     const bagl_element_t* element) {
+#ifdef TARGET_NANOS
     const bagl_element_t* e;
+#endif
     // copy element to be displayed
     memcpy(&G_ux.tmp_element, PIC(element), sizeof(G_ux.tmp_element));
 
@@ -233,21 +439,9 @@ const bagl_element_t* screen_common_keyboard_before_element_display_callback(
                                                         G_bolos_ux_context.hslider3_before);
 
         // current item (both line and invert rectangle)
-        case 0x22:
         case 0x02:
-            e = G_bolos_ux_context.keyboard_callback(KEYBOARD_RENDER_ITEM,
-                                                     G_bolos_ux_context.hslider3_current);
-
-            // if the current component to display is not TEXT, then don't display the invert
-            // rectangle, to avoid graphic glitch
-            if (element->component.userid == 0x22) {
-                if (e->component.type == BAGL_ICON) {
-                    return NULL;
-                }
-            }
-            return e;
-            break;
-
+            return G_bolos_ux_context.keyboard_callback(KEYBOARD_RENDER_ITEM,
+                                                        G_bolos_ux_context.hslider3_current);
         case 0x03:
             if (G_bolos_ux_context.hslider3_after == BOLOS_UX_HSLIDER3_NONE) {
                 return 0;
@@ -261,12 +455,28 @@ const bagl_element_t* screen_common_keyboard_before_element_display_callback(
             }
             break;
 
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+        case 0x04:
+            // display the title
+            G_ux.tmp_element.text = G_bolos_ux_context.common_label;
+            break;
+#endif
         case 0x07:
             if (G_bolos_ux_context.hslider3_after == BOLOS_UX_HSLIDER3_NONE) {
                 return 0;  // don't display
             }
             break;
 
+#ifdef TARGET_NANOS
+        case 0x22:
+            e = G_bolos_ux_context.keyboard_callback(KEYBOARD_RENDER_ITEM,
+                                                     G_bolos_ux_context.hslider3_current);
+            if (e->component.type == BAGL_ICON) {
+                return NULL;
+            }
+            return e;
+            break;
+#endif
         default:
             if (element->component.userid & 0x10) {
                 // request the xieth word char
@@ -338,4 +548,4 @@ void screen_common_keyboard_init(unsigned int stack_slot,
     ux_stack_display(stack_slot);
 }
 
-#endif
+#endif  // OS_IO_SEPROXYHAL

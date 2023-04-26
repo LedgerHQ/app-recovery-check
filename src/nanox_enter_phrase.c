@@ -154,56 +154,54 @@ UX_STEP_VALID(ux_wrong_seed_step,
               });
 UX_FLOW(ux_wrong_seed_flow, &ux_wrong_seed_step);
 
-UX_STEP_NOCB(ux_bip39_failed_check_step_1, pbb, {&C_icon_warning, "BIP39 Phrase", "doesn't match"});
-UX_STEP_NOCB(ux_bip39_failed_check_step_2,
+UX_STEP_NOCB(ux_bip39_nomatch_step_1, pbb, {&C_icon_warning, "BIP39 Phrase", "doesn't match"});
+UX_STEP_NOCB(ux_bip39_nomatch_step_2,
              nn,
              {
                  "Check length",
                  "order and spelling",
              });
-UX_STEP_VALID(ux_bip39_failed_check_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to menu"});
-UX_FLOW(ux_bip39_failed_check_flow,
-        &ux_bip39_failed_check_step_1,
-        &ux_bip39_failed_check_step_2,
-        &ux_bip39_failed_check_step_3);
+UX_STEP_VALID(ux_bip39_nomatch_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to menu"});
+UX_FLOW(ux_bip39_nomatch_flow,
+        &ux_bip39_nomatch_step_1,
+        &ux_bip39_nomatch_step_2,
+        &ux_bip39_nomatch_step_3);
 
-UX_STEP_VALID(ux_bip39_success_step_1,
+UX_STEP_VALID(ux_bip39_match_step_1,
               pbb,
               os_sched_exit(-1),
               {&C_icon_validate_14, "BIP39 Phrase", "is correct"});
-UX_STEP_CB(ux_bip39_success_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
-UX_STEP_CB(ux_bip39_success_step_3, pbb, set_sskr_descriptor_values();
+UX_STEP_CB(ux_bip39_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
+UX_STEP_CB(ux_bip39_match_step_3, pbb, set_sskr_descriptor_values();
            , {&SSKR_ICON, "Generate", "SSKR phrases"});
 
-UX_FLOW(ux_bip39_succesful_check_flow,
-        &ux_bip39_success_step_1,
-        &ux_bip39_success_step_2,
-        &ux_bip39_success_step_3);
+UX_FLOW(ux_bip39_match_flow,
+        &ux_bip39_match_step_1,
+        &ux_bip39_match_step_2,
+        &ux_bip39_match_step_3);
 
-UX_STEP_NOCB(ux_sskr_failed_check_step_1, pbb, {&C_icon_warning, "SSKR Phrase", "doesn't match"});
-UX_STEP_NOCB(ux_sskr_failed_check_step_2,
+UX_STEP_NOCB(ux_sskr_nomatch_step_1, pbb, {&C_icon_warning, "SSKR Phrase", "doesn't match"});
+UX_STEP_NOCB(ux_sskr_nomatch_step_2,
              nn,
              {
                  "Check length",
                  "order and spelling",
              });
-UX_STEP_VALID(ux_sskr_failed_check_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to menu"});
-UX_FLOW(ux_sskr_failed_check_flow,
-        &ux_sskr_failed_check_step_1,
-        &ux_sskr_failed_check_step_2,
-        &ux_sskr_failed_check_step_3);
+UX_STEP_VALID(ux_sskr_nomatch_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to menu"});
+UX_FLOW(ux_sskr_nomatch_flow,
+        &ux_sskr_nomatch_step_1,
+        &ux_sskr_nomatch_step_2,
+        &ux_sskr_nomatch_step_3);
 
-UX_STEP_VALID(ux_sskr_success_step_1,
+UX_STEP_VALID(ux_sskr_match_step_1,
               pbb,
               os_sched_exit(-1),
               {&C_icon_validate_14, "SSKR Phrase", "is correct"});
-UX_STEP_CB(ux_sskr_success_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
-UX_STEP_CB(ux_sskr_success_step_3, pbb, generate_bip39();, {&BIP39_ICON, "Generate", "BIP39 phrases"});
+UX_STEP_CB(ux_sskr_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
+UX_STEP_CB(ux_sskr_match_step_3, pbb, generate_bip39();
+           , {&BIP39_ICON, "Generate", "BIP39 phrases"});
 
-UX_FLOW(ux_sskr_succesful_check_flow,
-        &ux_sskr_success_step_1,
-        &ux_sskr_success_step_2,
-        &ux_sskr_success_step_3);
+UX_FLOW(ux_sskr_match_flow, &ux_sskr_match_step_1, &ux_sskr_match_step_2, &ux_sskr_match_step_3);
 
 unsigned int screen_onboarding_restore_word_select_button(unsigned int button_mask,
                                                           unsigned int button_mask_counter);
@@ -578,12 +576,12 @@ void screen_onboarding_restore_word_validate(void) {
                 // Display loading icon to user
                 ux_flow_init(0, ux_load_flow, NULL);
                 if (compare_recovery_phrase()) {
-                    ux_flow_init(0, ux_bip39_succesful_check_flow, NULL);
+                    ux_flow_init(0, ux_bip39_match_flow, NULL);
                 } else {
                     memset(G_bolos_ux_context.words_buffer,
                            0,
                            G_bolos_ux_context.words_buffer_length);
-                    ux_flow_init(0, ux_bip39_failed_check_flow, NULL);
+                    ux_flow_init(0, ux_bip39_nomatch_flow, NULL);
                 }
             }
         } else {
@@ -617,12 +615,12 @@ void screen_onboarding_restore_word_validate(void) {
                     // Display loading icon to user
                     ux_flow_init(0, ux_load_flow, NULL);
                     if (compare_recovery_phrase()) {
-                        ux_flow_init(0, ux_sskr_succesful_check_flow, NULL);
+                        ux_flow_init(0, ux_sskr_match_flow, NULL);
                     } else {
                         memset(G_bolos_ux_context.words_buffer,
                                0,
                                G_bolos_ux_context.words_buffer_length);
-                        ux_flow_init(0, ux_sskr_failed_check_flow, NULL);
+                        ux_flow_init(0, ux_sskr_nomatch_flow, NULL);
                     }
                 }
             }
