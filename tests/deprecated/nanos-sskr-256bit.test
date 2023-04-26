@@ -1,6 +1,7 @@
 POST /button/right
 POST /button/both
 POST /button/both
+POST /button/both
 POST /button/left
 POST /button/left
 POST /button/left

@@ -2,6 +2,16 @@
 
 ## [1.2.0] - 2023-04-21
 ### Added
+-
+
+### Changed
+- Simplified flow code
+
+### Fixed
+-
+
+## [1.2.0] - 2023-04-21
+### Added
 - Added automated tests
 - Added flow to set SSKR threshold values
 

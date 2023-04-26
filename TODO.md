@@ -12,6 +12,7 @@
 
 ### Done ✓
 
+- [x] Simplified flow code
 - [x] Add flow to set SSKR threshold values
 - [x] Add automated tests
 - [x] Fix issue with using 'cx_crc32_hw()' function in 'onboarding_seed_sskr.c' when testing with Speculos

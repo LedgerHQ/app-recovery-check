@@ -9,7 +9,7 @@ This application invites the user to type a BIP-39 seed on their Ledger device, 
 
 The app also provides an option to confirm the onboarded seed against SSKR shares. 
 
-SSKR is [Sharded Secret Key Reconstruction](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2020-011-sskr.md). It is a way that you can divide ("shard") the master seed underlying a Bitcoin HD wallet into "shares", which you can then distribute to friends, family, or fiduciaries. If you ever lose your seed, you can then "reconstruct" it by collecting a sufficient number of your shares (the "threshold"). Knowledge of fewer than the required number of parts does not leak information about the master secret.
+SSKR is [Sharded Secret Key Reconstruction](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2020-011-sskr.md), am i nteroperable implementation of [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing). It is a way that you can divide ("shard") the master seed underlying a Bitcoin HD wallet into "shares", which you can then distribute to friends, family, or fiduciaries. If you ever lose your seed, you can then "reconstruct" it by collecting a sufficient number of your shares (the "threshold"). Knowledge of fewer than the required number of parts does not leak information about the master secret.
 
 Further explanation of SSKR may be found [here](https://github.com/BlockchainCommons/crypto-commons/blob/master/Docs/sskr-users.md).
 

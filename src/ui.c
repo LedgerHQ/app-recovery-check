@@ -8,62 +8,12 @@ enum UI_STATE uiState;
 ux_state_t G_ux;
 bolos_ux_params_t G_ux_params;
 
-#if defined(TARGET_NANOS)
+//////////////////////////////////////////////////////////////////////
 
-UX_STEP_CB(restore_1_1_1, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
-           screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
-           ,
-           {
-               "Recovery phrase",
-               "with 24 words",
-           });
-
-UX_STEP_CB(restore_1_1_2, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_18;
-           screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
-           ,
-           {
-               "Recovery phrase",
-               "with 18 words",
-           });
-
-UX_STEP_CB(restore_1_1_3, bb, G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_12;
-           screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
-           ,
-           {
-               "Recovery phrase",
-               "with 12 words",
-           });
-
-UX_FLOW(restore_1_1, &restore_1_1_1, &restore_1_1_2, &restore_1_1_3);
-
-void screen_onboarding_1_restore_init(void) {
+void screen_onboarding_bip39_restore_init(void) {
     G_bolos_ux_context.onboarding_type = BOLOS_UX_ONBOARDING_BIP39;
-    ux_flow_init(0, restore_1_1, NULL);
-}
-
-void screen_onboarding_2_restore_init(void) {
-    G_bolos_ux_context.onboarding_type = BOLOS_UX_ONBOARDING_SSKR;
     screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
 }
-
-UX_STEP_VALID(ux_idle_flow_1_step, pbb, screen_onboarding_1_restore_init();,
-                                                                           {
-                                                                               &C_badge,
-                                                                               "Check BIP39",
-                                                                               "recovery phrase",
-                                                                           });
-
-UX_STEP_VALID(ux_idle_flow_2_step, pbb, screen_onboarding_2_restore_init();
-              ,
-              {
-                  &C_nanos_app_sskr_check,
-                  "Check SSKR",
-                  "recovery phrase",
-              });
-
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-
-//////////////////////////////////////////////////////////////////////
 
 const char* const number_of_bip39_words_values[] = {
     "12 words",
@@ -72,7 +22,7 @@ const char* const number_of_bip39_words_values[] = {
     "Back",
 };
 
-const char* number_of_bip39_words_get(unsigned int idx) {
+const char* number_of_bip39_words_getter(unsigned int idx) {
     if (idx < ARRAYLEN(number_of_bip39_words_values)) {
         return number_of_bip39_words_values[idx];
     }
@@ -91,66 +41,77 @@ void number_of_bip39_words_selector(unsigned int idx) {
             G_bolos_ux_context.onboarding_kind = BOLOS_UX_ONBOARDING_NEW_24;
             goto word_init;
         word_init:
-            screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
+            screen_onboarding_bip39_restore_init();
             break;
         default:
             ui_idle_init();
     }
 }
 
-void screen_onboarding_1_restore_init(void) {
-    G_bolos_ux_context.onboarding_type = BOLOS_UX_ONBOARDING_BIP39;
-    ux_menulist_init(0, number_of_bip39_words_get, number_of_bip39_words_selector);
-}
+#if defined(TARGET_NANOS)
+UX_STEP_NOCB(ux_bip39_instruction_step, nn, {"Enter number", "of BIP39 words"});
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+UX_STEP_NOCB(ux_bip39_instruction_step,
+             nnn,
+             {
+                 "Select the number of",
+                 "words written on",
+                 "your Recovery Sheet",
+             });
+#endif
 
-void screen_onboarding_2_restore_init(void) {
+UX_STEP_MENULIST(ux_bip39_menu_step, number_of_bip39_words_getter, number_of_bip39_words_selector);
+
+UX_FLOW(ux_bip39_flow, &ux_bip39_instruction_step, &ux_bip39_menu_step);
+
+//////////////////////////////////////////////////////////////////////
+
+void screen_onboarding_sskr_restore_init(void) {
     G_bolos_ux_context.onboarding_type = BOLOS_UX_ONBOARDING_SSKR;
     screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
 }
 
-//////////////////////////////////////////////////////////////////////
+#if defined(TARGET_NANOS)
+UX_STEP_CB(ux_sskr_instruction_step,
+           nn,
+           screen_onboarding_sskr_restore_init(),
+           {
+               "Enter SSKR",
+               "recovery phrase",
+           });
+#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+UX_STEP_CB(ux_sskr_instruction_step,
+           nnn,
+           G_bolos_ux_context.onboarding_type = BOLOS_UX_ONBOARDING_SSKR;
+           screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
+           ,
+           {
+               "Enter first word of",
+               "first share of SSKR",
+               "recovery phrase",
+           });
+#endif
 
-UX_STEP_VALID(ux_instruction_1_1_step,
-              nnn,
-              screen_onboarding_1_restore_init(),
-              {
-                  "Select the number of",
-                  "words written on",
-                  "your Recovery Sheet",
-              });
-
-UX_FLOW(ux_instruction_1_flow, &ux_instruction_1_1_step);
-
-UX_STEP_VALID(ux_instruction_2_1_step,
-              nnn,
-              screen_onboarding_2_restore_init(),
-              {
-                  "Enter first word of",
-                  "first share of SSKR",
-                  "recovery phrase",
-              });
-
-UX_FLOW(ux_instruction_2_flow, &ux_instruction_2_1_step);
+UX_FLOW(ux_sskr_flow, &ux_sskr_instruction_step);
 
 //////////////////////////////////////////////////////////////////////
 
 UX_STEP_VALID(ux_idle_flow_1_step,
               pbb,
-              ux_flow_init(0, ux_instruction_1_flow, NULL),
+              ux_flow_init(0, ux_bip39_flow, NULL),
               {
-                  &C_badge,
+                  &BIP39_ICON,
                   "Check BIP39",
                   "recovery phrase",
               });
 UX_STEP_VALID(ux_idle_flow_2_step,
               pbb,
-              ux_flow_init(0, ux_instruction_2_flow, NULL),
+              ux_flow_init(0, ux_sskr_flow, NULL),
               {
-                  &C_nanox_app_sskr_check,
+                  &SSKR_ICON,
                   "Check SSKR",
                   "recovery phrase",
               });
-#endif
 
 UX_STEP_NOCB(ux_idle_flow_3_step,
              bn,

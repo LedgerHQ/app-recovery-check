@@ -16,6 +16,7 @@ def test_bip39_18word(firmware, backend, navigator):
         instructions = [
             NavInsID.BOTH_CLICK,
             NavInsID.RIGHT_CLICK,
+            NavInsID.RIGHT_CLICK,
             NavInsID.BOTH_CLICK,
             NavInsID.BOTH_CLICK,
             NavInsID.LEFT_CLICK,

@@ -56,6 +56,26 @@
                     false
                 ],
                 [
+                [
+                    "button",
+                    1,
+                    true
+                ],
+                [
+                    "button",
+                    2,
+                    true
+                ],
+                [
+                    "button",
+                    1,
+                    false
+                ],
+                [
+                    "button",
+                    2,
+                    false
+                ],
                     "button",
                     1,
                     true

@@ -173,7 +173,7 @@ UX_STEP_VALID(ux_bip39_success_step_1,
               {&C_icon_validate_14, "BIP39 Phrase", "is correct"});
 UX_STEP_CB(ux_bip39_success_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
 UX_STEP_CB(ux_bip39_success_step_3, pbb, set_sskr_descriptor_values();
-           , {&C_nanox_app_sskr_check, "Generate", "SSKR phrases"});
+           , {&SSKR_ICON, "Generate", "SSKR phrases"});
 
 UX_FLOW(ux_bip39_succesful_check_flow,
         &ux_bip39_success_step_1,
@@ -198,7 +198,7 @@ UX_STEP_VALID(ux_sskr_success_step_1,
               os_sched_exit(-1),
               {&C_icon_validate_14, "SSKR Phrase", "is correct"});
 UX_STEP_CB(ux_sskr_success_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
-UX_STEP_CB(ux_sskr_success_step_3, pbb, generate_bip39();, {&C_badge, "Generate", "BIP39 phrases"});
+UX_STEP_CB(ux_sskr_success_step_3, pbb, generate_bip39();, {&BIP39_ICON, "Generate", "BIP39 phrases"});
 
 UX_FLOW(ux_sskr_succesful_check_flow,
         &ux_sskr_success_step_1,

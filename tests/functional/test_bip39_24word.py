@@ -16,6 +16,9 @@ def test_bip39_24word(firmware, backend, navigator):
         backend.wait_for_text_on_screen("recovery phras", 1)
         instructions = [
             NavInsID.BOTH_CLICK,
+            NavInsID.RIGHT_CLICK,
+            NavInsID.RIGHT_CLICK,
+            NavInsID.RIGHT_CLICK,
             NavInsID.BOTH_CLICK,
             NavInsID.BOTH_CLICK,
             NavInsID.LEFT_CLICK,

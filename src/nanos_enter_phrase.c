@@ -31,7 +31,7 @@ UX_STEP_CB(restore_1_intro_1, nn, screen_onboarding_restore_word_display_auto_co
 
 UX_FLOW(restore_1_intro, &restore_1_intro_1);
 
-UX_STEP_CB(restore_1_bip39_invalid_step_1, pbb, screen_onboarding_1_restore_init();
+UX_STEP_CB(restore_1_bip39_invalid_step_1, pbb, screen_onboarding_bip39_restore_init();
            , {&C_icon_warning, "BIP39 Recovery", "phrase invalid"});
 
 UX_FLOW(restore_1_bip39_invalid, &restore_1_bip39_invalid_step_1);
@@ -58,14 +58,14 @@ UX_STEP_CB(ux_bip39_match_step_1, pbb, os_sched_exit(0);,
                                                         });
 UX_STEP_CB(ux_bip39_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
 UX_STEP_CB(ux_bip39_match_step_3, pbb, set_sskr_descriptor_values();
-           , {&C_nanos_app_sskr_check, "Generate", "SSKR phrases"});
+           , {&SSKR_ICON, "Generate", "SSKR phrases"});
 
 UX_FLOW(flow_final_bip39_match,
         &ux_bip39_match_step_1,
         &ux_bip39_match_step_2,
         &ux_bip39_match_step_3);
 
-UX_STEP_CB(restore_1_sskr_invalid_step_1, pbb, screen_onboarding_2_restore_init();
+UX_STEP_CB(restore_1_sskr_invalid_step_1, pbb, screen_onboarding_sskr_restore_init();
            , {&C_icon_warning, "SSKR Recovery", "phrase invalid"});
 
 UX_FLOW(restore_1_sskr_invalid, &restore_1_sskr_invalid_step_1);
@@ -91,7 +91,7 @@ UX_STEP_CB(ux_sskr_match_step_1, pbb, os_sched_exit(0);,
                                                            "is correct",
                                                        });
 UX_STEP_CB(ux_sskr_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
-UX_STEP_CB(ux_sskr_match_step_3, pbb, generate_bip39();, {&C_badge, "Generate", "BIP39 phrase"});
+UX_STEP_CB(ux_sskr_match_step_3, pbb, generate_bip39();, {&BIP39_ICON, "Generate", "BIP39 phrase"});
 
 UX_FLOW(flow_final_sskr_match, &ux_sskr_match_step_1, &ux_sskr_match_step_2, &ux_sskr_match_step_3);
 

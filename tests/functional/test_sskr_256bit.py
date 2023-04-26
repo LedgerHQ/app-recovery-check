@@ -21,6 +21,7 @@ def test_sskr_256bit(firmware, backend, navigator):
         instructions = [
             NavInsID.BOTH_CLICK,
             NavInsID.BOTH_CLICK,
+            NavInsID.BOTH_CLICK,
             NavInsID.LEFT_CLICK,
             NavInsID.LEFT_CLICK,
             NavInsID.LEFT_CLICK,
