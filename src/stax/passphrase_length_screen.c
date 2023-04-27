@@ -27,7 +27,7 @@ nbgl_text_area_t *passphrase_length_set_title(nbgl_obj_t *align_to) {
     textArea->textColor = BLACK;
     textArea->text = "How long is your\nRecovery Phrase?";
     textArea->textAlignment = CENTER;
-    textArea->fontId = BAGL_FONT_INTER_REGULAR_32px;
+    textArea->fontId = BAGL_FONT_INTER_MEDIUM_32px;
     textArea->width = SCREEN_WIDTH - 2 * BORDER_MARGIN;
     textArea->height = nbgl_getTextHeight(textArea->fontId, textArea->text);
     textArea->style = NO_STYLE;
