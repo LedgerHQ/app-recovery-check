@@ -12,7 +12,7 @@
 
 ### Done ✓
 
-- [x] Remove duplicated Nano code
+- [x] Remove duplicated nano code
 - [x] Simplified flow code
 - [x] Add flow to set SSKR threshold values
 - [x] Add automated tests

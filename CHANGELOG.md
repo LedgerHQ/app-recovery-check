@@ -5,7 +5,7 @@
 -
 
 ### Changed
-- Removed duplicated Nano code
+- Removed duplicated nano code
 - Simplified flow code
 
 ### Fixed

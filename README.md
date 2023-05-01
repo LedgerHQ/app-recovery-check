@@ -5,15 +5,19 @@
 [![Code style check](https://github.com/aido/app-sskr-check/actions/workflows/lint-workflow.yml/badge.svg)](https://github.com/aido/app-sskr-check/actions/workflows/lint-workflow.yml)
 [![License](https://img.shields.io/github/license/aido/app-sskr-check)](https://github.com/aido/app-sskr-check/blob/develop/LICENSE)
 
-This application invites the user to type a BIP-39 seed on their Ledger device, this seed is compared against the onboarded seed and the user is informed whether both seeds are matching or not. Once the seed is validated the user is offered the option to create SSKR shares from the BIP-39 phrase they provided.
+This Ledger application provides some utilities to users for checking their backed-up seed or generating [Shamir's Secret Shares (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) of their seed.
 
-The app also provides an option to confirm the onboarded seed against SSKR shares. 
+## BIP39 Check
+The application invites the user to type a [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) mnemonic on their Ledger device, this is compared against the onboarded seed and the user is informed whether both seeds are matching or not. Once the seed is validated the user is offered the option to create [Shamir's Secret Shares (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) from the BIP-39 phrase they provided.
 
-SSKR is [Sharded Secret Key Reconstruction](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2020-011-sskr.md), am i nteroperable implementation of [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing). It is a way that you can divide ("shard") the master seed underlying a Bitcoin HD wallet into "shares", which you can then distribute to friends, family, or fiduciaries. If you ever lose your seed, you can then "reconstruct" it by collecting a sufficient number of your shares (the "threshold"). Knowledge of fewer than the required number of parts does not leak information about the master secret.
+## SSKR Check
+The applicarion also provides an option to confirm the onboarded seed against SSKR shares. 
+
+SSKR is [Sharded Secret Key Reconstruction](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2020-011-sskr.md), an interoperable implementation of [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing). It is a way that you can divide ("shard") the master seed underlying a Bitcoin HD wallet into "shares", which you can then distribute to friends, family, or fiduciaries. If you ever lose your seed, you can then "reconstruct" it by collecting a sufficient number of your shares (the "threshold"). Knowledge of fewer than the required number of parts does not leak information about the master secret.
 
 Further explanation of SSKR may be found [here](https://github.com/BlockchainCommons/crypto-commons/blob/master/Docs/sskr-users.md).
 
-
+## Application Menus
 ```mermaid
 ---
 title: SSKR Check App Flow
