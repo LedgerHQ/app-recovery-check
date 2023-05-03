@@ -63,7 +63,7 @@ int32_t split_secret(uint8_t threshold,
         // just return share_count copies of the secret
         uint8_t *share = result;
         for (uint8_t i = 0; i < share_count; ++i, share += secret_length) {
-            for (uint8_t j = 0; j < secret_length; ++j) {
+            for (uint8_t j = 0; j < (uint8_t) secret_length; ++j) {
                 share[j] = secret[j];
             }
         }
@@ -124,7 +124,7 @@ int32_t recover_secret(uint8_t threshold,
     uint8_t valid = 1;
 
     if (threshold == 1) {
-        for (uint8_t j = 0; j < share_length; ++j) {
+        for (uint8_t j = 0; j < (uint8_t) share_length; ++j) {
             secret[j] = shares[0][j];
         }
         return share_length;
