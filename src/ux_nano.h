@@ -18,8 +18,6 @@
 
 #include "ux_common/common.h"
 
-#if defined(HAVE_BOLOS_UX)
-
 #if defined(TARGET_NANOS)
 typedef unsigned int (*callback_t)(unsigned int);
 #endif
@@ -138,5 +136,3 @@ void generate_bip39(void);
 #if defined(TARGET_NANOS)
 void screen_processing_init(void);
 #endif
-
-#endif  // HAVE_BOLOS_UX_H

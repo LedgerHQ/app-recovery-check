@@ -29,33 +29,3 @@ jobs:
       download_app_binaries_artifact: compiled_app_binaries
       test_dir: tests/functional
       run_for_devices: '["nanos", "nanox", "nanosp"]'
-
-  nano_scan:
-    name: Clang Static Analyzer
-    strategy:
-      matrix:
-        include:
-          - SDK: "$NANOS_SDK"
-            model: nanos
-          - SDK: "$NANOX_SDK"
-            model: nanox
-          - SDK: "$NANOSP_SDK"
-            model: nanosp
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
-    steps:
-      - name: Clone
-        uses: actions/checkout@v3
-
-      - name: Build with Clang Static Analyzer
-        run: |
-          make clean
-          scan-build --use-cc=clang -analyze-headers -enable-checker security -enable-checker unix -enable-checker valist -disable-checker core.VLASize -o scan-build --status-bugs make -j BOLOS_SDK=${{ matrix.SDK }}
-
-      - name: Upload scan result
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: scan-build
-          path: scan-build

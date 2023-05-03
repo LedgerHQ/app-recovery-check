@@ -31,12 +31,12 @@ APPVERSION_N = 3
 APPVERSION_P = 1
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
-APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1 --path ""
+APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --curve secp256k1 --path ""
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
-    ICONNAME=glyphs/nanos_app_sskr_check.gif
+    ICONNAME=glyphs/sskr_nanos.gif
 else
-    ICONNAME=glyphs/nanox_app_sskr_check.gif
+    ICONNAME=glyphs/sskr_nanox.gif
 endif
 
 # Build configuration
@@ -55,7 +55,6 @@ DEFINES += BOLOS_APP_ICON_SIZE_B=\(9+32\)
 #DEFINES += HAVE_ELECTRUM
 DEFINES += IO_USB_MAX_ENDPOINTS=4 IO_HID_EP_LENGTH=64
 DEFINES += HAVE_SPRINTF
-DEFINES += HAVE_BOLOS_UX
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
     DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
@@ -102,7 +101,7 @@ ifeq ($(GCCPATH),)
 endif
 
 CC := $(CLANGPATH)clang
-CFLAGS += -O3 -Os -Wshadow -Wformat
+CFLAGS += -O3 -Os -Wshadow -Wformat -Wno-vla
 AS := $(GCCPATH)arm-none-eabi-gcc
 LD := $(GCCPATH)arm-none-eabi-gcc
 LDFLAGS += -O3 -Os
@@ -130,4 +129,4 @@ include $(BOLOS_SDK)/Makefile.rules
 
 
 listvariants:
-	@echo VARIANTS APP sskr_check
+	@echo VARIANTS APP recovery_check

@@ -107,11 +107,18 @@ int sskr_count_shards(size_t group_threshold,
                       size_t groups_len) {
     size_t shard_count = 0;
 
+    if (groups_len < 1) {
+        return SSKR_ERROR_INVALID_GROUP_LENGTH;
+    }
+
     if (group_threshold > groups_len) {
         return SSKR_ERROR_INVALID_GROUP_THRESHOLD;
     }
 
     for (int i = 0; i < (int) groups_len; ++i) {
+        if (groups[i].count < 1) {
+            return SSKR_ERROR_INVALID_GROUP_COUNT;
+        }
         shard_count += groups[i].count;
         if (groups[i].threshold > groups[i].count) {
             return SSKR_ERROR_INVALID_MEMBER_THRESHOLD;
