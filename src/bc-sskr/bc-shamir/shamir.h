@@ -9,7 +9,6 @@
 #define SHAMIR_H
 
 #include <stdint.h>
-#include "memzero.h"
 #include "shamir-constants.h"
 
 #define SHAMIR_MAX_SHARE_COUNT 16

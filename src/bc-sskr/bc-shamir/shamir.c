@@ -6,7 +6,17 @@
 //
 
 #include <string.h>
+
+#if defined(ARDUINO) || defined(__EMSCRIPTEN__)
+#include "bc-crypto-base.h"
+#elif defined(LEDGER_NANOS) || defined(LEDGER_NANOS2) || defined(LEDGER_NANOX)
+#define memzero(...) explicit_bzero(__VA_ARGS__)
 #include <cx.h>
+#define hmac_sha256(random_data, rdlen, shared_secret, sslen, buf) \
+    cx_hmac_sha256(random_data, rdlen, shared_secret, sslen, buf, sizeof(buf))
+#else
+#include <bc-crypto-base/bc-crypto-base.h>
+#endif
 
 #include "shamir.h"
 #include "interpolate.h"
@@ -21,7 +31,7 @@ uint8_t *create_digest(const uint8_t *random_data,
                        uint8_t *result) {
     uint8_t buf[32];
 
-    cx_hmac_sha256(random_data, rdlen, shared_secret, sslen, buf, sizeof(buf));
+    hmac_sha256(random_data, rdlen, shared_secret, sslen, buf);
 
     for (uint8_t j = 0; j < 4; ++j) {
         result[j] = buf[j];

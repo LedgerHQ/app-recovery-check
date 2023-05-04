@@ -28,15 +28,20 @@ all: default
 APPNAME = "SSKR Check"
 APPVERSION_M = 1
 APPVERSION_N = 3
-APPVERSION_P = 1
+APPVERSION_P = 2
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --curve secp256k1 --path ""
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
     ICONNAME=glyphs/sskr_nanos.gif
-else
+    DEFINES += LEDGER_NANOS
+else ifeq ($(TARGET_NAME), TARGET_NANOX)
     ICONNAME=glyphs/sskr_nanox.gif
+    DEFINES += LEDGER_NANOX
+else ifeq ($(TARGET_NAME), TARGET_NANOS2)
+    ICONNAME=glyphs/sskr_nanox.gif
+    DEFINES += LEDGER_NANOS2
 endif
 
 # Build configuration

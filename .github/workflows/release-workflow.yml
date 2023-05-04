@@ -49,8 +49,3 @@ jobs:
           tag: ${{ github.event.workflow_run.head_branch }}
           makeLatest: true
           allowUpdates: true
-
-      - name: Announce Release
-        uses: eloquent/github-release-action@v3
-        with:
-          discussionCategory: Announcements

@@ -1,5 +1,15 @@
 # Change log
 
+## [1.3.2] - 2023-05-05
+### Added
+- Added some Ledger specific preprocessor conditionals to bc-sskr and bc-shamir
+
+### Changed
+-
+
+### Fixed
+-
+
 ## [1.3.1] - 2023-05-03
 ### Added
 -

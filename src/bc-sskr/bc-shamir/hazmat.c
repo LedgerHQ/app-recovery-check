@@ -22,7 +22,14 @@
 
 #include <string.h>
 #include "hazmat.h"
-#include "memzero.h"
+
+#if defined(ARDUINO) || defined(__EMSCRIPTEN__)
+#include "bc-crypto-base.h"
+#elif defined(LEDGER_NANOS) || defined(LEDGER_NANOS2) || defined(LEDGER_NANOX)
+#define memzero(...) explicit_bzero(__VA_ARGS__)
+#else
+#include <bc-crypto-base/bc-crypto-base.h>
+#endif
 
 /**
  * bitslice - Transpose bits of 32 bytes to form 8 32-bit words.

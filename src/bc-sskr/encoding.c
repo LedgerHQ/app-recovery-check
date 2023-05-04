@@ -10,8 +10,13 @@
 #include "sskr-errors.h"
 
 #if defined(ARDUINO) || defined(__EMSCRIPTEN__)
+#include "bc-crypto-base.h"
 #include "bc-shamir.h"
+#elif defined(LEDGER_NANOS) || defined(LEDGER_NANOS2) || defined(LEDGER_NANOX)
+#define memzero(...) explicit_bzero(__VA_ARGS__)
+#include <bc-shamir/bc-shamir.h>
 #else
+#include <bc-crypto-base/bc-crypto-base.h>
 #include <bc-shamir/bc-shamir.h>
 #endif
 
@@ -437,7 +442,8 @@ static int combine_shards_internal(sskr_shard *shards,   // array of shard struc
     return secret_len;
 }
 
-/*static int combine_shards(const sskr_shard *shards,  // array of shard structures
+#if !defined(LEDGER_NANOS) && !defined(LEDGER_NANOS2) && !defined(LEDGER_NANOX)
+static int combine_shards(const sskr_shard *shards,  // array of shard structures
                           uint16_t shards_count,     // number of shards in array
                           uint8_t *buffer,           // working space, and place to return secret
                           size_t buffer_len          // total amount of working space
@@ -454,7 +460,8 @@ static int combine_shards_internal(sskr_shard *shards,   // array of shard struc
     memzero(working_shards, sizeof(working_shards));
 
     return result;
-}*/
+}
+#endif
 
 /////////////////////////////////////////////////
 // sskr_combine
