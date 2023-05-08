@@ -1,11 +1,11 @@
 # Change log
 
-## [1.3.2] - 2023-05-05
+## [1.3.2] - 2023-05-08
 ### Added
 - Added some Ledger specific preprocessor conditionals to bc-sskr and bc-shamir
 
 ### Changed
--
+- Changed memset(x, 0, y) to memzero(x, y) macro
 
 ### Fixed
 -

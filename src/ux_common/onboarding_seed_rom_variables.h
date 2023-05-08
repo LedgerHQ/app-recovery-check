@@ -16,6 +16,8 @@
 
 #pragma once
 
+#define memzero(...) explicit_bzero(__VA_ARGS__)
+
 #define BIP39_WORDLIST_LENGTH         11068
 #define BIP39_WORDLIST_OFFSETS_LENGTH 2049
 #define BIP39_MNEMONIC_LENGTH         8

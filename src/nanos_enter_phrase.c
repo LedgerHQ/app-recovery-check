@@ -389,7 +389,7 @@ void compare_recovery_phrase(void) {
 
     // compare both rootkey
     if (os_secure_memcmp(buffer, buffer_device, 64)) {
-        memset(G_bolos_ux_context.words_buffer, 0, G_bolos_ux_context.words_buffer_length);
+        memzero(G_bolos_ux_context.words_buffer, G_bolos_ux_context.words_buffer_length);
         (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39)
             ? ux_flow_init(0, ux_bip39_nomatch_flow, NULL)
             : ux_flow_init(0, ux_sskr_nomatch_flow, NULL);
@@ -678,7 +678,7 @@ void screen_onboarding_restore_word_init(unsigned int action) {
             G_bolos_ux_context.sskr_share_count = 0;
 
             // flush the words first
-            memset(G_bolos_ux_context.words_buffer, 0, sizeof(G_bolos_ux_context.words_buffer));
+            memzero(G_bolos_ux_context.words_buffer, sizeof(G_bolos_ux_context.words_buffer));
             G_bolos_ux_context.words_buffer_length = 0;
             G_bolos_ux_context.sskr_words_buffer_length = 0;
             break;
@@ -688,7 +688,7 @@ void screen_onboarding_restore_word_init(unsigned int action) {
             // buffer)
             break;
     }
-    memset(G_ux.string_buffer, 0, sizeof(G_ux.string_buffer));
+    memzero(G_ux.string_buffer, sizeof(G_ux.string_buffer));
     // offset 0: the display buffer for various placement
     // offset 16: the entered stem for the current word restoration
     // offset 32: array of next letters possible after the current word's stem in the dictionary

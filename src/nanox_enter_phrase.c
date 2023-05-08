@@ -578,9 +578,8 @@ void screen_onboarding_restore_word_validate(void) {
                 if (compare_recovery_phrase()) {
                     ux_flow_init(0, ux_bip39_match_flow, NULL);
                 } else {
-                    memset(G_bolos_ux_context.words_buffer,
-                           0,
-                           G_bolos_ux_context.words_buffer_length);
+                    memzero(G_bolos_ux_context.words_buffer,
+                            G_bolos_ux_context.words_buffer_length);
                     ux_flow_init(0, ux_bip39_nomatch_flow, NULL);
                 }
             }
@@ -617,9 +616,8 @@ void screen_onboarding_restore_word_validate(void) {
                     if (compare_recovery_phrase()) {
                         ux_flow_init(0, ux_sskr_match_flow, NULL);
                     } else {
-                        memset(G_bolos_ux_context.words_buffer,
-                               0,
-                               G_bolos_ux_context.words_buffer_length);
+                        memzero(G_bolos_ux_context.words_buffer,
+                                G_bolos_ux_context.words_buffer_length);
                         ux_flow_init(0, ux_sskr_nomatch_flow, NULL);
                     }
                 }
@@ -692,12 +690,12 @@ void screen_onboarding_restore_word_init(unsigned int firstWord) {
         G_bolos_ux_context.sskr_share_count = 0;
 
         // flush the words first
-        memset(G_bolos_ux_context.words_buffer, 0, sizeof(G_bolos_ux_context.words_buffer));
+        memzero(G_bolos_ux_context.words_buffer, sizeof(G_bolos_ux_context.words_buffer));
         G_bolos_ux_context.words_buffer_length = 0;
         G_bolos_ux_context.sskr_words_buffer_length = 0;
     }
 
-    memset(G_ux.string_buffer, 0, sizeof(G_ux.string_buffer));
+    memzero(G_ux.string_buffer, sizeof(G_ux.string_buffer));
     // offset 0: the display buffer for various placement
     // offset 16: the entered stem for the current word restoration
     // offset 32: array of next letters possible after the current word's stem in the

@@ -52,11 +52,11 @@ void bnnn_paging_edgecase(void) {
 }
 
 void sskr_clean_exit(void) {
-    memset(G_bolos_ux_context.sskr_words_buffer, 0, G_bolos_ux_context.sskr_words_buffer_length);
+    memzero(G_bolos_ux_context.sskr_words_buffer, G_bolos_ux_context.sskr_words_buffer_length);
     G_bolos_ux_context.sskr_words_buffer_length = 0;
     G_bolos_ux_context.sskr_share_index = 0;
-    memset(G_bolos_ux_context.words_buffer, 0, sizeof(G_bolos_ux_context.words_buffer));
-    memset(G_bolos_ux_context.string_buffer, 0, sizeof(G_bolos_ux_context.string_buffer));
+    memzero(G_bolos_ux_context.words_buffer, sizeof(G_bolos_ux_context.words_buffer));
+    memzero(G_bolos_ux_context.string_buffer, sizeof(G_bolos_ux_context.string_buffer));
     os_sched_exit(0);
 }
 

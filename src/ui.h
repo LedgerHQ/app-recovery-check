@@ -24,6 +24,8 @@
 #include "glyphs.h"
 #include "ux_nano.h"
 
+#define memzero(...) explicit_bzero(__VA_ARGS__)
+
 #if defined(TARGET_NANOS)
 #define ARRAYLEN(array) (sizeof(array) / sizeof(array[0]))
 #define BIP39_ICON      C_bip39_nanos

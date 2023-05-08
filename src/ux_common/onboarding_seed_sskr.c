@@ -54,7 +54,7 @@ unsigned int bolos_ux_sskr_hex_decode(unsigned char *mnemonic_hex,
     int output_len = sskr_combine(ptr_sskr_shares, sskr_share_len, sskr_shares_count, output, 32);
 
     if (output_len < 1) {
-        memset(mnemonic_hex, 0, mnemonic_length);
+        memzero(mnemonic_hex, mnemonic_length);
         return 0;
     }
 
@@ -78,7 +78,7 @@ void bolos_ux_sskr_hex_to_seed(unsigned char *mnemonic_hex,
                                                           (uint8_t) seed_buffer_len,
                                                           words_buffer,
                                                           *words_buffer_length);
-    memset(seed_buffer, 0, sizeof(seed_buffer));
+    memzero(seed_buffer, sizeof(seed_buffer));
     bolos_ux_bip39_mnemonic_to_seed(words_buffer, *words_buffer_length, seed);
 }
 
@@ -117,7 +117,7 @@ unsigned int bolos_ux_sskr_generate(unsigned int groups_threshold,
 
     if ((share_count < 0) || ((unsigned int) share_count != share_count_expected) ||
         (*share_len != share_len_expected)) {
-        memset(&share_buffer, 0, share_buffer_len);
+        memzero(&share_buffer, share_buffer_len);
         return 0;
     }
     PRINTF("SSKR generate output:\n %.*H\n", share_buffer_len, share_buffer);
@@ -140,7 +140,7 @@ unsigned int bolos_ux_sskr_mnemonic_encode(unsigned char *input,
             (offset <= SSKR_WORDLIST_LENGTH - SSKR_MNEMONIC_LENGTH)) {
             memcpy(output + position, SSKR_WORDLIST + offset, SSKR_MNEMONIC_LENGTH);
         } else {
-            memset(output, 0, output_len);
+            memzero(output, output_len);
             return 0;
         }
         position += SSKR_MNEMONIC_LENGTH;
@@ -167,7 +167,7 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                                        bip39_words_buffer_length,
                                        seed_buffer,
                                        seed_len + 1) == 1) {
-        memset(bip39_words_buffer, 0, bip39_words_buffer_length);
+        memzero(bip39_words_buffer, bip39_words_buffer_length);
         bip39_words_buffer_length = 0;
         size_t groups_len = 1;
         size_t groups_threshold = 1;
@@ -191,7 +191,7 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                                               share_buffer_len,
                                               share_len_expected,
                                               share_count_expected);
-        memset(seed_buffer, 0, seed_len);
+        memzero(seed_buffer, seed_len);
         if (*share_count > 0) {
             // CBOR Tag #309 is D9 0135
             // CBOR Major type 2 is 0x40
@@ -230,20 +230,20 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                         cbor_share_crc_buffer_len,
                         mnemonics + share * (*mnemonics_len / *share_count),
                         *mnemonics_len / *share_count) < 1) {
-                    memset(share_buffer, 0, share_buffer_len);
-                    memset(cbor_share_crc_buffer, 0, cbor_share_crc_buffer_len);
-                    memset(mnemonics, 0, *mnemonics_len);
+                    memzero(share_buffer, share_buffer_len);
+                    memzero(cbor_share_crc_buffer, cbor_share_crc_buffer_len);
+                    memzero(mnemonics, *mnemonics_len);
                     mnemonics_len = 0;
-                    memset(bip39_words_buffer, 0, bip39_words_buffer_length);
+                    memzero(bip39_words_buffer, bip39_words_buffer_length);
                     return 0;
                 }
-                memset(cbor_share_crc_buffer, 0, cbor_share_crc_buffer_len);
+                memzero(cbor_share_crc_buffer, cbor_share_crc_buffer_len);
                 checksum = 0;
             }
-            memset(share_buffer, 0, share_buffer_len);
+            memzero(share_buffer, share_buffer_len);
         }
     }
-    memset(bip39_words_buffer, 0, bip39_words_buffer_length);
+    memzero(bip39_words_buffer, bip39_words_buffer_length);
 
     return 1;
 }
@@ -269,7 +269,7 @@ unsigned int bolos_ux_sskr_hex_check(unsigned char *mnemonic_hex,
                  &checksum,
                  mnemonic_hex + ((mnemonic_length / sskr_shares_count) * (i + 1)) - checksum_len,
                  checksum_len) != 0)) {
-            memset(mnemonic_hex, 0, mnemonic_length);
+            memzero(mnemonic_hex, mnemonic_length);
             checksum = 0;
             return 0;
         };

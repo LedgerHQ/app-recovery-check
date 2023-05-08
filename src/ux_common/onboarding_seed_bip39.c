@@ -35,7 +35,7 @@ void bolos_ux_bip39_mnemonic_to_seed(unsigned char* mnemonic,
                      BIP39_PBKDF2_ROUNDS,
                      seed,
                      64);
-    memset(mnemonic_hash, 0, mnemonic_length);
+    memzero(mnemonic_hash, mnemonic_length);
     PRINTF("BIP39 seed:\n %.*H\n", 64, seed);
 }
 
@@ -59,7 +59,7 @@ unsigned int bolos_ux_bip39_mnemonic_decode(unsigned char* mnemonic,
     if (n != 12 && n != 18 && n != 24) {
         return 0;
     }
-    memset(bits, 0, bitslength);
+    memzero(bits, bitslength);
     i = 0;
     bi = 0;
     while (i < mnemonic_length) {
@@ -69,7 +69,7 @@ unsigned int bolos_ux_bip39_mnemonic_decode(unsigned char* mnemonic,
         j = 0;
         while (i < mnemonic_length && mnemonic[i] != ' ') {
             if (j >= sizeof(current_word)) {
-                memset(bits, 0, bitslength);
+                memzero(bits, bitslength);
                 return 0;
             }
             current_word[j] = mnemonic[i];
@@ -97,12 +97,12 @@ unsigned int bolos_ux_bip39_mnemonic_decode(unsigned char* mnemonic,
             }
         }
         if (k == (unsigned int) (BIP39_WORDLIST_OFFSETS_LENGTH - 1)) {
-            memset(bits, 0, bitslength);
+            memzero(bits, bitslength);
             return 0;
         }
     }
     if (bi != n * 11) {
-        memset(bits, 0, bitslength);
+        memzero(bits, bitslength);
         return 0;
     }
 
@@ -119,7 +119,7 @@ unsigned int bolos_ux_bip39_mnemonic_decode(unsigned char* mnemonic,
             break;
     }
     if ((buffer[0] & mask) != (bits[n * 4 / 3] & mask)) {
-        memset(bits, 0, bitslength);
+        memzero(bits, bitslength);
         return 0;
     }
 
@@ -154,20 +154,20 @@ unsigned int bolos_ux_bip39_mnemonic_encode(const uint8_t* seed,
         }
         word_len = BIP39_WORDLIST_OFFSETS[idx + 1] - BIP39_WORDLIST_OFFSETS[idx];
         if ((offset + word_len) > out_len) {
-            memset(bits, 0, sizeof(bits));
+            memzero(bits, sizeof(bits));
             return 0;
         }
         memcpy(out + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx], word_len);
         offset += word_len;
         if (offset > out_len) {
-            memset(bits, 0, sizeof(bits));
+            memzero(bits, sizeof(bits));
             return 0;
         }
         if (i < (seed_len * 3 / 4) - 1) {
             out[offset++] = ' ';
         }
     }
-    memset(bits, 0, sizeof(bits));
+    memzero(bits, sizeof(bits));
 
     PRINTF("BIP39 encoded mnemonic:\n %.*s\n", offset, out);
     return offset;
@@ -177,10 +177,10 @@ unsigned int bolos_ux_bip39_mnemonic_check(unsigned char* mnemonic, unsigned int
     unsigned char bits[32 + 1];
 
     if (bolos_ux_bip39_mnemonic_decode(mnemonic, mnemonic_length, bits, 32 + 1) != 1) {
-        memset(bits, 0, 32 + 1);
+        memzero(bits, 32 + 1);
         return 0;
     }
-    memset(bits, 0, 32 + 1);
+    memzero(bits, 32 + 1);
 
     // alright mnemonic is ok
     return 1;
