@@ -201,7 +201,7 @@ static void key_press_callback(const char touchedKey) {
     }
     nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask, false, LOWER_CASE);
     nbgl_layoutUpdateEnteredText(layout, textIndex, false, 0, &(textToEnter[0]), false);
-    nbgl_refresh();
+    nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_ON);
 }
 
 static void display_keyboard_page() {
