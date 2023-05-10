@@ -17,6 +17,8 @@
 
 #include "ux_nano.h"
 
+#if defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+
 #ifdef OS_IO_SEPROXYHAL
 
 bolos_ux_context_t G_bolos_ux_context;
@@ -126,3 +128,5 @@ void bolos_ux_hslider3_previous(void) {
 }
 
 #endif  // OS_IO_SEPROXYHAL
+
+#endif

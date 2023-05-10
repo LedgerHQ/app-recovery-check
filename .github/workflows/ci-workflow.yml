@@ -14,16 +14,16 @@ on:
       - '.github/workflows/*.yml'
 
 jobs:
-  nano_build:
+  ledger_app_build:
     name: Build application using the reusable workflow
     uses: LedgerHQ/ledger-app-workflows/.github/workflows/reusable_build.yml@v1
     with:
       upload_app_binaries_artifact: compiled_app_binaries
-      run_for_devices: '["nanos", "nanox", "nanosp"]'
+      run_for_devices: '["nanos", "nanox", "nanosp", "stax"]'
 
-  nano_test:
+  ledger_app_test:
     name: Run ragger tests using the reusable workflow
-    needs: nano_build
+    needs: ledger_app_build
     uses: LedgerHQ/ledger-app-workflows/.github/workflows/reusable_ragger_tests.yml@v1
     with:
       download_app_binaries_artifact: compiled_app_binaries

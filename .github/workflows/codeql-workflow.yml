@@ -15,11 +15,11 @@ on:
       - 'tests/*'
 
 jobs:
-  analyse:
+  ledger_app_analyse:
     name: Analyse
     strategy:
       matrix:
-        sdk: [ "$NANOS_SDK", "$NANOX_SDK", "$NANOSP_SDK" ]
+        sdk: [ "$NANOS_SDK", "$NANOX_SDK", "$NANOSP_SDK", "$STAX_SDK" ]
         # 'cpp' covers C and C++
         language: [ 'cpp' ]
     runs-on: ubuntu-latest
@@ -39,7 +39,7 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
-          debug: true`
+          debug: true
 
       # CodeQL will create the database during the compilation
       - name: Build

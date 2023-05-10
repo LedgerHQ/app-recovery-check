@@ -16,10 +16,16 @@
 
 #include <os.h>
 #include <cx.h>
+#include <ux.h>
 #include <os_io_seproxyhal.h>
 
 #include "ui.h"
 
+#if defined(HAVE_BAGL)
+extern enum UI_STATE uiState;
+#endif
+
+bolos_ux_params_t G_ux_params;
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
 static unsigned int current_text_pos;  // parsing cursor in the text to display
@@ -27,14 +33,6 @@ static unsigned int text_y;            // current location of the displayed text
 
 // UI currently displayed
 enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
-
-extern enum UI_STATE uiState;
-
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-uint8_t compare_recovery_phrase(void);
-#else
-void compare_recovery_phrase(void);
-#endif
 
 unsigned short io_exchange_al(unsigned char channel, unsigned short tx_len) {
     switch (channel & ~(IO_FLAGS)) {
@@ -84,11 +82,11 @@ unsigned char io_event(unsigned char channel __attribute__((unused))) {
         case SEPROXYHAL_TAG_FINGER_EVENT:
             UX_FINGER_EVENT(G_io_seproxyhal_spi_buffer);
             break;
-
+#if !defined(HAVE_NBGL)
         case SEPROXYHAL_TAG_BUTTON_PUSH_EVENT:  // for Nano S
             UX_BUTTON_PUSH_EVENT(G_io_seproxyhal_spi_buffer);
             break;
-
+#endif
         case SEPROXYHAL_TAG_DISPLAY_PROCESSED_EVENT:
 #if defined(TARGET_NANOS)
             if ((uiState == UI_TEXT) &&
@@ -103,6 +101,8 @@ unsigned char io_event(unsigned char channel __attribute__((unused))) {
             }
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
             UX_DISPLAYED_EVENT({});
+#elif defined(HAVE_NBGL)
+            UX_DEFAULT_EVENT();
 #endif
             break;
 
@@ -136,12 +136,17 @@ __attribute__((section(".boot"))) int main(void) {
 
     current_text_pos = 0;
     text_y = 60;
+#if defined(HAVE_BAGL)
     uiState = UI_IDLE;
-
+#endif
     // ensure exception will work as planned
     os_boot();
 
+#if defined(HAVE_NBGL)
+    nbgl_objInit();
+#elif defined(HAVE_BAGL)
     UX_INIT();
+#endif
 
     BEGIN_TRY {
         TRY {

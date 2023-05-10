@@ -1,5 +1,15 @@
 # Change log
 
+## [1.4.0] - 2023-05-12
+### Added
+- Added BIP39 Check for Ledger Stax
+
+### Changed
+-
+
+### Fixed
+-
+
 ## [1.3.2] - 2023-05-08
 ### Added
 - Added some Ledger specific preprocessor conditionals to bc-sskr and bc-shamir

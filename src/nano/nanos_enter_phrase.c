@@ -14,12 +14,19 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include <os_io_seproxyhal.h>
+#include <lcx_hmac.h>
+
+#include "constants.h"
 #include "ui.h"
 
 #ifdef TARGET_NANOS
 
 // allow to edit back any entered word
 #define RESTORE_WORD_MAX_BACKWARD_STEPS 24
+
+const bagl_element_t* screen_onboarding_restore_word_before_element_display_callback(
+    const bagl_element_t* element);
 
 const bagl_element_t screen_onboarding_word_list_elements[] = {
     // erase
@@ -93,9 +100,6 @@ const bagl_element_t screen_onboarding_word_list_elements[] = {
      G_ux.string_buffer},
 };
 
-const bagl_element_t* screen_onboarding_restore_word_before_element_display_callback(
-    const bagl_element_t* element);
-
 void screen_onboarding_restore_word_display_auto_complete(void);
 
 UX_STEP_CB(restore_1_intro_1, nn, screen_onboarding_restore_word_display_auto_complete();
@@ -122,12 +126,10 @@ UX_FLOW(ux_bip39_nomatch_flow,
         &ux_bip39_nomatch_step_2,
         &ux_bip39_nomatch_step_3);
 
-UX_STEP_CB(ux_bip39_match_step_1, pbb, os_sched_exit(0);,
-                                                        {
-                                                            &C_icon_validate_14,
-                                                            "BIP39 Phrase",
-                                                            "is correct",
-                                                        });
+UX_STEP_VALID(ux_bip39_match_step_1,
+              pbb,
+              os_sched_exit(0),
+              {&C_icon_validate_14, "BIP39 Phrase", "is correct"});
 UX_STEP_CB(ux_bip39_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
 UX_STEP_CB(ux_bip39_match_step_3, pbb, set_sskr_descriptor_values();
            , {&SSKR_ICON, "Generate", "SSKR phrases"});
@@ -156,12 +158,10 @@ UX_FLOW(ux_sskr_nomatch_flow,
         &ux_sskr_nomatch_step_2,
         &ux_sskr_nomatch_step_3);
 
-UX_STEP_CB(ux_sskr_match_step_1, pbb, os_sched_exit(0);,
-                                                       {
-                                                           &C_icon_validate_14,
-                                                           "SSKR Phrase",
-                                                           "is correct",
-                                                       });
+UX_STEP_VALID(ux_sskr_match_step_1,
+              pbb,
+              os_sched_exit(0),
+              {&C_icon_validate_14, "SSKR Phrase", "is correct"});
 UX_STEP_CB(ux_sskr_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
 UX_STEP_CB(ux_sskr_match_step_3, pbb, generate_bip39();, {&BIP39_ICON, "Generate", "BIP39 phrase"});
 
@@ -196,16 +196,15 @@ const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned 
                                                                        unsigned int value);
 
 void screen_onboarding_restore_word_display_auto_complete(void) {
-    unsigned int auto_complete_count =
-        (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39
-             ? bolos_ux_bip39_get_word_next_letters_starting_with(
-                   (unsigned char*) G_ux.string_buffer + 16,
-                   strlen(G_ux.string_buffer + 16),
-                   (unsigned char*) G_ux.string_buffer + 32)
-             : bolos_ux_sskr_get_word_next_letters_starting_with(
-                   (unsigned char*) G_ux.string_buffer + 16,
-                   strlen(G_ux.string_buffer + 16),
-                   (unsigned char*) G_ux.string_buffer + 32));
+    unsigned int auto_complete_count = (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39
+                                            ? bolos_ux_bip39_get_word_next_letters_starting_with(
+                                                  (unsigned char*) G_ux.string_buffer + 16,
+                                                  strlen(G_ux.string_buffer + 16),
+                                                  (unsigned char*) G_ux.string_buffer + 32)
+                                            : bolos_ux_sskr_get_word_next_letters_starting_with(
+                                                  (unsigned char*) G_ux.string_buffer + 16,
+                                                  strlen(G_ux.string_buffer + 16),
+                                                  (unsigned char*) G_ux.string_buffer + 32));
 
     // display added letter and refresh slider
     screen_common_keyboard_init(
@@ -253,7 +252,7 @@ const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned 
 
                 // continue displaying until less than X words matches the stem
                 G_bolos_ux_context.onboarding_words_checked =
-                    G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39
+                    G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39
                         ? bolos_ux_bip39_get_word_count_starting_with(
                               (unsigned char*) G_ux.string_buffer + 16,
                               strlen(G_ux.string_buffer + 16))
@@ -268,7 +267,7 @@ const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned 
                     // always init stem count
                     // index of the first word matching the stem
                     G_bolos_ux_context.onboarding_index =
-                        G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39
+                        G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39
                             ? bolos_ux_bip39_get_word_idx_starting_with(
                                   (unsigned char*) G_ux.string_buffer + 16,
                                   strlen(G_ux.string_buffer + 16))
@@ -353,53 +352,6 @@ const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned 
     return &G_ux.tmp_element;
 }
 
-void compare_recovery_phrase(void) {
-    G_bolos_ux_context.processing = 0;
-    io_seproxyhal_general_status();
-
-    // convert mnemonic to hex-seed
-    uint8_t buffer[64] = {0};
-    if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39) {
-        bolos_ux_bip39_mnemonic_to_seed((unsigned char*) G_bolos_ux_context.words_buffer,
-                                        G_bolos_ux_context.words_buffer_length,
-                                        buffer);
-    } else if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_SSKR) {
-        G_bolos_ux_context.words_buffer_length = sizeof(G_bolos_ux_context.words_buffer);
-        bolos_ux_sskr_hex_to_seed((unsigned char*) G_bolos_ux_context.sskr_words_buffer,
-                                  G_bolos_ux_context.sskr_words_buffer_length,
-                                  G_bolos_ux_context.sskr_share_count,
-                                  (unsigned char*) &G_bolos_ux_context.words_buffer,
-                                  &G_bolos_ux_context.words_buffer_length,
-                                  buffer);
-    }
-
-    // get rootkey from hex-seed
-    cx_hmac_sha512_t ctx;
-    const char key[] = "Bitcoin seed";
-
-    cx_hmac_sha512_init(&ctx, (const uint8_t*) key, strlen(key));
-    cx_hmac((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64);
-    PRINTF("Root key from input:\n%.*H\n", 64, buffer);
-
-    // get rootkey from device's seed
-    uint8_t buffer_device[64];
-
-    os_perso_derive_node_bip32(CX_CURVE_256K1, NULL, 0, buffer_device, buffer_device + 32);
-    PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
-
-    // compare both rootkey
-    if (os_secure_memcmp(buffer, buffer_device, 64)) {
-        memzero(G_bolos_ux_context.words_buffer, G_bolos_ux_context.words_buffer_length);
-        (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39)
-            ? ux_flow_init(0, ux_bip39_nomatch_flow, NULL)
-            : ux_flow_init(0, ux_sskr_nomatch_flow, NULL);
-    } else {
-        (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39)
-            ? ux_flow_init(0, ux_bip39_match_flow, NULL)
-            : ux_flow_init(0, ux_sskr_match_flow, NULL);
-    }
-}
-
 const bagl_element_t* screen_onboarding_restore_word_before_element_display_callback(
     const bagl_element_t* element) {
     switch (element->component.userid) {
@@ -419,7 +371,7 @@ const bagl_element_t* screen_onboarding_restore_word_before_element_display_call
                 return NULL;
             }
             // display matching word from the slider's current index
-            (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39)
+            (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39)
                 ? bolos_ux_bip39_idx_strcpy(
                       G_bolos_ux_context.onboarding_index + G_bolos_ux_context.hslider3_current,
                       (unsigned char*) G_ux.string_buffer)
@@ -464,14 +416,61 @@ const bagl_element_t* screen_onboarding_restore_word_before_element_display_call
     return element;
 }
 
+void compare_recovery_phrase(void) {
+    G_bolos_ux_context.processing = 0;
+    io_seproxyhal_general_status();
+
+    // convert mnemonic to hex-seed
+    uint8_t buffer[64] = {0};
+    if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39) {
+        bolos_ux_bip39_mnemonic_to_seed((unsigned char*) G_bolos_ux_context.words_buffer,
+                                        G_bolos_ux_context.words_buffer_length,
+                                        buffer);
+    } else if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_SSKR) {
+        G_bolos_ux_context.words_buffer_length = sizeof(G_bolos_ux_context.words_buffer);
+        bolos_ux_sskr_hex_to_seed((unsigned char*) G_bolos_ux_context.sskr_words_buffer,
+                                  G_bolos_ux_context.sskr_words_buffer_length,
+                                  G_bolos_ux_context.sskr_share_count,
+                                  (unsigned char*) &G_bolos_ux_context.words_buffer,
+                                  &G_bolos_ux_context.words_buffer_length,
+                                  buffer);
+    }
+
+    // get rootkey from hex-seed
+    cx_hmac_sha512_t ctx;
+    const char key[] = "Bitcoin seed";
+
+    cx_hmac_sha512_init(&ctx, (const uint8_t*) key, strlen(key));
+    cx_hmac((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64);
+    PRINTF("Root key from input:\n%.*H\n", 64, buffer);
+
+    // get rootkey from device's seed
+    uint8_t buffer_device[64];
+
+    os_perso_derive_node_bip32(CX_CURVE_256K1, NULL, 0, buffer_device, buffer_device + 32);
+    PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
+
+    // compare both rootkey
+    if (os_secure_memcmp(buffer, buffer_device, 64)) {
+        memzero(G_bolos_ux_context.words_buffer, G_bolos_ux_context.words_buffer_length);
+        (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39)
+            ? ux_flow_init(0, ux_bip39_nomatch_flow, NULL)
+            : ux_flow_init(0, ux_sskr_nomatch_flow, NULL);
+    } else {
+        (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39)
+            ? ux_flow_init(0, ux_bip39_match_flow, NULL)
+            : ux_flow_init(0, ux_sskr_match_flow, NULL);
+    }
+}
+
 void screen_onboarding_restore_word_validate(void) {
-    if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39) {
+    if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39) {
         bolos_ux_bip39_idx_strcpy(
             G_bolos_ux_context.onboarding_index + G_bolos_ux_context.hslider3_current,
             (unsigned char*) (G_bolos_ux_context.words_buffer +
                               G_bolos_ux_context.words_buffer_length));
         G_bolos_ux_context.words_buffer_length = strlen(G_bolos_ux_context.words_buffer);
-    } else if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_SSKR) {
+    } else if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_SSKR) {
         G_bolos_ux_context.sskr_words_buffer[G_bolos_ux_context.sskr_words_buffer_length] =
             G_bolos_ux_context.onboarding_index + G_bolos_ux_context.hslider3_current;
         switch (G_bolos_ux_context.onboarding_step) {
@@ -522,7 +521,7 @@ void screen_onboarding_restore_word_validate(void) {
     // a word has been added
     G_bolos_ux_context.onboarding_step++;
 
-    if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39) {
+    if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39) {
         if (G_bolos_ux_context.onboarding_step == G_bolos_ux_context.onboarding_kind) {
             unsigned int valid;
 
@@ -558,7 +557,7 @@ void screen_onboarding_restore_word_validate(void) {
             // indexes have been preincremented, it's therefore the next word we're reentering
             screen_onboarding_restore_word_init(RESTORE_WORD_ACTION_REENTER_WORD);
         }
-    } else if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_SSKR) {
+    } else if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_SSKR) {
         if (G_bolos_ux_context.onboarding_step == G_bolos_ux_context.onboarding_kind) {
             G_bolos_ux_context.sskr_share_index++;
 
@@ -653,7 +652,7 @@ unsigned int screen_onboarding_restore_word_select_button(unsigned int button_ma
                         // decrement onboarding_step (current word #)
                         G_bolos_ux_context.onboarding_step--;
                     }
-                    if (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_SSKR) {
+                    if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_SSKR) {
                         G_bolos_ux_context
                             .sskr_words_buffer[G_bolos_ux_context.sskr_words_buffer_length - 1] = 0;
                         G_bolos_ux_context.sskr_words_buffer_length--;
@@ -695,7 +694,7 @@ void screen_onboarding_restore_word_init(unsigned int action) {
     // (word completion possibilities)
 
     // elements to be displayed
-    (G_bolos_ux_context.onboarding_type == BOLOS_UX_ONBOARDING_BIP39)
+    (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39)
         ? SPRINTF(G_ux.string_buffer, "word #%d", G_bolos_ux_context.onboarding_step + 1)
         : SPRINTF(G_ux.string_buffer,
                   "Share#%d Word#%d",

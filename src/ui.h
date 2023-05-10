@@ -17,22 +17,12 @@
 #pragma once
 
 #include <os.h>
-#include <os_io_seproxyhal.h>
-#include <string.h>
-#include <cx.h>
 
-#include "glyphs.h"
-#include "ux_nano.h"
+#if defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
-#define memzero(...) explicit_bzero(__VA_ARGS__)
+#include "nano/ux_nano.h"
 
-#if defined(TARGET_NANOS)
-#define ARRAYLEN(array) (sizeof(array) / sizeof(array[0]))
-#define BIP39_ICON      C_bip39_nanos
-#define SSKR_ICON       C_sskr_nanos
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-#define BIP39_ICON C_bip39_nanox
-#define SSKR_ICON  C_sskr_nanox
 #endif
 
+// NanoS, S+, X and Stax
 void ui_idle_init(void);

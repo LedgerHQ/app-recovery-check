@@ -2,13 +2,14 @@
 
 ### Todo
 
-- [ ] Add Ledger Stax to list of devices app works on
+- [ ] Add unit tests
+- [ ] Update automated tests to test on nanox and nanosp
+- [ ] Add code coverage to GitHub actions
 - [ ] Save memory by setting the SSKR word buffer (G_bolos_ux_context.sskr_words_buffer) to a sensible size. Maybe just store SSKR Bytewords as shorter two letter minimal Bytewords rather than a 4 letter Byteword plus spaace for each share. Convert minimal ByteWords back to four letter Bytewords just prior to display.
 
 ### In Progress
 
-- [ ] Update automated tests to test on nanox and nanosp
-- [ ] Add code coverage to GitHub actions
+- [ ] Add Ledger Stax to list of devices app works on
 
 ### Done ✓
 

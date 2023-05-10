@@ -25,7 +25,8 @@
 
 #if defined(ARDUINO) || defined(__EMSCRIPTEN__)
 #include "bc-crypto-base.h"
-#elif defined(LEDGER_NANOS) || defined(LEDGER_NANOS2) || defined(LEDGER_NANOX)
+#elif defined(LEDGER_NANOS) || defined(LEDGER_NANOS2) || defined(LEDGER_NANOX) || \
+    defined(LEDGER_STAX)
 #define memzero(...) explicit_bzero(__VA_ARGS__)
 #else
 #include <bc-crypto-base/bc-crypto-base.h>

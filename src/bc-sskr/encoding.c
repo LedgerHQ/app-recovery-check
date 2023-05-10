@@ -12,7 +12,8 @@
 #if defined(ARDUINO) || defined(__EMSCRIPTEN__)
 #include "bc-crypto-base.h"
 #include "bc-shamir.h"
-#elif defined(LEDGER_NANOS) || defined(LEDGER_NANOS2) || defined(LEDGER_NANOX)
+#elif defined(LEDGER_NANOS) || defined(LEDGER_NANOS2) || defined(LEDGER_NANOX) || \
+    defined(LEDGER_STAX)
 #define memzero(...) explicit_bzero(__VA_ARGS__)
 #include <bc-shamir/bc-shamir.h>
 #else
@@ -442,7 +443,8 @@ static int combine_shards_internal(sskr_shard *shards,   // array of shard struc
     return secret_len;
 }
 
-#if !defined(LEDGER_NANOS) && !defined(LEDGER_NANOS2) && !defined(LEDGER_NANOX)
+#if !defined(LEDGER_NANOS) && !defined(LEDGER_NANOS2) && !defined(LEDGER_NANOX) && \
+    !defined(LEDGER_STAX)
 static int combine_shards(const sskr_shard *shards,  // array of shard structures
                           uint16_t shards_count,     // number of shards in array
                           uint8_t *buffer,           // working space, and place to return secret

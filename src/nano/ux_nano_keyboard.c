@@ -14,7 +14,10 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include "constants.h"
 #include "ui.h"
+
+#if defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
 #ifdef OS_IO_SEPROXYHAL
 
@@ -549,3 +552,5 @@ void screen_common_keyboard_init(unsigned int stack_slot,
 }
 
 #endif  // OS_IO_SEPROXYHAL
+
+#endif
