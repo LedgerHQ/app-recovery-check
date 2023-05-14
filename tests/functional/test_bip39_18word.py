@@ -1,14 +1,14 @@
-import pytest
-from ragger.backend import SpeculosBackend
+from pytest import fixture
+from pytest import mark
 from ragger.navigator import NavInsID
 from ragger.conftest import configuration
 
-@pytest.fixture(scope='session')
+@fixture(scope='session')
 def test_bip39_18word_set_seed():
     configuration.OPTIONAL.CUSTOM_SEED = "profit result tip galaxy hawk immune hockey series melody grape unusual prize nothing federal dad crew pact sad"
 
-@pytest.mark.use_on_backend("speculos")
-@pytest.mark.usefixtures('test_bip39_18word_set_seed')
+@mark.use_on_backend("speculos")
+@mark.usefixtures('test_bip39_18word_set_seed')
 def test_bip39_18word(firmware, backend, navigator):
     if firmware.device == "nanos":
         backend.wait_for_text_on_screen("Check BIP39", 5)

@@ -25,7 +25,7 @@ all: default
 
 # Main app configuration
 
-APPNAME = "SSKR Check"
+APPNAME = "Seed Utilities"
 APPVERSION_M = 1
 APPVERSION_N = 4
 APPVERSION_P = 0
@@ -34,16 +34,16 @@ APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --curve secp256k1 --path ""
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
-    ICONNAME=glyphs/sskr_nanos.gif
+    ICONNAME=glyphs/seed_nanos.gif
     DEFINES += LEDGER_NANOS
 else ifeq ($(TARGET_NAME), TARGET_NANOX)
     ICONNAME=glyphs/sskr_nanox.gif
     DEFINES += LEDGER_NANOX
 else ifeq ($(TARGET_NAME), TARGET_NANOS2)
-    ICONNAME=glyphs/sskr_nanox.gif
+    ICONNAME=glyphs/seed_nanox.gif
     DEFINES += LEDGER_NANOS2
 else ifeq ($(TARGET_NAME), TARGET_STAX)
-    ICONNAME=glyphs/sskr_stax_32px.gif
+    ICONNAME=glyphs/seed_stax_32px.gif
     DEFINES += LEDGER_STAX
 endif
 
@@ -124,6 +124,8 @@ AS := $(GCCPATH)arm-none-eabi-gcc
 LD := $(GCCPATH)arm-none-eabi-gcc
 LDFLAGS += -O3 -Os
 LDLIBS += -lm -lgcc -lc
+SCAN_BUILD_OUTPUT += $(CURDIR)/output-scan-build -sarif
+
 
 include $(BOLOS_SDK)/Makefile.glyphs
 

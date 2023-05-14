@@ -28,7 +28,7 @@ size_t mnemonic_shrink(const size_t size) {
     } else {
         mnemonic.length -= size;
     }
-    memset(&mnemonic.buffer[mnemonic.length], 0, MAX_MNEMONIC_LENGTH - mnemonic.length);
+    memzero(&mnemonic.buffer[mnemonic.length], MAX_MNEMONIC_LENGTH - mnemonic.length);
     return mnemonic.length;
 }
 
@@ -45,7 +45,7 @@ size_t get_current_word_number() {
 }
 
 void reset_mnemonic() {
-    memset(&mnemonic, 0, sizeof(mnemonic));
+    memzero(&mnemonic, sizeof(mnemonic));
     mnemonic.current_word_index = (size_t) -1;
 }
 
@@ -92,8 +92,8 @@ bool check_mnemonic() {
            mnemonic.length);
     const bool result =
         bolos_ux_bip39_mnemonic_check((unsigned char*) &mnemonic.buffer[0], mnemonic.length);
-    // clearing the mnemonic ASAP
-    reset_mnemonic();
+    // Don;t clear the mneminic just yet as we may need it to generate SSKR shares
+    //    reset_mnemonic();
     return result;
 }
 

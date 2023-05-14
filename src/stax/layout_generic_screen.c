@@ -10,10 +10,10 @@
 #define ICON_X          0
 #define ICON_Y          148
 
-nbgl_image_t *passphrase_length_set_icon() {
+nbgl_image_t *generic_screen_set_icon(const nbgl_icon_details_t *icon) {
     nbgl_image_t *image = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, 0);
     image->foregroundColor = BLACK;
-    image->buffer = &C_bip39_stax_64px;
+    image->buffer = icon;
     image->bpp = NBGL_BPP_1;
     image->alignmentMarginX = ICON_X;
     image->alignmentMarginY = ICON_Y;
@@ -22,10 +22,10 @@ nbgl_image_t *passphrase_length_set_icon() {
     return image;
 }
 
-nbgl_text_area_t *passphrase_length_set_title(nbgl_obj_t *align_to) {
+nbgl_text_area_t *generic_screen_set_title(nbgl_obj_t *align_to) {
     nbgl_text_area_t *textArea = (nbgl_text_area_t *) nbgl_objPoolGet(TEXT_AREA, 0);
     textArea->textColor = BLACK;
-    textArea->text = "How long is your\nRecovery Phrase?";
+    textArea->text = "";
     textArea->textAlignment = CENTER;
     textArea->fontId = BAGL_FONT_INTER_MEDIUM_32px;
     textArea->width = SCREEN_WIDTH - 2 * BORDER_MARGIN;
@@ -38,7 +38,7 @@ nbgl_text_area_t *passphrase_length_set_title(nbgl_obj_t *align_to) {
     return textArea;
 }
 
-void passphrase_length_configure_buttons(nbgl_button_t **buttons, const size_t size) {
+void generic_screen_configure_buttons(nbgl_button_t **buttons, const size_t size) {
     nbgl_button_t *button;
     for (size_t i = 0; i < size; i++) {
         button = buttons[i];
@@ -59,7 +59,7 @@ void passphrase_length_configure_buttons(nbgl_button_t **buttons, const size_t s
     }
 }
 
-nbgl_button_t *passphrase_length_set_back_button() {
+nbgl_button_t *generic_screen_set_back_button() {
     nbgl_button_t *button = (nbgl_button_t *) nbgl_objPoolGet(BUTTON, 0);
     button->innerColor = WHITE;
     button->borderColor = WHITE;

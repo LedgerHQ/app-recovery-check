@@ -10,6 +10,12 @@
 ### In Progress
 
 - [ ] Add Ledger Stax to list of devices app works on
+  - [x] Add SSKR Generate option to Stax
+  - [ ] Write BIP39 to SSKR functionality
+  - [ ] Add SSKR Check option to Stax
+  - [ ] Write SSKR to BIP39 functionality
+  - [ ] Test with 29-word SSKR shares
+  - [ ] Test with 46-word SSKR shares
 
 ### Done ✓
 

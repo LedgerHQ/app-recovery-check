@@ -1,6 +1,6 @@
 # Change log
 
-## [1.4.0] - 2023-05-12
+## [1.4.0] - 2023-05-14
 ### Added
 - Added BIP39 Check for Ledger Stax
 

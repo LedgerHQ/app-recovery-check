@@ -9,11 +9,16 @@ There are a couple of ways of running each test. Using curl to POST button pushe
 ```bash
 ./speculos.py ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "fly mule excess resource treat plunge nose soda reflect adult ramp planet"
 ```
+##### nanos
 ```bash
 while read -a LINE
 do
     curl -d '{"action":"press-and-release"}' -X ${LINE[0]} http://127.0.0.1:5000${LINE[1]}
 done < ./test/speculos/nanos-bip39-12-word.test > /dev/null 2>&1 &
+```
+##### stax
+```bash
+cut -d# -f1 ./tests/deprecated/stax-bip39-12-word.test | while read LINE ; do echo -n $n; curl -d "${LINE}" -X POST http://127.0.0.1:5000/finger; ((n++)); done > /dev/null 2>&1 &
 ```
 #### Speculos automation
 ```bash

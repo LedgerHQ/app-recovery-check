@@ -1,15 +1,15 @@
-import pytest
-from ragger.backend import SpeculosBackend
+from pytest import fixture
+from pytest import mark
 from ragger.navigator import NavInsID
 from ragger.conftest import configuration
 
-@pytest.fixture(scope='session')
+@fixture(scope='session')
 def test_bip39_24word_set_seed():
     # Seed taken from https://github.com/BlockchainCommons/crypto-commons/blob/master/Docs/sskr-test-vector.md#256-bit-seed
     configuration.OPTIONAL.CUSTOM_SEED = "toe priority custom gauge jacket theme arrest bargain gloom wide ill fit eagle prepare capable fish limb cigar reform other priority speak rough imitate"
 
-@pytest.mark.use_on_backend("speculos")
-@pytest.mark.usefixtures('test_bip39_24word_set_seed')
+@mark.use_on_backend("speculos")
+@mark.usefixtures('test_bip39_24word_set_seed')
 def test_bip39_24word(firmware, backend, navigator):
     if firmware.device == "nanos":
         backend.wait_for_text_on_screen("Check BIP39", 5)

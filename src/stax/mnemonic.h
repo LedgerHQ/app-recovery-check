@@ -21,6 +21,7 @@
 
 #if defined(TARGET_STAX)
 
+#define memzero(...)        explicit_bzero(__VA_ARGS__)
 #define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH + 1))
 
 /*
