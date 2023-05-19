@@ -124,7 +124,6 @@ AS := $(GCCPATH)arm-none-eabi-gcc
 LD := $(GCCPATH)arm-none-eabi-gcc
 LDFLAGS += -O3 -Os
 LDLIBS += -lm -lgcc -lc
-SCAN_BUILD_OUTPUT += $(CURDIR)/output-scan-build -sarif
 
 
 include $(BOLOS_SDK)/Makefile.glyphs
