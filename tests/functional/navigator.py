@@ -62,4 +62,4 @@ class StaxNavigator(Navigator):
         # the screen can be compared, when it has not reached its last state yet.
         # Adding extra time after writing to have a better chance to get the expected screen
         self.screen.keyboard.write(characters)
-        sleep(0.3)
+        sleep(1)

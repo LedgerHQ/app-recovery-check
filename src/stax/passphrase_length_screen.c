@@ -13,7 +13,7 @@
 nbgl_image_t *passphrase_length_set_icon() {
     nbgl_image_t *image = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, 0);
     image->foregroundColor = BLACK;
-    image->buffer = &C_stax_recovery_64px;
+    image->buffer = &C_stax_recovery_check_64px;
     image->obj.area.bpp = NBGL_BPP_1;
     image->obj.alignmentMarginX = ICON_X;
     image->obj.alignmentMarginY = ICON_Y;
