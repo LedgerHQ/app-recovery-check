@@ -113,10 +113,9 @@ ifeq ($(GCCPATH),)
 endif
 
 CC := $(CLANGPATH)clang
-CFLAGS += -O3 -Os -Wshadow -Wformat
+CFLAGS += -Wshadow -Wformat
 AS := $(GCCPATH)arm-none-eabi-gcc
 LD := $(GCCPATH)arm-none-eabi-gcc
-LDFLAGS += -O3 -Os
 LDLIBS += -lm -lgcc -lc
 
 include $(BOLOS_SDK)/Makefile.glyphs
