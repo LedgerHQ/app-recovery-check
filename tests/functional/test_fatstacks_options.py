@@ -12,14 +12,13 @@ SPECULOS_MNEMONIC = "glory promote mansion idle axis finger extra " \
 def test_check_info_then_leave(navigator: StaxNavigator, functional_test_directory: str):
     instructions = format_instructions([
         CustomNavInsID.HOME_TO_SETTINGS,
-        CustomNavInsID.SETTINGS_TO_HOME,
-        CustomNavInsID.HOME_TO_QUIT
+        CustomNavInsID.SETTINGS_TO_HOME
     ])
     navigator.navigate_and_compare(functional_test_directory,
                                    "check_info_then_leave",
                                    instructions,
                                    screen_change_before_first_instruction=False,
-                                   screen_change_after_last_instruction=False)
+                                   screen_change_after_last_instruction=True)
 
 
 def test_check_all_passphrase_lengths(navigator: StaxNavigator, functional_test_directory: str):
