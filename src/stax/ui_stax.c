@@ -29,6 +29,7 @@ static void display_home_page(void);
 static void display_select_bip39_passphrase_length_page(void);
 static void display_bip39_keyboard_page(void);
 static void display_result_page(const bool result);
+static void display_numshares_keypad_page(void);
 
 enum bip39_check {
     BACK_BUTTON_TOKEN = FIRST_USER_TOKEN,
@@ -167,7 +168,7 @@ static void select_generate_type_callback(nbgl_obj_t *obj, nbgl_touchType_t even
         display_home_page();
     } else if (obj == screenChildren[SELECT_GENERATE_TYPE_SSKR_INDEX]) {
         nbgl_layoutRelease(layout);
-        display_home_page();
+        display_numshares_keypad_page();
     } else if (obj == screenChildren[SELECT_GENERATE_TYPE_BACK_BUTTON_INDEX]) {
         nbgl_layoutRelease(layout);
         display_home_page();
@@ -468,6 +469,63 @@ static void display_result_page(const bool result) {
                                        .tuneId = TUNE_TAP_CASUAL};
     pageContext = nbgl_pageDrawInfo(&result_callback, NULL, &info);
     nbgl_refresh();
+}
+
+/*
+ * Select number of shares page
+ */
+
+enum sskr_gen {
+    SSKR_GEN_BACK_BUTTON_TOKEN = FIRST_USER_TOKEN,
+    SSKR_GEN_SELECT_SHARENUM_TOKEN,
+    SSKR_GEN_SELECT_THRESHOLD_TOKEN,
+    SSKR_GEN_RESULT_TOKEN,
+};
+
+static char numToEnter[MAX_NUMBER_LENGTH + 1] = {0};
+static int keypadIndex = 0;
+
+static void keypad_dispatcher(const int token, uint8_t index __attribute__((unused))) {
+    if (token == SSKR_GEN_BACK_BUTTON_TOKEN) {
+        nbgl_layoutRelease(layout);
+        display_select_generate_type_page();
+    } else if (token >= FIRST_SUGGESTION_TOKEN) {
+        nbgl_layoutRelease(layout);
+        PRINTF("Selected number is '%d'\n",
+               buttonTexts[token - FIRST_SUGGESTION_TOKEN]);
+    }
+}
+
+// function called when a key of keypad is touched
+static void keypad_press_callback(const char touchedKey) {
+}
+
+static void display_numshares_keypad_page() {
+    nbgl_layoutDescription_t layoutDescription = {.modal = false,
+                                                  .onActionCallback = &keypad_dispatcher};
+    nbgl_layoutCenteredInfo_t centeredInfo = {.text1 = NULL,
+                                              .text2 = headerText,  // to use as "header"
+                                              .text3 = NULL,
+                                              .style = LARGE_CASE_INFO,
+                                              .icon = NULL,
+                                              .offsetY = 0,
+                                              .onTop = true};
+    numToEnter[0] = '\0';
+    layout = nbgl_layoutGet(&layoutDescription);
+    snprintf(headerText,
+             HEADER_SIZE,
+             "Enter number of SSKR shares\nto generate (1 - 16)");
+    nbgl_layoutAddProgressIndicator(layout, 0, 0, true, SSKR_GEN_BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
+    nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
+    keypadIndex = nbgl_layoutAddKeypad(layout, &keypad_press_callback, false);
+    textIndex = nbgl_layoutAddEnteredText(layout,
+                                          false,                           // numbered
+                                          0,  // number to use
+                                          numToEnter,                    // num to display
+                                          false,                          // not grayed-out
+                                          BUTTON_VMARGIN,  // vertical margin from the buttons
+                                          SSKR_GEN_SELECT_THRESHOLD_TOKEN);
+    nbgl_layoutDraw(layout);
 }
 
 /*

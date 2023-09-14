@@ -12,9 +12,9 @@
 #elif defined(LEDGER_NANOS) || defined(LEDGER_NANOS2) || defined(LEDGER_NANOX) || \
     defined(LEDGER_STAX)
 #define memzero(...) explicit_bzero(__VA_ARGS__)
-#include <cx.h>
 #define hmac_sha256(random_data, rdlen, shared_secret, sslen, buf) \
     cx_hmac_sha256(random_data, rdlen, shared_secret, sslen, buf, sizeof(buf))
+#include <cx.h>
 #else
 #include <bc-crypto-base/bc-crypto-base.h>
 #endif

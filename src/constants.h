@@ -22,6 +22,7 @@
 #define BOLOS_UX_HASH_LENGTH                 4  // as on the blue
 
 #define MAX_WORD_LENGTH 8
+#define MAX_NUMBER_LENGTH 2
 
 enum {
     MNEMONIC_SIZE_12 = 12,

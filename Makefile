@@ -25,7 +25,7 @@ all: default
 
 # Main app configuration
 
-APPNAME = "Seed Utilities"
+APPNAME = "Seed Tool"
 APPVERSION_M = 1
 APPVERSION_N = 4
 APPVERSION_P = 0
@@ -68,6 +68,7 @@ ifneq ($(TARGET_NAME), TARGET_STAX)
 else
     $(info Using NBGL)
     DEFINES += NBGL_KEYBOARD
+    DEFINES += NBGL_KEYPAD
 endif
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)

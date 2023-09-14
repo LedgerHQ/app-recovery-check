@@ -14,8 +14,8 @@
 #include "bc-shamir.h"
 #elif defined(LEDGER_NANOS) || defined(LEDGER_NANOS2) || defined(LEDGER_NANOX) || \
     defined(LEDGER_STAX)
+#include "bc-shamir.h"
 #define memzero(...) explicit_bzero(__VA_ARGS__)
-#include <bc-shamir/bc-shamir.h>
 #else
 #include <bc-crypto-base/bc-crypto-base.h>
 #include <bc-shamir/bc-shamir.h>
