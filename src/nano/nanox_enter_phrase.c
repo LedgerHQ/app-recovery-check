@@ -455,7 +455,7 @@ const bagl_element_t* screen_onboarding_restore_word_before_element_display_call
     return element;
 }
 
-uint8_t compare_recovery_phrase(void) {
+static uint8_t compare_recovery_phrase(void) {
     // io_seproxyhal_general_status();
 
     // convert mnemonic to hex-seed
@@ -478,14 +478,18 @@ uint8_t compare_recovery_phrase(void) {
     cx_hmac_sha512_t ctx;
     const char key[] = "Bitcoin seed";
 
-    cx_hmac_sha512_init(&ctx, (const uint8_t*) key, strlen(key));
-    cx_hmac((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64);
+    cx_hmac_sha512_init_no_throw(&ctx, (const uint8_t*) key, strlen(key));
+    cx_hmac_no_throw((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64);
     PRINTF("Root key from BIP39 input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
     uint8_t buffer_device[64];
 
-    os_perso_derive_node_bip32(CX_CURVE_256K1, NULL, 0, buffer_device, buffer_device + 32);
+    if (os_derive_bip32_no_throw(CX_CURVE_256K1, NULL, 0, buffer_device, buffer_device + 32) !=
+        CX_OK) {
+        PRINTF("An error occurred while comparing the recovery phrase\n");
+        return 0;
+    }
     PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
     // compare both rootkey

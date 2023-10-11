@@ -21,6 +21,7 @@
 
 ### Done ✓
 
+- [x] Fix warnings about deprecated functions during build
 - [x] Remove duplicated nano code
 - [x] Simplified flow code
 - [x] Add flow to set SSKR threshold values

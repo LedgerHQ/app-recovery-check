@@ -8,7 +8,7 @@
 -
 
 ### Fixed
--
+-  Fixed warnings about deprecated functions during build
 
 ## [1.3.2] - 2023-05-08
 ### Added

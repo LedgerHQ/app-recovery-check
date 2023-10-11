@@ -491,8 +491,7 @@ static void keypad_dispatcher(const int token, uint8_t index __attribute__((unus
         display_select_generate_type_page();
     } else if (token >= FIRST_SUGGESTION_TOKEN) {
         nbgl_layoutRelease(layout);
-        PRINTF("Selected number is '%d'\n",
-               buttonTexts[token - FIRST_SUGGESTION_TOKEN]);
+        PRINTF("Selected number is '%d'\n", buttonTexts[token - FIRST_SUGGESTION_TOKEN]);
     }
 }
 
@@ -512,17 +511,20 @@ static void display_numshares_keypad_page() {
                                               .onTop = true};
     numToEnter[0] = '\0';
     layout = nbgl_layoutGet(&layoutDescription);
-    snprintf(headerText,
-             HEADER_SIZE,
-             "Enter number of SSKR shares\nto generate (1 - 16)");
-    nbgl_layoutAddProgressIndicator(layout, 0, 0, true, SSKR_GEN_BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
+    snprintf(headerText, HEADER_SIZE, "Enter number of SSKR shares\nto generate (1 - 16)");
+    nbgl_layoutAddProgressIndicator(layout,
+                                    0,
+                                    0,
+                                    true,
+                                    SSKR_GEN_BACK_BUTTON_TOKEN,
+                                    TUNE_TAP_CASUAL);
     nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
     keypadIndex = nbgl_layoutAddKeypad(layout, &keypad_press_callback, false);
     textIndex = nbgl_layoutAddEnteredText(layout,
-                                          false,                           // numbered
-                                          0,  // number to use
-                                          numToEnter,                    // num to display
-                                          false,                          // not grayed-out
+                                          false,           // numbered
+                                          0,               // number to use
+                                          numToEnter,      // num to display
+                                          false,           // not grayed-out
                                           BUTTON_VMARGIN,  // vertical margin from the buttons
                                           SSKR_GEN_SELECT_THRESHOLD_TOKEN);
     nbgl_layoutDraw(layout);

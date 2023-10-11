@@ -25,7 +25,7 @@ Coming soon!!!!
 ## Ledger Nano application menus
 ```mermaid
 ---
-title: SSKR Check Nano App Flow
+title: Seed Tool Nano App Flow
 ---
 flowchart LR
     1 --- 2 --- 3 --- 4

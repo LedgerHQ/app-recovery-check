@@ -42,7 +42,7 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          name: Sharded Secret Key Reconstruction (SSKR) Check application for Ledger - Release ${{ env.VERSION_NUMBER }}
+          name: Seed Tool application for Ledger - Release ${{ env.VERSION_NUMBER }}
           artifacts: ./bin/*.zip
           artifactContentType: application/zip
           bodyFile: CHANGELOG.md
