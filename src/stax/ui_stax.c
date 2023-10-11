@@ -496,7 +496,8 @@ static void keypad_dispatcher(const int token, uint8_t index __attribute__((unus
 }
 
 // function called when a key of keypad is touched
-static void keypad_press_callback(const char touchedKey) {
+static void keypad_press_callback(const char touchedKey __attribute__((unused))) {
+    // Function currently a placeholder, remove unused attribute tag
 }
 
 static void display_numshares_keypad_page() {
