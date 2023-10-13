@@ -493,7 +493,10 @@ static uint8_t compare_recovery_phrase(void) {
     PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
     // compare both rootkey
-    return os_secure_memcmp(buffer, buffer_device, 64) ? 0 : 1;
+    uint8_t ret = os_secure_memcmp(buffer, buffer_device, 64) ? 0 : 1;
+    memzero(buffer, 64);
+    memzero(buffer_device, 64);
+    return ret;
 }
 
 void screen_onboarding_restore_word_validate(void) {

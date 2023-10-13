@@ -1,9 +1,16 @@
-# Ledger application that provides some useful seed management utilities
+<p align="center"><img src="icons/seed_tool.png" alt="Seed Tool" style="width:10%;height:10%"/></p>
 
-[![Build app-sskr-check](https://github.com/aido/app-sskr-check/actions/workflows/ci-workflow.yml/badge.svg)](https://github.com/aido/app-sskr-check/actions/workflows/ci-workflow.yml)
-[![CodeQL](https://github.com/aido/app-sskr-check/actions/workflows/codeql-workflow.yml/badge.svg)](https://github.com/aido/app-sskr-check/actions/workflows/codeql-workflow.yml)
-[![Code style check](https://github.com/aido/app-sskr-check/actions/workflows/lint-workflow.yml/badge.svg)](https://github.com/aido/app-sskr-check/actions/workflows/lint-workflow.yml)
-[![License](https://img.shields.io/github/license/aido/app-sskr-check)](https://github.com/aido/app-sskr-check/blob/develop/LICENSE)
+# Seed Tool: A Ledger application that provides some useful seed management utilities
+
+[![Build app-seed-tool](https://github.com/aido/app-seed-tool/actions/workflows/ci-workflow.yml/badge.svg)](https://github.com/aido/app-seed-tool/actions/workflows/ci-workflow.yml)
+[![CodeQL](https://github.com/aido/app-seed-tool/actions/workflows/codeql-workflow.yml/badge.svg)](https://github.com/aido/app-seed-tool/actions/workflows/codeql-workflow.yml)
+[![Code style check](https://github.com/aido/app-seed-tool/actions/workflows/lint-workflow.yml/badge.svg)](https://github.com/aido/app-seed-tool/actions/workflows/lint-workflow.yml)
+[![License](https://img.shields.io/github/license/aido/app-seed-tool)](https://github.com/aido/app-seed-tool/blob/develop/LICENSE)
+
+![nanos](https://img.shields.io/badge/nanos-working-green)
+![nanox](https://img.shields.io/badge/nanox-working-green])
+![nanosp](https://img.shields.io/badge/nanosp-working-green)
+![stax](https://img.shields.io/badge/stax-in_progress-orange)
 
 Use the utilities provided by this Ledger application to check a backed up seed or generate [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) for a seed.
 

@@ -454,8 +454,12 @@ void compare_recovery_phrase(void) {
     }
     PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
+    bool memcmp_ret = os_secure_memcmp(buffer, buffer_device, 64);
+    memzero(buffer, 64);
+    memzero(buffer_device, 64);
+
     // compare both rootkey
-    if (os_secure_memcmp(buffer, buffer_device, 64)) {
+    if (memcmp_ret) {
         memzero(G_bolos_ux_context.words_buffer, G_bolos_ux_context.words_buffer_length);
         (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39)
             ? ux_flow_init(0, ux_bip39_nomatch_flow, NULL)

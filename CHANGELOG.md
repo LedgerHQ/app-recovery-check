@@ -1,5 +1,15 @@
 # Change log
 
+## [1.4.1] - 2023-10-13
+### Added
+- Clear buffers before exiting
+
+### Changed
+-
+
+### Fixed
+-
+
 ## [1.4.0] - 2023-05-14
 ### Added
 - Added BIP39 Check for Ledger Stax
@@ -8,7 +18,7 @@
 -
 
 ### Fixed
--  Fixed warnings about deprecated functions during build
+- Fixed warnings about deprecated functions during build
 
 ## [1.3.2] - 2023-05-08
 ### Added
