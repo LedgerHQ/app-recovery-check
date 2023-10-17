@@ -493,7 +493,7 @@ static uint8_t compare_recovery_phrase(void) {
     PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
     // compare both rootkey
-    uint8_t ret = os_secure_memcmp(buffer, buffer_device, 64) ? 0 : 1;
+    uint8_t ret = os_secure_memcmp(buffer, buffer_device, 64) != 0 ? 0 : 1;
     memzero(buffer, 64);
     memzero(buffer_device, 64);
     return ret;
@@ -639,8 +639,8 @@ void screen_onboarding_restore_word_validate(void) {
 }
 
 unsigned int screen_onboarding_restore_word_select_button(unsigned int button_mask,
-                                                          unsigned int button_mask_counter) {
-    UNUSED(button_mask_counter);
+                                                          unsigned int button_mask_counter
+                                                          __attribute__((unused))) {
     switch (button_mask) {
         case BUTTON_EVT_FAST | BUTTON_LEFT:
         case BUTTON_EVT_RELEASED | BUTTON_LEFT:
@@ -678,8 +678,8 @@ unsigned int screen_onboarding_restore_word_select_button(unsigned int button_ma
 }
 
 unsigned int screen_onboarding_restore_word_intro_button(unsigned int button_mask,
-                                                         unsigned int button_mask_counter) {
-    UNUSED(button_mask_counter);
+                                                         unsigned int button_mask_counter
+                                                         __attribute__((unused))) {
     switch (button_mask) {
         case BUTTON_EVT_RELEASED | BUTTON_LEFT | BUTTON_RIGHT: {
             screen_onboarding_restore_word_display_auto_complete();

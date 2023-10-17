@@ -1,5 +1,15 @@
 # Change log
 
+## [1.4.2] - 2023-10-18
+### Added
+-
+
+### Changed
+-
+
+### Fixed
+- Fixed build warning about UNUSED macro
+
 ## [1.4.1] - 2023-10-13
 ### Added
 - Clear buffers before exiting

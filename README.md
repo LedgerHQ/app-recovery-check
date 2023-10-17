@@ -26,7 +26,7 @@ For more information about SSKR, see [SSKR for Users](https://github.com/Blockch
 ## Check Shamir's secret shares
 The Ledger application also provides an option to confirm the onboarded seed against SSKR shares.
 
-## Generate [BIP85](https://github.com/scgbckbone/bips/blob/passwords/bip-0085.mediawiki)
+## Generate [BIP85](https://github.com/bitcoin/bips/blob/master/bip-0085.mediawiki)
 Coming soon!!!!
 
 ## Ledger Nano application menus
@@ -69,7 +69,7 @@ flowchart LR
     end
 ```
 
-## [BIP85](https://github.com/scgbckbone/bips/blob/passwords/bip-0085.mediawiki)
+## [BIP85](https://github.com/bitcoin/bips/blob/master/bip-0085.mediawiki)
 BIP85 allows you to do crazy stuff like this:
 ```mermaid
 ---
