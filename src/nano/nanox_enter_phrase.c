@@ -148,15 +148,15 @@ const bagl_element_t screen_onboarding_restore_word_select_elements[] = {
 UX_STEP_NOCB(ux_load_step, pn, {&C_icon_loader, "Processing"});
 UX_FLOW(ux_load_flow, &ux_load_step);
 
-UX_STEP_VALID(ux_wrong_seed_step,
+UX_STEP_VALID(ux_invalid_step_1,
               pnn,
-              os_sched_exit(-1),
+              clean_exit(-1),
               {
                   &C_icon_crossmark,
                   "Recovery",
                   "phrase invalid",
               });
-UX_FLOW(ux_wrong_seed_flow, &ux_wrong_seed_step);
+UX_FLOW(ux_invalid_flow, &ux_invalid_step_1);
 
 UX_STEP_NOCB(ux_bip39_nomatch_step_1, pbb, {&C_icon_warning, "BIP39 Phrase", "doesn't match"});
 UX_STEP_NOCB(ux_bip39_nomatch_step_2,
@@ -173,9 +173,9 @@ UX_FLOW(ux_bip39_nomatch_flow,
 
 UX_STEP_VALID(ux_bip39_match_step_1,
               pbb,
-              os_sched_exit(-1),
+              clean_exit(-1),
               {&C_icon_validate_14, "BIP39 Phrase", "is correct"});
-UX_STEP_CB(ux_bip39_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
+UX_STEP_CB(ux_bip39_match_step_2, pb, clean_exit(0), {&C_icon_dashboard_x, "Quit"});
 UX_STEP_CB(ux_bip39_match_step_3, pbb, set_sskr_descriptor_values();
            , {&SSKR_ICON, "Generate", "SSKR phrases"});
 
@@ -192,16 +192,20 @@ UX_STEP_NOCB(ux_sskr_nomatch_step_2,
                  "order and spelling",
              });
 UX_STEP_VALID(ux_sskr_nomatch_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to menu"});
+UX_STEP_CB(ux_sskr_nomatch_step_4, pbb, generate_bip39();
+           , {&BIP39_ICON, "Generate", "BIP39 phrases"});
+
 UX_FLOW(ux_sskr_nomatch_flow,
         &ux_sskr_nomatch_step_1,
         &ux_sskr_nomatch_step_2,
-        &ux_sskr_nomatch_step_3);
+        &ux_sskr_nomatch_step_3,
+        &ux_sskr_nomatch_step_4);
 
 UX_STEP_VALID(ux_sskr_match_step_1,
               pbb,
-              os_sched_exit(-1),
+              clean_exit(-1),
               {&C_icon_validate_14, "SSKR Phrase", "is correct"});
-UX_STEP_CB(ux_sskr_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
+UX_STEP_CB(ux_sskr_match_step_2, pb, clean_exit(0), {&C_icon_dashboard_x, "Quit"});
 UX_STEP_CB(ux_sskr_match_step_3, pbb, generate_bip39();
            , {&BIP39_ICON, "Generate", "BIP39 phrases"});
 
@@ -578,7 +582,7 @@ void screen_onboarding_restore_word_validate(void) {
 #endif
             if (!valid) {
                 // invalid recovery phrase
-                ux_flow_init(0, ux_wrong_seed_flow, NULL);
+                ux_flow_init(0, ux_invalid_flow, NULL);
             } else {
                 // alright, the recovery phrase looks ok, compare it to onboarded seed
 
@@ -616,7 +620,7 @@ void screen_onboarding_restore_word_validate(void) {
                                             G_bolos_ux_context.sskr_share_count);
                 if (!valid) {
                     // invalid recovery phrase
-                    ux_flow_init(0, ux_wrong_seed_flow, NULL);
+                    ux_flow_init(0, ux_invalid_flow, NULL);
                 } else {
                     // alright, the recovery phrase looks ok, compare it to onboarded seed
 
@@ -625,8 +629,6 @@ void screen_onboarding_restore_word_validate(void) {
                     if (compare_recovery_phrase()) {
                         ux_flow_init(0, ux_sskr_match_flow, NULL);
                     } else {
-                        memzero(G_bolos_ux_context.words_buffer,
-                                G_bolos_ux_context.words_buffer_length);
                         ux_flow_init(0, ux_sskr_nomatch_flow, NULL);
                     }
                 }

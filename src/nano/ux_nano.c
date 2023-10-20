@@ -23,6 +23,17 @@
 
 bolos_ux_context_t G_bolos_ux_context;
 
+void clean_exit(bolos_task_status_t exit_code) {
+    memzero(G_bolos_ux_context.words_buffer, sizeof(G_bolos_ux_context.words_buffer));
+    memzero(G_bolos_ux_context.string_buffer, sizeof(G_bolos_ux_context.string_buffer));
+    memzero(G_bolos_ux_context.sskr_words_buffer, G_bolos_ux_context.sskr_words_buffer_length);
+    G_bolos_ux_context.words_buffer_length = 0;
+    G_bolos_ux_context.sskr_words_buffer_length = 0;
+    G_bolos_ux_context.sskr_share_index = 0;
+
+    os_sched_exit(exit_code);
+}
+
 unsigned short io_timeout(unsigned short last_timeout) {
     UNUSED(last_timeout);
     // infinite timeout

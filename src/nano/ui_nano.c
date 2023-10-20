@@ -136,6 +136,13 @@ UX_FLOW(ux_idle_flow,
 void ui_idle_init(void) {
     uiState = UI_IDLE;
 
+    memzero(G_bolos_ux_context.words_buffer, sizeof(G_bolos_ux_context.words_buffer));
+    memzero(G_bolos_ux_context.string_buffer, sizeof(G_bolos_ux_context.string_buffer));
+    memzero(G_bolos_ux_context.sskr_words_buffer, G_bolos_ux_context.sskr_words_buffer_length);
+    G_bolos_ux_context.words_buffer_length = 0;
+    G_bolos_ux_context.sskr_words_buffer_length = 0;
+    G_bolos_ux_context.sskr_share_index = 0;
+
     // reserve a display stack slot if none yet
     if (G_ux.stack_count == 0) {
         ux_stack_push();

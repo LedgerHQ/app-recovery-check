@@ -16,11 +16,11 @@
   - [ ] Write SSKR to BIP39 functionality
   - [ ] Test with 29-word SSKR shares
   - [ ] Test with 46-word SSKR shares
-- [ ] Add option to generate BIP39 mnemonics from SSKR shares even if shares do not validate against seed on device
-  - A user may have lost or damaged original device and now needs to generate the recovery phrase from another secure device
 
 ### Done ✓
 
+- [x] Add option to generate BIP39 mnemonics from SSKR shares even if shares do not validate against seed on device
+  - A user may have lost or damaged original device and now needs to generate the recovery phrase from another secure device
 - [x] Fix warnings about deprecated functions during build
 - [x] Remove duplicated nano code
 - [x] Simplified flow code

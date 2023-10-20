@@ -1,8 +1,9 @@
 # Change log
 
-## [1.4.2] - 2023-10-18
+## [1.5.0] - 2023-10-20
 ### Added
--
+- Added option to generate BIP39 mnemonics from SSKR shares even if shares do not validate against seed on device
+  - A user may have lost or damaged original device and now needs to generate the recovery phrase from another secure device
 
 ### Changed
 -

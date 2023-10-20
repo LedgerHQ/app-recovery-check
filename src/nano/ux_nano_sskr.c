@@ -52,15 +52,6 @@ void bnnn_paging_edgecase(void) {
     ux_flow_relayout();
 }
 
-void sskr_clean_exit(void) {
-    memzero(G_bolos_ux_context.sskr_words_buffer, G_bolos_ux_context.sskr_words_buffer_length);
-    G_bolos_ux_context.sskr_words_buffer_length = 0;
-    G_bolos_ux_context.sskr_share_index = 0;
-    memzero(G_bolos_ux_context.words_buffer, sizeof(G_bolos_ux_context.words_buffer));
-    memzero(G_bolos_ux_context.string_buffer, sizeof(G_bolos_ux_context.string_buffer));
-    os_sched_exit(0);
-}
-
 void display_next_state(bool is_upper_delimiter) {
     if (is_upper_delimiter) {  // We're called from the upper delimiter.
         if (G_bolos_ux_context.current_state == STATIC_SCREEN) {
@@ -111,7 +102,7 @@ UX_STEP_NOCB(step_display_shares,
 
 UX_STEP_INIT(step_lower_delimiter, NULL, NULL, { display_next_state(false); });
 
-UX_STEP_CB(step_sskr_clean_exit, pb, sskr_clean_exit(), {&C_icon_dashboard_x, "Quit"});
+UX_STEP_CB(step_sskr_clean_exit, pb, clean_exit(0), {&C_icon_dashboard_x, "Quit"});
 
 UX_FLOW(dynamic_flow,
         &step_upper_delimiter,

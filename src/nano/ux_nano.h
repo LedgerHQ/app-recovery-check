@@ -17,6 +17,7 @@
 #pragma once
 
 #include "ux_common/common.h"
+
 /*
 #if defined(TARGET_NANOS)
 #define ARRAYLEN(array) (sizeof(array) / sizeof(array[0]))
@@ -107,6 +108,8 @@ void generate_bip39(void);
 
 #include "ux_common/common_bip39.h"
 #include "ux_common/common_sskr.h"
+
+void clean_exit(bolos_task_status_t exit_code);
 
 #if defined(TARGET_NANOS)
 extern const bagl_element_t screen_onboarding_word_list_elements[9];

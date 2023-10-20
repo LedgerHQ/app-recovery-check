@@ -102,15 +102,15 @@ const bagl_element_t screen_onboarding_word_list_elements[] = {
 
 void screen_onboarding_restore_word_display_auto_complete(void);
 
-UX_STEP_CB(restore_1_intro_1, nn, screen_onboarding_restore_word_display_auto_complete();
+UX_STEP_CB(ux_restore_step_1, nn, screen_onboarding_restore_word_display_auto_complete();
            , {"Enter", G_ux.string_buffer});
 
-UX_FLOW(restore_1_intro, &restore_1_intro_1);
+UX_FLOW(ux_restore_flow, &ux_restore_step_1);
 
-UX_STEP_CB(restore_1_bip39_invalid_step_1, pbb, screen_onboarding_bip39_restore_init();
+UX_STEP_CB(ux_bip39_invalid_step_1, pbb, screen_onboarding_bip39_restore_init();
            , {&C_icon_warning, "BIP39 Recovery", "phrase invalid"});
 
-UX_FLOW(restore_1_bip39_invalid, &restore_1_bip39_invalid_step_1);
+UX_FLOW(ux_bip39_invalid_flow, &ux_bip39_invalid_step_1);
 
 UX_STEP_NOCB(ux_bip39_nomatch_step_1, pbb, {&C_icon_warning, "BIP39 Phrase", "doesn't match"});
 UX_STEP_NOCB(ux_bip39_nomatch_step_2,
@@ -128,9 +128,9 @@ UX_FLOW(ux_bip39_nomatch_flow,
 
 UX_STEP_VALID(ux_bip39_match_step_1,
               pbb,
-              os_sched_exit(0),
+              clean_exit(0),
               {&C_icon_validate_14, "BIP39 Phrase", "is correct"});
-UX_STEP_CB(ux_bip39_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
+UX_STEP_CB(ux_bip39_match_step_2, pb, clean_exit(0), {&C_icon_dashboard_x, "Quit"});
 UX_STEP_CB(ux_bip39_match_step_3, pbb, set_sskr_descriptor_values();
            , {&SSKR_ICON, "Generate", "SSKR phrases"});
 
@@ -139,10 +139,10 @@ UX_FLOW(ux_bip39_match_flow,
         &ux_bip39_match_step_2,
         &ux_bip39_match_step_3);
 
-UX_STEP_CB(restore_1_sskr_invalid_step_1, pbb, screen_onboarding_sskr_restore_init();
+UX_STEP_CB(ux_sskr_invalid_step_1, pbb, screen_onboarding_sskr_restore_init();
            , {&C_icon_warning, "SSKR Recovery", "phrase invalid"});
 
-UX_FLOW(restore_1_sskr_invalid, &restore_1_sskr_invalid_step_1);
+UX_FLOW(ux_sskr_invalid_flow, &ux_sskr_invalid_step_1);
 
 UX_STEP_NOCB(ux_sskr_nomatch_step_1, pbb, {&C_icon_warning, "SSKR Phrase", "doesn't match"});
 UX_STEP_NOCB(ux_sskr_nomatch_step_2,
@@ -152,17 +152,20 @@ UX_STEP_NOCB(ux_sskr_nomatch_step_2,
                  "order and spelling",
              });
 UX_STEP_VALID(ux_sskr_nomatch_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to menu"});
+UX_STEP_CB(ux_sskr_nomatch_step_4, pbb, generate_bip39();
+           , {&BIP39_ICON, "Generate", "BIP39 phrase"});
 
 UX_FLOW(ux_sskr_nomatch_flow,
         &ux_sskr_nomatch_step_1,
         &ux_sskr_nomatch_step_2,
-        &ux_sskr_nomatch_step_3);
+        &ux_sskr_nomatch_step_3,
+        &ux_sskr_nomatch_step_4);
 
 UX_STEP_VALID(ux_sskr_match_step_1,
               pbb,
-              os_sched_exit(0),
+              clean_exit(0),
               {&C_icon_validate_14, "SSKR Phrase", "is correct"});
-UX_STEP_CB(ux_sskr_match_step_2, pb, os_sched_exit(0), {&C_icon_dashboard_x, "Quit"});
+UX_STEP_CB(ux_sskr_match_step_2, pb, clean_exit(0), {&C_icon_dashboard_x, "Quit"});
 UX_STEP_CB(ux_sskr_match_step_3, pbb, generate_bip39();, {&BIP39_ICON, "Generate", "BIP39 phrase"});
 
 UX_FLOW(ux_sskr_match_flow, &ux_sskr_match_step_1, &ux_sskr_match_step_2, &ux_sskr_match_step_3);
@@ -460,7 +463,6 @@ void compare_recovery_phrase(void) {
 
     // compare both rootkey
     if (memcmp_ret) {
-        memzero(G_bolos_ux_context.words_buffer, G_bolos_ux_context.words_buffer_length);
         (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39)
             ? ux_flow_init(0, ux_bip39_nomatch_flow, NULL)
             : ux_flow_init(0, ux_sskr_nomatch_flow, NULL);
@@ -550,7 +552,7 @@ void screen_onboarding_restore_word_validate(void) {
                                                   G_bolos_ux_context.words_buffer_length);
 #endif
             if (!valid) {
-                ux_flow_init(0, restore_1_bip39_invalid, NULL);
+                ux_flow_init(0, ux_bip39_invalid_flow, NULL);
             } else {
                 // alright, the recovery phrase looks ok, finish onboarding
                 // Display processing warning to user
@@ -583,7 +585,7 @@ void screen_onboarding_restore_word_validate(void) {
                                             G_bolos_ux_context.sskr_words_buffer_length,
                                             G_bolos_ux_context.sskr_share_count);
                 if (!valid) {
-                    ux_flow_init(0, restore_1_sskr_invalid, NULL);
+                    ux_flow_init(0, ux_sskr_invalid_flow, NULL);
                 } else {
                     // alright, the recovery phrase looks ok, finish onboarding
                     // Display processing warning to user
@@ -708,7 +710,7 @@ void screen_onboarding_restore_word_init(unsigned int action) {
                   "Share#%d Word#%d",
                   G_bolos_ux_context.sskr_share_index + 1,
                   G_bolos_ux_context.onboarding_step + 1);
-    ux_flow_init(0, restore_1_intro, NULL);
+    ux_flow_init(0, ux_restore_flow, NULL);
 }
 
 #endif

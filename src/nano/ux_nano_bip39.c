@@ -18,11 +18,6 @@
 
 #if defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
-void bip39_clean_exit(void) {
-    memzero(G_bolos_ux_context.words_buffer, sizeof(G_bolos_ux_context.words_buffer));
-    os_sched_exit(0);
-}
-
 UX_STEP_NOCB(step_display_bip39,
              bnnn_paging,
              {
@@ -30,7 +25,7 @@ UX_STEP_NOCB(step_display_bip39,
                  .text = G_bolos_ux_context.words_buffer,
              });
 
-UX_STEP_CB(step_bip39_clean_exit, pb, bip39_clean_exit(), {&C_icon_dashboard_x, "Quit"});
+UX_STEP_CB(step_bip39_clean_exit, pb, clean_exit(0), {&C_icon_dashboard_x, "Quit"});
 
 UX_FLOW(display_bip39_flow, &step_display_bip39, &step_bip39_clean_exit, FLOW_LOOP);
 
