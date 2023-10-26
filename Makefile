@@ -28,7 +28,7 @@ all: default
 APPNAME = "Seed Tool"
 APPVERSION_M = 1
 APPVERSION_N = 5
-APPVERSION_P = 0 
+APPVERSION_P = 1
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --curve secp256k1 --path ""
@@ -37,7 +37,7 @@ ifeq ($(TARGET_NAME), TARGET_NANOS)
     ICONNAME=glyphs/seed_nanos.gif
     DEFINES += LEDGER_NANOS
 else ifeq ($(TARGET_NAME), TARGET_NANOX)
-    ICONNAME=glyphs/sskr_nanox.gif
+    ICONNAME=glyphs/seed_nanox.gif
     DEFINES += LEDGER_NANOX
 else ifeq ($(TARGET_NAME), TARGET_NANOS2)
     ICONNAME=glyphs/seed_nanox.gif

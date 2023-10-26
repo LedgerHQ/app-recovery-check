@@ -192,24 +192,25 @@ UX_STEP_NOCB(ux_sskr_nomatch_step_2,
                  "order and spelling",
              });
 UX_STEP_VALID(ux_sskr_nomatch_step_3, pb, ui_idle_init(), {&C_icon_back_x, "Return to menu"});
-UX_STEP_CB(ux_sskr_nomatch_step_4, pbb, generate_bip39();
+UX_STEP_CB(ux_bip39_generate_step_1, pbb, generate_bip39();
            , {&BIP39_ICON, "Generate", "BIP39 phrases"});
 
 UX_FLOW(ux_sskr_nomatch_flow,
         &ux_sskr_nomatch_step_1,
         &ux_sskr_nomatch_step_2,
         &ux_sskr_nomatch_step_3,
-        &ux_sskr_nomatch_step_4);
+        &ux_bip39_generate_step_1);
 
 UX_STEP_VALID(ux_sskr_match_step_1,
               pbb,
               clean_exit(-1),
               {&C_icon_validate_14, "SSKR Phrase", "is correct"});
 UX_STEP_CB(ux_sskr_match_step_2, pb, clean_exit(0), {&C_icon_dashboard_x, "Quit"});
-UX_STEP_CB(ux_sskr_match_step_3, pbb, generate_bip39();
-           , {&BIP39_ICON, "Generate", "BIP39 phrases"});
 
-UX_FLOW(ux_sskr_match_flow, &ux_sskr_match_step_1, &ux_sskr_match_step_2, &ux_sskr_match_step_3);
+UX_FLOW(ux_sskr_match_flow,
+        &ux_sskr_match_step_1,
+        &ux_sskr_match_step_2,
+        &ux_bip39_generate_step_1);
 
 unsigned int screen_onboarding_restore_word_select_button(unsigned int button_mask,
                                                           unsigned int button_mask_counter);

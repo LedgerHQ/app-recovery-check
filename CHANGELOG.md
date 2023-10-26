@@ -1,5 +1,15 @@
 # Change log
 
+## [1.5.1] - 2023-10-26
+### Added
+-
+
+### Changed
+- Reduce size of Nano binaries slightly
+
+### Fixed
+-
+
 ## [1.5.0] - 2023-10-20
 ### Added
 - Added option to generate BIP39 mnemonics from SSKR shares even if shares do not validate against seed on device
