@@ -7,6 +7,7 @@
 [![Code style check](https://github.com/aido/app-seed-tool/actions/workflows/lint-workflow.yml/badge.svg)](https://github.com/aido/app-seed-tool/actions/workflows/lint-workflow.yml)
 [![License](https://img.shields.io/github/license/aido/app-seed-tool)](https://github.com/aido/app-seed-tool/blob/develop/LICENSE)
 
+[![Release](https://img.shields.io/github/release/aido/app-seed-tool)](https://github.com/aido/app-seed-tool/releases)
 ![nanos](https://img.shields.io/badge/nanos-working-green)
 ![nanox](https://img.shields.io/badge/nanox-working-green])
 ![nanosp](https://img.shields.io/badge/nanosp-working-green)
@@ -22,6 +23,9 @@ When the seed is validated, the user can create [Shamir's secret sharing (SSS)](
 The application uses [Sharded Secret Key Reconstruction (SSKR)](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2020-011-sskr.md), an interoperable implementation of [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing). This provides a way for you to divide or 'shard' the master seed underlying a Bitcoin HD wallet into 'shares', which you can then distribute to friends, family, or fiduciaries. If you lose your seed, you can reconstruct it by collecting a sufficient number of your shares (the 'threshold'). Knowledge of fewer than the required number of parts ensures that information about the master secret is not leaked.
 
 For more information about SSKR, see [SSKR for Users](https://github.com/BlockchainCommons/crypto-commons/blob/master/Docs/sskr-users.md).
+
+> [!NOTE]
+> Generated Shamir's Secret Shares may be cheaply and safely backed up to a steel wallet using the method described [here](https://blockmit.com/english/guides/diy/make-cold-wallet-washers/) or [here](https://jlopp.github.io/metal-bitcoin-storage-reviews/reviews/safu-ninja/). This will keep your backup safe in event of fire, flood or natural disaster.
 
 ## Check Shamir's secret shares
 The Ledger application also provides an option to confirm the onboarded seed against SSKR shares.

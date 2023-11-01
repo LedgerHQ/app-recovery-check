@@ -5,25 +5,16 @@
 //  Licensed under the "BSD-2-Clause Plus Patent License"
 //
 
-#include "encoding.h"
-#include "shard.h"
-#include "sskr-errors.h"
-
-#if defined(ARDUINO) || defined(__EMSCRIPTEN__)
-#include "bc-crypto-base.h"
-#include "bc-shamir.h"
-#elif defined(LEDGER_NANOS) || defined(LEDGER_NANOS2) || defined(LEDGER_NANOX) || \
-    defined(LEDGER_STAX)
-#include "bc-shamir.h"
-#define memzero(...) explicit_bzero(__VA_ARGS__)
-#else
-#include <bc-crypto-base/bc-crypto-base.h>
-#include <bc-shamir/bc-shamir.h>
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+
+#include "encoding.h"
+#include "shard.h"
+#include "sskr-errors.h"
+#include "bc-shamir.h"
+
+#define memzero(...) explicit_bzero(__VA_ARGS__)
 
 static int check_secret_length(size_t len) {
     if (len < MIN_STRENGTH_BYTES) {
@@ -147,8 +138,7 @@ static int generate_shards(uint8_t group_threshold,
                            size_t master_secret_len,
                            sskr_shard *shards,
                            uint16_t shards_size,
-                           void *ctx,
-                           void (*random_generator)(uint8_t *, size_t, void *)) {
+                           unsigned char *(*random_generator)(uint8_t *, size_t)) {
     int err = check_secret_length(master_secret_len);
     if (err) {
         return err;
@@ -162,7 +152,7 @@ static int generate_shards(uint8_t group_threshold,
 
     // assign a random identifier
     uint16_t identifier = 0;
-    random_generator((uint8_t *) (&identifier), 2, ctx);
+    random_generator((uint8_t *) (&identifier), 2);
 
     if (shards_size < total_shards) {
         return SSKR_ERROR_INSUFFICIENT_SPACE;
@@ -174,13 +164,12 @@ static int generate_shards(uint8_t group_threshold,
 
     uint8_t group_shares[master_secret_len * groups_len];
 
-    split_secret(group_threshold,
-                 groups_len,
-                 master_secret,
-                 master_secret_len,
-                 group_shares,
-                 ctx,
-                 random_generator);
+    shamir_split_secret(group_threshold,
+                        groups_len,
+                        master_secret,
+                        master_secret_len,
+                        group_shares,
+                        random_generator);
 
     uint8_t *group_share = group_shares;
 
@@ -189,13 +178,12 @@ static int generate_shards(uint8_t group_threshold,
 
     for (uint8_t i = 0; i < groups_len; ++i, group_share += master_secret_len) {
         uint8_t member_shares[master_secret_len * groups[i].count];
-        split_secret(groups[i].threshold,
-                     groups[i].count,
-                     group_share,
-                     master_secret_len,
-                     member_shares,
-                     ctx,
-                     random_generator);
+        shamir_split_secret(groups[i].threshold,
+                            groups[i].count,
+                            group_share,
+                            master_secret_len,
+                            member_shares,
+                            random_generator);
 
         uint8_t *value = member_shares;
         for (uint8_t j = 0; j < groups[i].count; ++j, value += master_secret_len) {
@@ -236,8 +224,7 @@ int sskr_generate(size_t group_threshold,
                   size_t *shard_len,
                   uint8_t *output,
                   size_t buffer_size,
-                  void *ctx,
-                  void (*random_generator)(uint8_t *, size_t, void *)) {
+                  unsigned char *(*random_generator)(uint8_t *, size_t)) {
     int err = check_secret_length(master_secret_len);
     if (err) {
         return err;
@@ -269,7 +256,6 @@ int sskr_generate(size_t group_threshold,
                                    master_secret_len,
                                    shards,
                                    total_shards,
-                                   ctx,
                                    random_generator);
 
     if (total_shards < 0) {
@@ -404,8 +390,11 @@ static int combine_shards_internal(sskr_shard *shards,   // array of shard struc
             break;
         }
 
-        int recovery =
-            recover_secret(g->member_threshold, g->member_index, g->value, secret_len, group_share);
+        int recovery = shamir_recover_secret(g->member_threshold,
+                                             g->member_index,
+                                             g->value,
+                                             secret_len,
+                                             group_share);
 
         if (recovery < 0) {
             error = recovery;
@@ -418,7 +407,7 @@ static int combine_shards_internal(sskr_shard *shards,   // array of shard struc
 
     int recovery = 0;
     if (!error) {
-        recovery = recover_secret(group_threshold, gx, gy, secret_len, group_share);
+        recovery = shamir_recover_secret(group_threshold, gx, gy, secret_len, group_share);
     }
 
     if (recovery < 0) {
@@ -442,28 +431,6 @@ static int combine_shards_internal(sskr_shard *shards,   // array of shard struc
 
     return secret_len;
 }
-
-#if !defined(LEDGER_NANOS) && !defined(LEDGER_NANOS2) && !defined(LEDGER_NANOX) && \
-    !defined(LEDGER_STAX)
-static int combine_shards(const sskr_shard *shards,  // array of shard structures
-                          uint16_t shards_count,     // number of shards in array
-                          uint8_t *buffer,           // working space, and place to return secret
-                          size_t buffer_len          // total amount of working space
-) {
-    if (shards_count == 0) {
-        return SSKR_ERROR_EMPTY_SHARD_SET;
-    }
-
-    sskr_shard working_shards[shards_count];
-    memcpy(working_shards, shards, sizeof(working_shards));
-
-    int result = combine_shards_internal(working_shards, shards_count, buffer, buffer_len);
-
-    memzero(working_shards, sizeof(working_shards));
-
-    return result;
-}
-#endif
 
 /////////////////////////////////////////////////
 // sskr_combine

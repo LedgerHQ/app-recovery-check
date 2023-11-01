@@ -1,11 +1,12 @@
 # Change log
 
-## [1.5.1] - 2023-10-26
+## [1.5.1] - 2023-11-02
 ### Added
 -
 
 ### Changed
-- Reduce size of Nano binaries slightly
+- Reduce size of Nano binaries slightly by removing duplicate flows
+- Make generic SSKR functionality more Ledger specific
 
 ### Fixed
 -

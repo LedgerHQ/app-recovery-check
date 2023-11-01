@@ -6,21 +6,12 @@
 //
 
 #include <string.h>
-
-#if defined(ARDUINO) || defined(__EMSCRIPTEN__)
-#include "bc-crypto-base.h"
-#elif defined(LEDGER_NANOS) || defined(LEDGER_NANOS2) || defined(LEDGER_NANOX) || \
-    defined(LEDGER_STAX)
-#define memzero(...) explicit_bzero(__VA_ARGS__)
-#define hmac_sha256(random_data, rdlen, shared_secret, sslen, buf) \
-    cx_hmac_sha256(random_data, rdlen, shared_secret, sslen, buf, sizeof(buf))
 #include <cx.h>
-#else
-#include <bc-crypto-base/bc-crypto-base.h>
-#endif
 
 #include "shamir.h"
 #include "interpolate.h"
+
+#define memzero(...) explicit_bzero(__VA_ARGS__)
 
 //////////////////////////////////////////////////
 // hmac sha256
@@ -32,7 +23,7 @@ uint8_t *create_digest(const uint8_t *random_data,
                        uint8_t *result) {
     uint8_t buf[32];
 
-    hmac_sha256(random_data, rdlen, shared_secret, sslen, buf);
+    cx_hmac_sha256(random_data, rdlen, shared_secret, sslen, buf, sizeof(buf));
 
     for (uint8_t j = 0; j < 4; ++j) {
         result[j] = buf[j];
@@ -41,7 +32,7 @@ uint8_t *create_digest(const uint8_t *random_data,
     return result;
 }
 
-static int32_t validate_parameters(uint8_t threshold, uint8_t share_count, uint32_t secret_length) {
+static int32_t validate_parameters(uint8_t threshold, uint8_t share_count, uint8_t secret_length) {
     if (share_count > SHAMIR_MAX_SHARE_COUNT) {
         return SHAMIR_ERROR_TOO_MANY_SHARES;
     } else if (threshold < 1 || threshold > share_count) {
@@ -58,13 +49,12 @@ static int32_t validate_parameters(uint8_t threshold, uint8_t share_count, uint3
 
 //////////////////////////////////////////////////
 // shamir sharing
-int32_t split_secret(uint8_t threshold,
-                     uint8_t share_count,
-                     const uint8_t *secret,
-                     uint32_t secret_length,
-                     uint8_t *result,
-                     void *ctx,
-                     void (*random_generator)(uint8_t *, size_t, void *)) {
+int32_t shamir_split_secret(uint8_t threshold,
+                            uint8_t share_count,
+                            const uint8_t *secret,
+                            uint8_t secret_length,
+                            uint8_t *result,
+                            unsigned char *(*random_generator)(uint8_t *, size_t)) {
     int32_t err = validate_parameters(threshold, share_count, secret_length);
     if (err) {
         return err;
@@ -74,7 +64,7 @@ int32_t split_secret(uint8_t threshold,
         // just return share_count copies of the secret
         uint8_t *share = result;
         for (uint8_t i = 0; i < share_count; ++i, share += secret_length) {
-            for (uint8_t j = 0; j < (uint8_t) secret_length; ++j) {
+            for (uint8_t j = 0; j < secret_length; ++j) {
                 share[j] = secret[j];
             }
         }
@@ -87,14 +77,14 @@ int32_t split_secret(uint8_t threshold,
         uint8_t *share = result;
 
         for (uint8_t i = 0; i < threshold - 2; ++i, share += secret_length) {
-            random_generator(share, secret_length, ctx);
+            random_generator(share, secret_length);
             x[n] = i;
             y[n] = share;
             n += 1;
         }
 
         // generate secret_length - 4 bytes worth of random data
-        random_generator(digest + 4, secret_length - 4, ctx);
+        random_generator(digest + 4, secret_length - 4);
         // put 4 bytes of digest at the top of the digest array
         create_digest(digest + 4, secret_length - 4, secret, secret_length, digest);
         x[n] = DIGEST_INDEX;
@@ -120,11 +110,11 @@ int32_t split_secret(uint8_t threshold,
 
 // returns the number of bytes written to the secret array, or a negative value if there was an
 // error
-int32_t recover_secret(uint8_t threshold,
-                       const uint8_t *x,
-                       const uint8_t **shares,
-                       uint32_t share_length,
-                       uint8_t *secret) {
+int32_t shamir_recover_secret(uint8_t threshold,
+                              const uint8_t *x,
+                              const uint8_t **shares,
+                              uint8_t share_length,
+                              uint8_t *secret) {
     int32_t err = validate_parameters(threshold, threshold, share_length);
     if (err) {
         return err;
@@ -135,7 +125,7 @@ int32_t recover_secret(uint8_t threshold,
     uint8_t valid = 1;
 
     if (threshold == 1) {
-        for (uint8_t j = 0; j < (uint8_t) share_length; ++j) {
+        for (uint8_t j = 0; j < share_length; ++j) {
             secret[j] = shares[0][j];
         }
         return share_length;

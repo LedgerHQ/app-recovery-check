@@ -35,16 +35,12 @@ APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --curve secp256k1 --path
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
     ICONNAME=glyphs/seed_nanos.gif
-    DEFINES += LEDGER_NANOS
 else ifeq ($(TARGET_NAME), TARGET_NANOX)
     ICONNAME=glyphs/seed_nanox.gif
-    DEFINES += LEDGER_NANOX
 else ifeq ($(TARGET_NAME), TARGET_NANOS2)
     ICONNAME=glyphs/seed_nanox.gif
-    DEFINES += LEDGER_NANOS2
 else ifeq ($(TARGET_NAME), TARGET_STAX)
     ICONNAME=glyphs/seed_stax_32px.gif
-    DEFINES += LEDGER_STAX
 endif
 
 # Build configuration

@@ -112,8 +112,7 @@ unsigned int bolos_ux_sskr_generate(unsigned int groups_threshold,
                                     share_len,
                                     share_buffer,
                                     share_buffer_len,
-                                    NULL,
-                                    (void *) cx_rng);
+                                    cx_rng);
 
     if ((share_count < 0) || ((unsigned int) share_count != share_count_expected) ||
         (*share_len != share_len_expected)) {

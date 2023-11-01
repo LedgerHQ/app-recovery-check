@@ -50,8 +50,7 @@ int sskr_generate(size_t group_threshold,
                   size_t *shard_len,
                   uint8_t *output,
                   size_t buffer_size,
-                  void *ctx,
-                  void (*random_generator)(uint8_t *, size_t, void *));
+                  unsigned char *(*random_generator)(uint8_t *, size_t));
 
 /**
  * combine a set of serialized shards to reconstruct a secret
