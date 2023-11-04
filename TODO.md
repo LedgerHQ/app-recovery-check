@@ -2,23 +2,22 @@
 
 ### Todo
 
-- [ ] Add unit tests
 - [ ] Update automated tests to test on nanox and nanosp
-- [ ] Add code coverage to GitHub actions
 - [ ] Save memory by setting the SSKR word buffer (G_bolos_ux_context.sskr_words_buffer) to a sensible size. Maybe just store SSKR Bytewords as shorter two letter minimal Bytewords rather than a 4 letter Byteword plus spaace for each share. Convert minimal ByteWords back to four letter Bytewords just prior to display.
 
 ### In Progress
 
 - [ ] Add Ledger Stax to list of devices app works on
   - [x] Add SSKR Generate option to Stax
-  - [ ] Write BIP39 to SSKR functionality
   - [ ] Add SSKR Check option to Stax
   - [ ] Write SSKR to BIP39 functionality
-  - [ ] Test with 29-word SSKR shares
-  - [ ] Test with 46-word SSKR shares
+  - [ ] Functional Test with 29-word SSKR shares
+  - [ ] Functional Test with 46-word SSKR shares
 
 ### Done ✓
 
+- [x] Add unit tests
+- [x] Add code coverage to GitHub actions
 - [x] Add option to generate BIP39 mnemonics from SSKR shares even if shares do not validate against seed on device
   - A user may have lost or damaged original device and now needs to generate the recovery phrase from another secure device
 - [x] Fix warnings about deprecated functions during build

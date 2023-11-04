@@ -2,16 +2,17 @@
 
 # Seed Tool: A Ledger application that provides some useful seed management utilities
 
-[![Build app-seed-tool](https://github.com/aido/app-seed-tool/actions/workflows/ci-workflow.yml/badge.svg)](https://github.com/aido/app-seed-tool/actions/workflows/ci-workflow.yml)
-[![CodeQL](https://github.com/aido/app-seed-tool/actions/workflows/codeql-workflow.yml/badge.svg)](https://github.com/aido/app-seed-tool/actions/workflows/codeql-workflow.yml)
-[![Code style check](https://github.com/aido/app-seed-tool/actions/workflows/lint-workflow.yml/badge.svg)](https://github.com/aido/app-seed-tool/actions/workflows/lint-workflow.yml)
 [![License](https://img.shields.io/github/license/aido/app-seed-tool)](https://github.com/aido/app-seed-tool/blob/develop/LICENSE)
-
 [![Release](https://img.shields.io/github/release/aido/app-seed-tool)](https://github.com/aido/app-seed-tool/releases)
 ![nanos](https://img.shields.io/badge/nanos-working-green)
 ![nanox](https://img.shields.io/badge/nanox-working-green])
 ![nanosp](https://img.shields.io/badge/nanosp-working-green)
 ![stax](https://img.shields.io/badge/stax-in_progress-orange)
+
+[![Build app-seed-tool](https://github.com/aido/app-seed-tool/actions/workflows/ci-workflow.yml/badge.svg)](https://github.com/aido/app-seed-tool/actions/workflows/ci-workflow.yml)
+[![CodeQL](https://github.com/aido/app-seed-tool/actions/workflows/codeql-workflow.yml/badge.svg)](https://github.com/aido/app-seed-tool/actions/workflows/codeql-workflow.yml)
+[![Code style check](https://github.com/aido/app-seed-tool/actions/workflows/lint-workflow.yml/badge.svg)](https://github.com/aido/app-seed-tool/actions/workflows/lint-workflow.yml)
+[![codecov](https://codecov.io/gh/aido/app-seed-tool/branch/develop/graph/badge.svg?token=uCkGEbhGl3)](https://codecov.io/gh/aido/app-seed-tool/tree/develop)
 
 Use the utilities provided by this Ledger application to check a backed up seed or generate [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) for a seed.
 

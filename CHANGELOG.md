@@ -1,8 +1,8 @@
 # Change log
 
-## [1.5.1] - 2023-11-02
+## [1.5.1] - 2023-11-04
 ### Added
--
+- Added unit tests for shamir
 
 ### Changed
 - Reduce size of Nano binaries slightly by removing duplicate flows
