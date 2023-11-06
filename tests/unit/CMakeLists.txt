@@ -6,7 +6,7 @@ endif()
 
 # project information
 project(unit_tests
-        VERSION 0.1
+        VERSION 1.5.1
 	      DESCRIPTION "Unit tests for app-seed-tool Ledger Application"
         LANGUAGES C)
 
@@ -52,18 +52,21 @@ FetchContent_MakeAvailable(cmocka)
 add_compile_definitions(TEST DEBUG=0 SKIP_FOR_CMOCKA)
 add_compile_definitions(HAVE_HASH HAVE_HMAC HAVE_SHA256)
 
-include_directories(./lib ../../src/bc-sskr/bc-shamir $ENV{LEDGER_SECURE_SDK}/include $ENV{LEDGER_SECURE_SDK}/lib_cxng/include $ENV{LEDGER_SECURE_SDK}/lib_cxng/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../src/bc-sskr ${CMAKE_CURRENT_SOURCE_DIR}/../../src/bc-sskr/bc-shamir ${CMAKE_CURRENT_SOURCE_DIR}/lib $ENV{LEDGER_SECURE_SDK}/include $ENV{LEDGER_SECURE_SDK}/lib_cxng/src $ENV{LEDGER_SECURE_SDK}/lib_cxng/include)
 
 # add src
 set(LIB_SOURCES ./lib/random.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_ram.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_hash.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_sha256.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_hmac.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_utils.c)
-add_library(unittest SHARED ${LIB_SOURCES} )
+add_library(testutils SHARED ${LIB_SOURCES})
 
 # add cmocka tests
-set(LIB_SOURCES  ../../src/bc-sskr/bc-shamir/shamir.c ../../src/bc-sskr/bc-shamir/interpolate.c ../../src/bc-sskr/bc-shamir/hazmat.c)
-add_library(shamir SHARED ${LIB_SOURCES} )
+add_library(shamir SHARED ../../src/bc-sskr/bc-shamir/shamir.c ../../src/bc-sskr/bc-shamir/interpolate.c ../../src/bc-sskr/bc-shamir/hazmat.c)
 add_executable(test_shamir tests/shamir.c)
-target_link_libraries(test_shamir PUBLIC cmocka gcov shamir unittest)
+target_link_libraries(test_shamir PUBLIC cmocka gcov testutils shamir)
 
-foreach(target test_shamir)
+add_library(sskr SHARED ../../src/bc-sskr/sskr.c)
+add_executable(test_sskr tests/sskr.c)
+target_link_libraries(test_sskr PUBLIC cmocka gcov testutils sskr shamir)
+
+foreach(target test_shamir test_sskr)
     add_test(NAME ${target} COMMAND ${target})
 endforeach()

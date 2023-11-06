@@ -1,4 +1,4 @@
-# app-sskr-check TODO list
+# app-seed-tool TODO list
 
 ### Todo
 

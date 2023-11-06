@@ -3,6 +3,7 @@
 ## [1.5.1] - 2023-11-04
 ### Added
 - Added unit tests for shamir
+- Added unit tests for SSKR
 
 ### Changed
 - Reduce size of Nano binaries slightly by removing duplicate flows

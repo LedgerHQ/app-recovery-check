@@ -1,21 +1,18 @@
 //
-//  encoding.h
+//  sskr.h
 //
 //  Copyright © 2020 by Blockchain Commons, LLC
 //  Licensed under the "BSD-2-Clause Plus Patent License"
 //
 
-#ifndef ENCODING_H
-#define ENCODING_H
+#ifndef SSKR_H
+#define SSKR_H
 
 #include <stdlib.h>
-#include "group.h"
 #include <stdint.h>
 
-#define METADATA_LENGTH_BYTES       5
-#define MIN_STRENGTH_BYTES          16
-#define MAX_STRENGTH_BYTES          32
-#define MIN_SERIALIZED_LENGTH_BYTES (METADATA_LENGTH_BYTES + MIN_STRENGTH_BYTES)
+#include "sskr-constants.h"
+#include "group.h"
 
 int sskr_count_shards(size_t group_threshold,
                       const sskr_group_descriptor *groups,
@@ -71,4 +68,4 @@ int sskr_combine(const uint8_t **input_shards,  // an array of pointers to seria
                  size_t buffer_length           // total amount of working space
 );
 
-#endif /* ENCODING_H */
+#endif /* SSKR_H */

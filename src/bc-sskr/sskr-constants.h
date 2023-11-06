@@ -1,12 +1,17 @@
 //
-//  sskr-errors.c
+//  sskr-constants.h
 //
 //  Copyright © 2020 by Blockchain Commons, LLC
 //  Licensed under the "BSD-2-Clause Plus Patent License"
 //
 
-#ifndef SSKR_ERRORS_H
-#define SSKR_ERRORS_H
+#ifndef SSKR_CONSTANTS_H
+#define SSKR_CONSTANTS_H
+
+#define SSKR_METADATA_LENGTH_BYTES       5
+#define SSKR_MIN_STRENGTH_BYTES          16
+#define SSKR_MAX_STRENGTH_BYTES          32
+#define SSKR_MIN_SERIALIZED_LENGTH_BYTES (SSKR_METADATA_LENGTH_BYTES + SSKR_MIN_STRENGTH_BYTES)
 
 #define SSKR_ERROR_NOT_ENOUGH_SERIALIZED_BYTES (-1)
 #define SSKR_ERROR_SECRET_TOO_SHORT            (-2)
@@ -27,4 +32,4 @@
 #define SSKR_ERROR_INVALID_GROUP_LENGTH        (-17)
 #define SSKR_ERROR_INVALID_GROUP_COUNT         (-18)
 
-#endif /* SSKR_ERRORS_H */
+#endif /* SSKR_CONSTANTS_H */

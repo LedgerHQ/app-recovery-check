@@ -6,7 +6,7 @@
 
 #include "onboarding_seed_rom_variables.h"
 #include "common_bip39.h"
-#include "bc-sskr/bc-sskr.h"
+#include "bc-sskr/sskr.h"
 
 // Returns the CRC-32 checksum of the input buffer in network byte order (big endian).
 uint32_t cx_crc32_hw_nbo(const uint8_t *bytes, size_t len) {
@@ -31,7 +31,7 @@ unsigned int bolos_ux_sskr_size_get(unsigned int bip39_onboarding_kind,
     }
 
     unsigned int share_count_expected = sskr_count_shards(groups_threshold, groups, groups_len);
-    *share_len = bip39_onboarding_kind * 4 / 3 + METADATA_LENGTH_BYTES;
+    *share_len = bip39_onboarding_kind * 4 / 3 + SSKR_METADATA_LENGTH_BYTES;
 
     return share_count_expected;
 }

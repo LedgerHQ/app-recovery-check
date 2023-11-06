@@ -1,5 +1,5 @@
 //
-//  encoding.c
+//  sskr.c
 //
 //  Copyright © 2020 by Blockchain Commons, LLC
 //  Licensed under the "BSD-2-Clause Plus Patent License"
@@ -9,18 +9,17 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "encoding.h"
+#include "sskr.h"
 #include "shard.h"
-#include "sskr-errors.h"
-#include "bc-shamir.h"
+#include "shamir.h"
 
 #define memzero(...) explicit_bzero(__VA_ARGS__)
 
 static int check_secret_length(size_t len) {
-    if (len < MIN_STRENGTH_BYTES) {
+    if (len < SSKR_MIN_STRENGTH_BYTES) {
         return SSKR_ERROR_SECRET_TOO_SHORT;
     }
-    if (len > MAX_STRENGTH_BYTES) {
+    if (len > SSKR_MAX_STRENGTH_BYTES) {
         return SSKR_ERROR_SECRET_TOO_LONG;
     }
     if (len & 1) {
@@ -30,7 +29,7 @@ static int check_secret_length(size_t len) {
 }
 
 static int serialize_shard(const sskr_shard *shard, uint8_t *destination, size_t destination_len) {
-    if (destination_len < METADATA_LENGTH_BYTES + shard->value_len) {
+    if (destination_len < SSKR_METADATA_LENGTH_BYTES + shard->value_len) {
         return SSKR_ERROR_INSUFFICIENT_SPACE;
     }
 
@@ -62,13 +61,13 @@ static int serialize_shard(const sskr_shard *shard, uint8_t *destination, size_t
     destination[3] = (gi << 4) | mt;
     destination[4] = mi;
 
-    memcpy(destination + METADATA_LENGTH_BYTES, shard->value, shard->value_len);
+    memcpy(destination + SSKR_METADATA_LENGTH_BYTES, shard->value, shard->value_len);
 
-    return shard->value_len + METADATA_LENGTH_BYTES;
+    return shard->value_len + SSKR_METADATA_LENGTH_BYTES;
 }
 
 static int deserialize_shard(const uint8_t *source, size_t source_len, sskr_shard *shard) {
-    if (source_len < MIN_SERIALIZED_LENGTH_BYTES) {
+    if (source_len < SSKR_MIN_SERIALIZED_LENGTH_BYTES) {
         return SSKR_ERROR_NOT_ENOUGH_SERIALIZED_BYTES;
     }
 
@@ -89,8 +88,8 @@ static int deserialize_shard(const uint8_t *source, size_t source_len, sskr_shar
         return SSKR_ERROR_INVALID_RESERVED_BITS;
     }
     shard->member_index = source[4] & 0xf;
-    shard->value_len = source_len - METADATA_LENGTH_BYTES;
-    memcpy(shard->value, source + METADATA_LENGTH_BYTES, shard->value_len);
+    shard->value_len = source_len - SSKR_METADATA_LENGTH_BYTES;
+    memcpy(shard->value, source + SSKR_METADATA_LENGTH_BYTES, shard->value_len);
 
     int err = check_secret_length(shard->value_len);
     if (err) {
@@ -238,7 +237,7 @@ int sskr_generate(size_t group_threshold,
 
     // figure out how much space we need to store all of the mnemonics
     // and make sure that we were provided with sufficient resources
-    size_t shard_length = METADATA_LENGTH_BYTES + master_secret_len;
+    size_t shard_length = SSKR_METADATA_LENGTH_BYTES + master_secret_len;
     if (buffer_size < shard_length * total_shards) {
         return SSKR_ERROR_INSUFFICIENT_SPACE;
     }
