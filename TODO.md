@@ -2,8 +2,10 @@
 
 ### Todo
 
-- [ ] Update automated tests to test on nanox and nanosp
+- [ ] Update automated function tests to test on nanox and nanosp
 - [ ] Save memory by setting the SSKR word buffer (G_bolos_ux_context.sskr_words_buffer) to a sensible size. Maybe just store SSKR Bytewords as shorter two letter minimal Bytewords rather than a 4 letter Byteword plus spaace for each share. Convert minimal ByteWords back to four letter Bytewords just prior to display.
+- [ ] If/when the `cx_bn_gf2_n_mul()` syscall is available on Ledger Nano S change all Galois Field functionality to use syscalls.
+  - See [gf_syscalls](https://github.com/aido/app-seed-tool/tree/gf_syscalls) branch of repo.
 
 ### In Progress
 

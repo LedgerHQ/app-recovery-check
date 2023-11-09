@@ -1,9 +1,10 @@
 # Change log
 
-## [1.5.1] - 2023-11-04
+## [1.5.1] - 2023-11-09
 ### Added
 - Added unit tests for shamir
 - Added unit tests for SSKR
+- Added unit tests for BIP39 <-> SSKR roundtrip
 
 ### Changed
 - Reduce size of Nano binaries slightly by removing duplicate flows

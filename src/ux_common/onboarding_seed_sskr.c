@@ -10,9 +10,9 @@
 
 // Returns the CRC-32 checksum of the input buffer in network byte order (big endian).
 uint32_t cx_crc32_hw_nbo(const uint8_t *bytes, size_t len) {
-#if BYTE_ORDER == BIG_ENDIAN
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
     return cx_crc32_hw(bytes, len);
-#elif BYTE_ORDER == LITTLE_ENDIAN
+#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
     return os_swap_u32(cx_crc32_hw(bytes, len));
 #else
 #error "What kind of system is this?"
@@ -23,7 +23,7 @@ unsigned int bolos_ux_sskr_size_get(unsigned int bip39_onboarding_kind,
                                     unsigned int groups_threshold,
                                     unsigned int *group_descriptor,
                                     unsigned int groups_len,
-                                    unsigned int *share_len) {
+                                    size_t *share_len) {
     sskr_group_descriptor groups[groups_len];
     for (uint8_t i = 0; i < (uint8_t) groups_len; i++) {
         groups[i].threshold = *(group_descriptor + i * sizeof(*(group_descriptor)) / groups_len);
@@ -87,10 +87,10 @@ unsigned int bolos_ux_sskr_generate(unsigned int groups_threshold,
                                     unsigned int groups_len,
                                     unsigned char *seed,
                                     unsigned int seed_len,
-                                    unsigned int *share_len,
+                                    size_t *share_len,
                                     unsigned char *share_buffer,
                                     unsigned int share_buffer_len,
-                                    unsigned int share_len_expected,
+                                    size_t share_len_expected,
                                     unsigned int share_count_expected) {
     sskr_group_descriptor groups[groups_len];
     for (uint8_t i = 0; i < (uint8_t) groups_len; i++) {

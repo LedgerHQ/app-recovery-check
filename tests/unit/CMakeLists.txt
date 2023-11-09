@@ -50,23 +50,31 @@ set(PICKY_DEVELOPER OFF CACHE BOOL "CMocka: Build with picky developer flags" FO
 FetchContent_MakeAvailable(cmocka)
 
 add_compile_definitions(TEST DEBUG=0 SKIP_FOR_CMOCKA)
-add_compile_definitions(HAVE_HASH HAVE_HMAC HAVE_SHA256)
+add_compile_definitions(HAVE_HASH HAVE_HMAC HAVE_SHA256 HAVE_SHA512 HAVE_PBKDF2 HAVE_ECC HAVE_CRC HAVE_RNG IO_HID_EP_LENGTH=64)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../src/bc-sskr ${CMAKE_CURRENT_SOURCE_DIR}/../../src/bc-sskr/bc-shamir ${CMAKE_CURRENT_SOURCE_DIR}/lib $ENV{LEDGER_SECURE_SDK}/include $ENV{LEDGER_SECURE_SDK}/lib_cxng/src $ENV{LEDGER_SECURE_SDK}/lib_cxng/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib $ENV{LEDGER_SECURE_SDK}/include $ENV{LEDGER_SECURE_SDK}/lib_cxng/src $ENV{LEDGER_SECURE_SDK}/lib_cxng/include $ENV{LEDGER_SECURE_SDK}/lib_ux/include $ENV{LEDGER_SECURE_SDK}/lib_bagl/include)
 
 # add src
-set(LIB_SOURCES ./lib/random.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_ram.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_hash.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_sha256.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_hmac.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_utils.c)
+set(LIB_SOURCES ./lib/testutils.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_ram.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_hash.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_sha256.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_sha512.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_pbkdf2.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_hmac.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_utils.c)
 add_library(testutils SHARED ${LIB_SOURCES})
 
-# add cmocka tests
 add_library(shamir SHARED ../../src/bc-sskr/bc-shamir/shamir.c ../../src/bc-sskr/bc-shamir/interpolate.c ../../src/bc-sskr/bc-shamir/hazmat.c)
+target_include_directories(shamir PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src/bc-sskr/bc-shamir)
+
+add_library(sskr SHARED ../../src/bc-sskr/sskr.c)
+target_include_directories(sskr PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src/bc-sskr/bc-shamir ${CMAKE_CURRENT_SOURCE_DIR}/../../src/bc-sskr)
+
+# add cmocka tests
 add_executable(test_shamir tests/shamir.c)
 target_link_libraries(test_shamir PUBLIC cmocka gcov testutils shamir)
 
-add_library(sskr SHARED ../../src/bc-sskr/sskr.c)
 add_executable(test_sskr tests/sskr.c)
 target_link_libraries(test_sskr PUBLIC cmocka gcov testutils sskr shamir)
 
-foreach(target test_shamir test_sskr)
+add_executable(test_roundtrip ./tests/roundtrip.c ../../src/ux_common/onboarding_seed_rom_variables.c ../../src/ux_common/onboarding_seed_bip39.c ../../src/ux_common/onboarding_seed_sskr.c)
+target_include_directories(test_roundtrip PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src ${CMAKE_CURRENT_SOURCE_DIR}/../../src/ux_common)
+target_link_libraries(test_roundtrip PUBLIC cmocka gcov testutils sskr shamir)
+
+foreach(target test_shamir test_sskr test_roundtrip)
     add_test(NAME ${target} COMMAND ${target})
 endforeach()

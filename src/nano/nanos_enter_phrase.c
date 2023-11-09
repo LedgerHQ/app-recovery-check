@@ -455,7 +455,7 @@ void compare_recovery_phrase(void) {
     }
     PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
-    bool memcmp_ret = os_secure_memcmp(buffer, buffer_device, 64) == 0 ? 0 : 1;
+    bool memcmp_ret = (os_secure_memcmp(buffer, buffer_device, 64) == 0) ? 0 : 1;
     memzero(buffer, 64);
     memzero(buffer_device, 64);
 

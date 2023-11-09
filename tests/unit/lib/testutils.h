@@ -1,6 +1,6 @@
 #ifndef TESTUTILS_H
 #define TESTUTILS_H
 
-unsigned char *fake_rng(uint8_t *buffer, size_t len);
+#define WIDE
 
 #endif /* TESTUTILS_H */
