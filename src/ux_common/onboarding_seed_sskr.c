@@ -19,13 +19,13 @@ uint32_t cx_crc32_hw_nbo(const uint8_t *bytes, size_t len) {
 #endif
 }
 
-unsigned int bolos_ux_sskr_size_get(unsigned int bip39_onboarding_kind,
-                                    unsigned int groups_threshold,
+unsigned int bolos_ux_sskr_size_get(uint8_t bip39_onboarding_kind,
+                                    uint8_t groups_threshold,
                                     unsigned int *group_descriptor,
-                                    unsigned int groups_len,
-                                    size_t *share_len) {
+                                    uint8_t groups_len,
+                                    uint8_t *share_len) {
     sskr_group_descriptor groups[groups_len];
-    for (uint8_t i = 0; i < (uint8_t) groups_len; i++) {
+    for (uint8_t i = 0; i < groups_len; i++) {
         groups[i].threshold = *(group_descriptor + i * sizeof(*(group_descriptor)) / groups_len);
         groups[i].count = *(group_descriptor + 1 + i * sizeof(*(group_descriptor)) / groups_len);
     }
@@ -82,16 +82,16 @@ void bolos_ux_sskr_hex_to_seed(unsigned char *mnemonic_hex,
     bolos_ux_bip39_mnemonic_to_seed(words_buffer, *words_buffer_length, seed);
 }
 
-unsigned int bolos_ux_sskr_generate(unsigned int groups_threshold,
+unsigned int bolos_ux_sskr_generate(uint8_t groups_threshold,
                                     unsigned int *group_descriptor,
-                                    unsigned int groups_len,
+                                    uint8_t groups_len,
                                     unsigned char *seed,
                                     unsigned int seed_len,
-                                    size_t *share_len,
+                                    uint8_t *share_len,
                                     unsigned char *share_buffer,
                                     unsigned int share_buffer_len,
-                                    size_t share_len_expected,
-                                    unsigned int share_count_expected) {
+                                    uint8_t share_len_expected,
+                                    uint8_t share_count_expected) {
     sskr_group_descriptor groups[groups_len];
     for (uint8_t i = 0; i < (uint8_t) groups_len; i++) {
         groups[i].threshold = *(group_descriptor + i * 2);
@@ -168,18 +168,18 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                                        seed_len + 1) == 1) {
         memzero(bip39_words_buffer, bip39_words_buffer_length);
         bip39_words_buffer_length = 0;
-        size_t groups_len = 1;
-        size_t groups_threshold = 1;
-        size_t share_len_expected = 0;
-        size_t share_count_expected = bolos_ux_sskr_size_get(bip39_onboarding_kind,
-                                                             groups_threshold,
-                                                             group_descriptor,
-                                                             groups_len,
-                                                             &share_len_expected);
+        uint8_t groups_len = 1;
+        uint8_t groups_threshold = 1;
+        uint8_t share_len_expected = 0;
+        uint8_t share_count_expected = bolos_ux_sskr_size_get(bip39_onboarding_kind,
+                                                              groups_threshold,
+                                                              group_descriptor,
+                                                              groups_len,
+                                                              &share_len_expected);
 
         size_t share_buffer_len = share_count_expected * share_len_expected;
         uint8_t share_buffer[share_buffer_len];
-        size_t share_len = 0;
+        uint8_t share_len = 0;
         *share_count = bolos_ux_sskr_generate(groups_threshold,
                                               group_descriptor,
                                               groups_len,

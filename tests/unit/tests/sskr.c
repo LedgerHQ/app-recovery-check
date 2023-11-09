@@ -90,7 +90,7 @@ static void test_sskr_generate(void **state) {
     const size_t seed_len = sizeof(seed);
     const size_t share_buffer_len = (seed_len + SSKR_METADATA_LENGTH_BYTES) * groups[0].count;
     uint8_t share_buffer[share_buffer_len];
-    size_t share_len;
+    uint8_t share_len;
 
     int share_count = sskr_generate(groups_threshold,
                                     groups,

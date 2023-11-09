@@ -15,7 +15,7 @@
 
 #define memzero(...) explicit_bzero(__VA_ARGS__)
 
-static int check_secret_length(size_t len) {
+static int check_secret_length(uint8_t len) {
     if (len < SSKR_MIN_STRENGTH_BYTES) {
         return SSKR_ERROR_SECRET_TOO_SHORT;
     }
@@ -45,15 +45,15 @@ static int serialize_shard(const sskr_shard *shard, uint8_t *destination, size_t
     //                                 reserved (MUST be zero): 4
     //                                     member-index: 4
 
-    uint32_t id = shard->identifier & 0xffff;
-    uint32_t gt = (shard->group_threshold - 1) & 0xf;
-    uint32_t gc = (shard->group_count - 1) & 0xf;
-    uint32_t gi = shard->group_index & 0xf;
-    uint32_t mt = (shard->member_threshold - 1) & 0xf;
-    uint32_t mi = shard->member_index & 0xf;
+    uint16_t id = shard->identifier;
+    uint8_t gt = (shard->group_threshold - 1) & 0xf;
+    uint8_t gc = (shard->group_count - 1) & 0xf;
+    uint8_t gi = shard->group_index & 0xf;
+    uint8_t mt = (shard->member_threshold - 1) & 0xf;
+    uint8_t mi = shard->member_index & 0xf;
 
-    uint32_t id1 = id >> 8;
-    uint32_t id2 = id & 0xff;
+    uint8_t id1 = id >> 8;
+    uint8_t id2 = id & 0xff;
 
     destination[0] = id1;
     destination[1] = id2;
@@ -71,8 +71,8 @@ static int deserialize_shard(const uint8_t *source, size_t source_len, sskr_shar
         return SSKR_ERROR_NOT_ENOUGH_SERIALIZED_BYTES;
     }
 
-    size_t group_threshold = (source[2] >> 4) + 1;
-    size_t group_count = (source[2] & 0xf) + 1;
+    uint8_t group_threshold = (source[2] >> 4) + 1;
+    uint8_t group_count = (source[2] & 0xf) + 1;
 
     if (group_threshold > group_count) {
         return SSKR_ERROR_INVALID_GROUP_THRESHOLD;
@@ -83,7 +83,7 @@ static int deserialize_shard(const uint8_t *source, size_t source_len, sskr_shar
     shard->group_count = group_count;
     shard->group_index = source[3] >> 4;
     shard->member_threshold = (source[3] & 0xf) + 1;
-    size_t reserved = source[4] >> 4;
+    uint8_t reserved = source[4] >> 4;
     if (reserved != 0) {
         return SSKR_ERROR_INVALID_RESERVED_BITS;
     }
@@ -98,10 +98,10 @@ static int deserialize_shard(const uint8_t *source, size_t source_len, sskr_shar
     return shard->value_len;
 }
 
-int sskr_count_shards(size_t group_threshold,
+int sskr_count_shards(uint8_t group_threshold,
                       const sskr_group_descriptor *groups,
-                      size_t groups_len) {
-    size_t shard_count = 0;
+                      uint8_t groups_len) {
+    uint8_t shard_count = 0;
 
     if (groups_len < 1) {
         return SSKR_ERROR_INVALID_GROUP_LENGTH;
@@ -111,7 +111,7 @@ int sskr_count_shards(size_t group_threshold,
         return SSKR_ERROR_INVALID_GROUP_THRESHOLD;
     }
 
-    for (int i = 0; i < (int) groups_len; ++i) {
+    for (uint8_t i = 0; i < groups_len; ++i) {
         if (groups[i].count < 1) {
             return SSKR_ERROR_INVALID_GROUP_COUNT;
         }
@@ -215,12 +215,12 @@ static int generate_shards(uint8_t group_threshold,
 //////////////////////////////////////////////////
 // generate mnemonics
 //
-int sskr_generate(size_t group_threshold,
+int sskr_generate(uint8_t group_threshold,
                   const sskr_group_descriptor *groups,
-                  size_t groups_len,
+                  uint8_t groups_len,
                   const uint8_t *master_secret,
                   size_t master_secret_len,
-                  size_t *shard_len,
+                  uint8_t *shard_len,
                   uint8_t *output,
                   size_t buffer_size,
                   unsigned char *(*random_generator)(uint8_t *, size_t)) {
@@ -230,7 +230,7 @@ int sskr_generate(size_t group_threshold,
     }
 
     // Figure out how many shards we are dealing with
-    int total_shards = sskr_count_shards(group_threshold, groups, groups_len);
+    uint8_t total_shards = sskr_count_shards(group_threshold, groups, groups_len);
     if (total_shards < 0) {
         return total_shards;
     }
@@ -299,25 +299,25 @@ typedef struct sskr_group_struct {
  * in place, so it is for internal use only, however it provides the implementation
  * for both combine_shards and sskr_combine.
  */
-static int combine_shards_internal(sskr_shard *shards,   // array of shard structures
-                                   size_t shards_count,  // number of shards in array
+static int combine_shards_internal(sskr_shard *shards,    // array of shard structures
+                                   uint8_t shards_count,  // number of shards in array
                                    uint8_t *buffer,   // working space, and place to return secret
                                    size_t buffer_len  // total amount of working space
 ) {
     int error = 0;
     uint16_t identifier = 0;
-    size_t group_threshold = 0;
-    size_t group_count = 0;
+    uint8_t group_threshold = 0;
+    uint8_t group_count = 0;
 
     if (shards_count == 0) {
         return SSKR_ERROR_EMPTY_SHARD_SET;
     }
 
-    size_t next_group = 0;
+    uint8_t next_group = 0;
     sskr_group groups[16];
     size_t secret_len = 0;
 
-    for (unsigned int i = 0; i < shards_count; ++i) {
+    for (uint8_t i = 0; i < shards_count; ++i) {
         sskr_shard *shard = &shards[i];
 
         if (i == 0) {
@@ -336,13 +336,13 @@ static int combine_shards_internal(sskr_shard *shards,   // array of shard struc
 
         // sort shards into member groups
         bool group_found = false;
-        for (int j = 0; j < (int) next_group; ++j) {
+        for (uint8_t j = 0; j < next_group; ++j) {
             if (shard->group_index == groups[j].group_index) {
                 group_found = true;
                 if (shard->member_threshold != groups[j].member_threshold) {
                     return SSKR_ERROR_INVALID_MEMBER_THRESHOLD;
                 }
-                for (int k = 0; k < (int) groups[j].count; ++k) {
+                for (uint8_t k = 0; k < groups[j].count; ++k) {
                     if (shard->member_index == groups[j].member_index[k]) {
                         return SSKR_ERROR_DUPLICATE_MEMBER_INDEX;
                     }
@@ -435,8 +435,8 @@ static int combine_shards_internal(sskr_shard *shards,   // array of shard struc
 // sskr_combine
 
 int sskr_combine(const uint8_t **input_shards,  // array of pointers to 10-bit words
-                 size_t shard_len,              // number of bytes in each serialized shard
-                 size_t shards_count,           // total number of shards
+                 uint8_t shard_len,             // number of bytes in each serialized shard
+                 uint8_t shards_count,          // total number of shards
                  uint8_t *buffer,               // working space, and place to return secret
                  size_t buffer_len              // total amount of working space
 ) {

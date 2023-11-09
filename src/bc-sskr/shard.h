@@ -13,12 +13,12 @@
 
 typedef struct sskr_shard_struct {
     uint16_t identifier;
-    size_t group_index;
-    size_t group_threshold;
-    size_t group_count;
-    size_t member_index;
-    size_t member_threshold;
-    size_t value_len;
+    uint8_t group_index;
+    uint8_t group_threshold;
+    uint8_t group_count;
+    uint8_t member_index;
+    uint8_t member_threshold;
+    uint8_t value_len;
     uint8_t value[32];
 } sskr_shard;
 
