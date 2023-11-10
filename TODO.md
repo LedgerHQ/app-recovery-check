@@ -3,7 +3,7 @@
 ### Todo
 
 - [ ] Update automated function tests to test on nanox and nanosp
-- [ ] Save memory by setting the SSKR word buffer (G_bolos_ux_context.sskr_words_buffer) to a sensible size. Maybe just store SSKR Bytewords as shorter two letter minimal Bytewords rather than a 4 letter Byteword plus spaace for each share. Convert minimal ByteWords back to four letter Bytewords just prior to display.
+- [ ] There is just enough memory available on Nano S to hold the phrases for 10 shares. Maybe just store SSKR Bytewords as shorter two letter minimal Bytewords rather than a 4 letter Byteword plus space for each share. Convert minimal ByteWords back to four letter Bytewords just prior to display.
 - [ ] If/when the `cx_bn_gf2_n_mul()` syscall is available on Ledger Nano S change all Galois Field functionality to use syscalls.
   - See [gf_syscalls](https://github.com/aido/app-seed-tool/tree/gf_syscalls) branch of repo.
 
@@ -18,6 +18,7 @@
 
 ### Done ✓
 
+- [x] Save memory by setting the SSKR word buffer (G_bolos_ux_context.sskr_words_buffer) to a sensible size
 - [x] Add unit tests
 - [x] Add code coverage to GitHub actions
 - [x] Add option to generate BIP39 mnemonics from SSKR shares even if shares do not validate against seed on device

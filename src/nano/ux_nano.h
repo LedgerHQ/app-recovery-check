@@ -85,11 +85,18 @@ typedef struct bolos_ux_context {
     // for CheckSeed app only
     uint8_t processing;
 
+#if defined(TARGET_NANOS)
+    // 10 shares * 229 chars per share (46 SSKR Bytewords)
+#define SSKR_WORDS_BUFFER_MAX_SIZE_B 2290
+#else
+    // 16 shares * 229 chars per share (46 SSKR Bytewords)
+#define SSKR_WORDS_BUFFER_MAX_SIZE_B 3664
+#endif
     uint8_t sskr_share_count;
     uint8_t sskr_share_index;
     unsigned int sskr_group_descriptor[1][2];
     unsigned int sskr_words_buffer_length;
-    char sskr_words_buffer[];
+    char sskr_words_buffer[SSKR_WORDS_BUFFER_MAX_SIZE_B];
 } bolos_ux_context_t;
 
 extern bolos_ux_context_t G_bolos_ux_context;

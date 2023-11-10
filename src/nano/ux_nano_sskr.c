@@ -131,6 +131,7 @@ void generate_sskr(void) {
                                    &G_bolos_ux_context.sskr_share_count,
                                    (unsigned char*) G_bolos_ux_context.sskr_words_buffer,
                                    &G_bolos_ux_context.sskr_words_buffer_length);
+
 #if defined(TARGET_NANOS)
     G_bolos_ux_context.processing = 0;
 #endif
@@ -152,23 +153,24 @@ void generate_sskr(void) {
     ux_flow_init(0, dynamic_flow, NULL);
 }
 
-const char* const sskr_descriptor_values[] = {
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "11",
-    "12",
-    "13",
-    "14",
-    "15",
-    "16",
+const char* const sskr_descriptor_values[] = {"1",
+                                              "2",
+                                              "3",
+                                              "4",
+                                              "5",
+                                              "6",
+                                              "7",
+                                              "8",
+                                              "9",
+                                              "10",
+#ifndef TARGET_NANOS
+                                              "11",
+                                              "12",
+                                              "13",
+                                              "14",
+                                              "15",
+                                              "16"
+#endif
 };
 
 const char* sskr_threshold_getter(unsigned int idx) {

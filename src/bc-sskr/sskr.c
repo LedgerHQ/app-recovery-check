@@ -230,7 +230,7 @@ int sskr_generate(uint8_t group_threshold,
     }
 
     // Figure out how many shards we are dealing with
-    uint8_t total_shards = sskr_count_shards(group_threshold, groups, groups_len);
+    int total_shards = sskr_count_shards(group_threshold, groups, groups_len);
     if (total_shards < 0) {
         return total_shards;
     }
@@ -254,7 +254,7 @@ int sskr_generate(uint8_t group_threshold,
                                    master_secret,
                                    master_secret_len,
                                    shards,
-                                   total_shards,
+                                   (uint16_t) total_shards,
                                    random_generator);
 
     if (total_shards < 0) {

@@ -51,7 +51,8 @@ unsigned int bolos_ux_sskr_hex_decode(unsigned char *mnemonic_hex,
             mnemonic_hex + (i * mnemonic_length / sskr_shares_count) + 4 + (sskr_share_len > 23);
     }
 
-    int output_len = sskr_combine(ptr_sskr_shares, sskr_share_len, sskr_shares_count, output, 32);
+    int output_len =
+        sskr_combine(ptr_sskr_shares, sskr_share_len, (uint8_t) sskr_shares_count, output, 32);
 
     if (output_len < 1) {
         memzero(mnemonic_hex, mnemonic_length);
