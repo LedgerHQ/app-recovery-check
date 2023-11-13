@@ -236,8 +236,13 @@ void compare_recovery_phrase(void) {
     // get rootkey from device's seed
     uint8_t buffer_device[64];
 
-    if (os_derive_bip32_no_throw(CX_CURVE_256K1, NULL, 0, buffer_device, buffer_device + 32) !=
-        CX_OK) {
+    // os_derive_bip32* do not accept NULL path, even with a size of 0, so we provide an empty path
+    const unsigned int empty_path = 0;
+    if (os_derive_bip32_no_throw(CX_CURVE_256K1,
+                                 &empty_path,
+                                 0,
+                                 buffer_device,
+                                 buffer_device + 32) != CX_OK) {
         PRINTF("An error occurred while comparing the recovery phrase\n");
         return;
     }
