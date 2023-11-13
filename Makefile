@@ -35,12 +35,10 @@ APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --curve secp256k1 --path
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
     ICONNAME=glyphs/seed_nanos.gif
-else ifeq ($(TARGET_NAME), TARGET_NANOX)
-    ICONNAME=glyphs/seed_nanox.gif
-else ifeq ($(TARGET_NAME), TARGET_NANOS2)
-    ICONNAME=glyphs/seed_nanox.gif
 else ifeq ($(TARGET_NAME), TARGET_STAX)
     ICONNAME=glyphs/seed_stax_32px.gif
+else
+    ICONNAME=glyphs/seed_nanox.gif
 endif
 
 # Build configuration

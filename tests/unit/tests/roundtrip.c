@@ -129,15 +129,15 @@ static void test_sskr_to_bip39(void **state) {
                                                        sskr_group_descriptor[0],
                                                        seed_buffer);
     unsigned char bip39_word_buffer[sizeof(bip39_mnemonic)];
-    unsigned int bip39_word_buffer_len = sizeof(bip39_word_buffer);
+    int16_t bip39_word_buffer_len = sizeof(bip39_word_buffer);
 
     assert_int_equal(seed_buffer_len, sizeof(seed_buffer));
     assert_memory_equal(seed_buffer, bip39_hex, seed_buffer_len);
 
-    size_t buf_len = bolos_ux_bip39_mnemonic_encode(seed_buffer,
-                                                    sizeof(seed_buffer),
-                                                    bip39_word_buffer,
-                                                    bip39_word_buffer_len);
+    int16_t buf_len = bolos_ux_bip39_mnemonic_encode(seed_buffer,
+                                                     sizeof(seed_buffer),
+                                                     bip39_word_buffer,
+                                                     bip39_word_buffer_len);
     assert_int_equal(buf_len, bip39_word_buffer_len - 1);
     assert_memory_equal(bip39_mnemonic, bip39_word_buffer, buf_len);
 }

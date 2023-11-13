@@ -91,11 +91,11 @@ static void test_shamir_recover(void **state) {
 
     const uint8_t *shares[] = {share1_1, share1_2};
 
-    int recovery = shamir_recover_secret(threshold,
-                                         member_indexs,
-                                         shares,
-                                         share_length,
-                                         secret);
+    int16_t recovery = shamir_recover_secret(threshold,
+                                             member_indexs,
+                                             shares,
+                                             share_length,
+                                             secret);
 
     assert_int_equal(recovery, share_length);
     assert_memory_equal(secret, seed, share_length);
@@ -220,7 +220,7 @@ static void test_shamir_split(void **state) {
     const uint8_t seed_length = sizeof(seed);
     uint8_t result[seed_length * share_count];
  
-    int32_t ret_val = shamir_split_secret(threshold,
+    int16_t ret_val = shamir_split_secret(threshold,
                                           share_count,
                                           seed,
                                           seed_length,

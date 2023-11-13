@@ -6,6 +6,7 @@
 - [ ] There is just enough memory available on Nano S to hold the phrases for 10 shares. Maybe just store SSKR Bytewords as shorter two letter minimal Bytewords rather than a 4 letter Byteword plus space for each share. Convert minimal ByteWords back to four letter Bytewords just prior to display.
 - [ ] If/when the `cx_bn_gf2_n_mul()` syscall is available on Ledger Nano S change all Galois Field functionality to use syscalls.
   - See [gf_syscalls](https://github.com/aido/app-seed-tool/tree/gf_syscalls) branch of repo.
+- Remove all variable length arrays
 
 ### In Progress
 

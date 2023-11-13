@@ -24,8 +24,11 @@
 #endif
 */
 #if defined(TARGET_NANOS)
-#define BIP39_ICON C_bip39_nanos
-#define SSKR_ICON  C_sskr_nanos
+#define BIP39_ICON                         C_bip39_nanos
+#define SSKR_ICON                          C_sskr_nanos
+#define PROCESSING_COMPLETE                0
+#define PROCESSING_COMPARE_RECOVERY_PHRASE 1
+#define PROCESSING_GENERATE_SSKR           2
 #elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 #define BIP39_ICON C_bip39_nanox
 #define SSKR_ICON  C_sskr_nanox
@@ -121,6 +124,7 @@ void clean_exit(bolos_task_status_t exit_code);
 #if defined(TARGET_NANOS)
 extern const bagl_element_t screen_onboarding_word_list_elements[9];
 void compare_recovery_phrase(void);
+void generate_sskr(void);
 #else
 // to be included into all flow that needs to go back to the dashboard
 extern const ux_flow_step_t ux_ob_goto_dashboard_step;

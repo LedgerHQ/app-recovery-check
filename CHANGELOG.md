@@ -1,15 +1,17 @@
 # Change log
 
-## [1.5.2] - 2023-11-10
+## [1.5.2] - 2023-11-13
 ### Added
 -
 
 ### Changed
--
-
-### Fixed
 - Save memory by setting the SSKR word buffer to a sensible size
   - There is just enough memory available on Nano S to hold the phrases for 10 shares. Other devices can hold the full 16 shares.
+- Tidy up code that sets 'Processing' screen on Nano devices
+
+
+### Fixed
+- Fix screen freezing at 'Processing' screen on Nano devices
 
 ## [1.5.1] - 2023-11-09
 ### Added

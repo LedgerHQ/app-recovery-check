@@ -418,7 +418,7 @@ const bagl_element_t* screen_onboarding_restore_word_before_element_display_call
 }
 
 void compare_recovery_phrase(void) {
-    G_bolos_ux_context.processing = 0;
+    G_bolos_ux_context.processing = PROCESSING_COMPLETE;
     io_seproxyhal_general_status();
 
     // convert mnemonic to hex-seed
@@ -448,8 +448,14 @@ void compare_recovery_phrase(void) {
     // get rootkey from device's seed
     uint8_t buffer_device[64];
 
-    if (os_derive_bip32_no_throw(CX_CURVE_256K1, NULL, 0, buffer_device, buffer_device + 32) !=
-        CX_OK) {
+    // os_derive_bip32* do not accept NULL path, even with a size of 0, so we provide an empty path
+    const unsigned int empty_path = 0;
+
+    if (os_derive_bip32_no_throw(CX_CURVE_256K1,
+                                 &empty_path,
+                                 0,
+                                 buffer_device,
+                                 buffer_device + 32) != CX_OK) {
         PRINTF("An error occurred while comparing the recovery phrase\n");
         return;
     }
@@ -555,7 +561,7 @@ void screen_onboarding_restore_word_validate(void) {
                 // alright, the recovery phrase looks ok, finish onboarding
                 // Display processing warning to user
                 screen_processing_init();
-                G_bolos_ux_context.processing = 1;
+                G_bolos_ux_context.processing = PROCESSING_COMPARE_RECOVERY_PHRASE;
             }
         } else {
             // add a space before next word
@@ -588,7 +594,7 @@ void screen_onboarding_restore_word_validate(void) {
                     // alright, the recovery phrase looks ok, finish onboarding
                     // Display processing warning to user
                     screen_processing_init();
-                    G_bolos_ux_context.processing = 1;
+                    G_bolos_ux_context.processing = PROCESSING_COMPARE_RECOVERY_PHRASE;
                 }
             }
         } else {

@@ -14,9 +14,9 @@
 #include "sskr-constants.h"
 #include "group.h"
 
-int sskr_count_shards(uint8_t group_threshold,
-                      const sskr_group_descriptor *groups,
-                      uint8_t groups_len);
+int16_t sskr_count_shards(uint8_t group_threshold,
+                          const sskr_group_descriptor *groups,
+                          uint8_t groups_len);
 
 /**
  * generate a set of shards that can be used to reconstruct a secret
@@ -39,15 +39,15 @@ int sskr_count_shards(uint8_t group_threshold,
  *                     output[i*shard_len]..output[(i+1)*shard_len -1]
  *         buffer_size: maximum number of bytes to write to the output array
  */
-int sskr_generate(uint8_t group_threshold,
-                  const sskr_group_descriptor *groups,
-                  uint8_t groups_length,
-                  const uint8_t *master_secret,
-                  size_t master_secret_length,
-                  uint8_t *shard_len,
-                  uint8_t *output,
-                  size_t buffer_size,
-                  unsigned char *(*random_generator)(uint8_t *, size_t));
+int16_t sskr_generate(uint8_t group_threshold,
+                      const sskr_group_descriptor *groups,
+                      uint8_t groups_length,
+                      const uint8_t *master_secret,
+                      uint16_t master_secret_length,
+                      uint8_t *shard_len,
+                      uint8_t *output,
+                      uint16_t buffer_size,
+                      unsigned char *(*random_generator)(uint8_t *, size_t));
 
 /**
  * combine a set of serialized shards to reconstruct a secret
@@ -61,11 +61,11 @@ int sskr_generate(uint8_t group_threshold,
  *         buffer: location to store the result
  *         buffer_length: maximum space available in buffer
  */
-int sskr_combine(const uint8_t **input_shards,  // an array of pointers to serialized shards
-                 uint8_t shard_len,             // number of bytes in each serialized shard
-                 uint8_t shards_count,          // total number of shards
-                 uint8_t *buffer,               // working space, and place to return secret
-                 size_t buffer_length           // total amount of working space
+int16_t sskr_combine(const uint8_t **input_shards,  // an array of pointers to serialized shards
+                     uint8_t shard_len,             // number of bytes in each serialized shard
+                     uint8_t shards_count,          // total number of shards
+                     uint8_t *buffer,               // working space, and place to return secret
+                     uint16_t buffer_length         // total amount of working space
 );
 
 #endif /* SSKR_H */

@@ -30,15 +30,7 @@ UX_STEP_CB(step_bip39_clean_exit, pb, clean_exit(0), {&C_icon_dashboard_x, "Quit
 UX_FLOW(display_bip39_flow, &step_display_bip39, &step_bip39_clean_exit, FLOW_LOOP);
 
 void generate_bip39(void) {
-#if defined(TARGET_NANOS)
-    // Display processing warning to user
-    screen_processing_init();
-    G_bolos_ux_context.processing = 1;
-#endif
-// BIP39 phrase should already be in G_bolos_ux_context.words_buffer so just need to display it
-#if defined(TARGET_NANOS)
-    G_bolos_ux_context.processing = 0;
-#endif
+    // BIP39 phrase should already be in G_bolos_ux_context.words_buffer so just need to display it
     ux_flow_init(0, display_bip39_flow, NULL);
 }
 

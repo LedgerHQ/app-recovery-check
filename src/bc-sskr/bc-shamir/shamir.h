@@ -46,7 +46,7 @@ uint8_t *create_digest(const uint8_t *random_data,
  * secret secret_length: length of the secret array. must be >= 16, <= 32 and even. result: place to
  * store the resulting shares. Must be able to hold share_count * secret_length bytes
  */
-int32_t shamir_split_secret(uint8_t threshold,
+int16_t shamir_split_secret(uint8_t threshold,
                             uint8_t share_count,
                             const uint8_t *secret,
                             uint8_t secret_length,
@@ -65,7 +65,7 @@ int32_t shamir_split_secret(uint8_t threshold,
  *         share_length: number of bytes in each y value array
  *         secret: array for writing results (must be at least share_length long)
  */
-int32_t shamir_recover_secret(uint8_t threshold,
+int16_t shamir_recover_secret(uint8_t threshold,
                               const uint8_t *x,
                               const uint8_t **shares,
                               uint8_t share_length,

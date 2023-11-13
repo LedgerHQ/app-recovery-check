@@ -93,8 +93,10 @@ unsigned char io_event(unsigned char channel __attribute__((unused))) {
                 (os_seph_features() & SEPROXYHAL_TAG_SESSION_START_EVENT_FEATURE_SCREEN_BIG)) {
                 UX_REDISPLAY();
             } else {
-                if (G_bolos_ux_context.processing == 1) {
+                if (G_bolos_ux_context.processing == PROCESSING_COMPARE_RECOVERY_PHRASE) {
                     UX_DISPLAYED_EVENT(compare_recovery_phrase(););
+                } else if (G_bolos_ux_context.processing == PROCESSING_GENERATE_SSKR) {
+                    UX_DISPLAYED_EVENT(generate_sskr(););
                 } else {
                     UX_DISPLAYED_EVENT();
                 }

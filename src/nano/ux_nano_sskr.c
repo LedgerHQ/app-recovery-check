@@ -14,6 +14,8 @@
  *  limitations under the License.
  ********************************************************************************/
 
+#include <os_io_seproxyhal.h>
+
 #include "constants.h"
 #include "ui.h"
 
@@ -112,14 +114,13 @@ UX_FLOW(dynamic_flow,
         FLOW_LOOP);
 
 void generate_sskr(void) {
+#if defined(TARGET_NANOS)
+    G_bolos_ux_context.processing = PROCESSING_COMPLETE;
+    io_seproxyhal_general_status();
+#endif
+
     PRINTF("generate_sskr threshold: %d\n", G_bolos_ux_context.sskr_group_descriptor[0][0]);
     PRINTF("generate_sskr sskr number: %d\n", G_bolos_ux_context.sskr_group_descriptor[0][1]);
-
-#if defined(TARGET_NANOS)
-    // Display processing warning to user
-    screen_processing_init();
-    G_bolos_ux_context.processing = 1;
-#endif
 
     G_bolos_ux_context.sskr_share_count = 0;
     G_bolos_ux_context.sskr_words_buffer_length = 0;
@@ -131,10 +132,6 @@ void generate_sskr(void) {
                                    &G_bolos_ux_context.sskr_share_count,
                                    (unsigned char*) G_bolos_ux_context.sskr_words_buffer,
                                    &G_bolos_ux_context.sskr_words_buffer_length);
-
-#if defined(TARGET_NANOS)
-    G_bolos_ux_context.processing = 0;
-#endif
 
     if (G_bolos_ux_context.sskr_share_count > 0) {
         PRINTF("SSKR share_count from generate_sskr(): \n%d\n",
@@ -182,7 +179,14 @@ const char* sskr_threshold_getter(unsigned int idx) {
 
 void sskr_threshold_selector(unsigned int idx) {
     G_bolos_ux_context.sskr_group_descriptor[0][0] = idx + 1;
+
+#if defined(TARGET_NANOS)
+    // Display processing warning to user
+    screen_processing_init();
+    G_bolos_ux_context.processing = PROCESSING_GENERATE_SSKR;
+#else
     generate_sskr();
+#endif
 }
 
 UX_STEP_NOCB(ux_threshold_instruction_step, nn, {"Select", "threshold"});

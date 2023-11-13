@@ -32,7 +32,7 @@ uint8_t *create_digest(const uint8_t *random_data,
     return result;
 }
 
-static int32_t validate_parameters(uint8_t threshold, uint8_t share_count, uint8_t secret_length) {
+static int16_t validate_parameters(uint8_t threshold, uint8_t share_count, uint8_t secret_length) {
     if (share_count > SHAMIR_MAX_SHARE_COUNT) {
         return SHAMIR_ERROR_TOO_MANY_SHARES;
     } else if (threshold < 1 || threshold > share_count) {
@@ -49,7 +49,7 @@ static int32_t validate_parameters(uint8_t threshold, uint8_t share_count, uint8
 
 //////////////////////////////////////////////////
 // shamir sharing
-int32_t shamir_split_secret(uint8_t threshold,
+int16_t shamir_split_secret(uint8_t threshold,
                             uint8_t share_count,
                             const uint8_t *secret,
                             uint8_t secret_length,
@@ -110,7 +110,7 @@ int32_t shamir_split_secret(uint8_t threshold,
 
 // returns the number of bytes written to the secret array, or a negative value if there was an
 // error
-int32_t shamir_recover_secret(uint8_t threshold,
+int16_t shamir_recover_secret(uint8_t threshold,
                               const uint8_t *x,
                               const uint8_t **shares,
                               uint8_t share_length,

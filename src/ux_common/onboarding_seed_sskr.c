@@ -51,8 +51,11 @@ unsigned int bolos_ux_sskr_hex_decode(unsigned char *mnemonic_hex,
             mnemonic_hex + (i * mnemonic_length / sskr_shares_count) + 4 + (sskr_share_len > 23);
     }
 
-    int output_len =
-        sskr_combine(ptr_sskr_shares, sskr_share_len, (uint8_t) sskr_shares_count, output, 32);
+    uint16_t output_len = sskr_combine(ptr_sskr_shares,
+                                       sskr_share_len,
+                                       (uint8_t) sskr_shares_count,
+                                       output,
+                                       SSKR_MAX_STRENGTH_BYTES);
 
     if (output_len < 1) {
         memzero(mnemonic_hex, mnemonic_length);
@@ -71,7 +74,7 @@ void bolos_ux_sskr_hex_to_seed(unsigned char *mnemonic_hex,
                                unsigned char *seed) {
     PRINTF("SSKR mnemonic in hex:\n %.*H\n", mnemonic_length, mnemonic_hex);
 
-    uint8_t seed_buffer[32] = {0};
+    uint8_t seed_buffer[SSKR_MAX_STRENGTH_BYTES] = {0};
     uint8_t seed_buffer_len =
         bolos_ux_sskr_hex_decode(mnemonic_hex, mnemonic_length, sskr_shares_count, seed_buffer);
 
@@ -99,7 +102,8 @@ unsigned int bolos_ux_sskr_generate(uint8_t groups_threshold,
         groups[i].count = *(group_descriptor + 1 + i * 2);
     }
 
-    if (!(16 <= seed_len && seed_len <= 32) || (seed_len % 2 != 0)) {
+    if (!(SSKR_MIN_STRENGTH_BYTES <= seed_len && seed_len <= SSKR_MAX_STRENGTH_BYTES) ||
+        (seed_len % 2 != 0)) {
         return 0;
     }
 

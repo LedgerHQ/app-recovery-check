@@ -84,23 +84,23 @@ static void test_sskr_generate(void **state) {
                               0x57, 0xA8, 0x4C, 0x9F, 0x21, 0xAA, 0xF5, 0x56,
                               0x49, 0x91, 0x30, 0xCF, 0xAD, 0x2E, 0xBA};
 
-    const size_t groups_threshold = 1;
+    const uint8_t groups_threshold = 1;
     const sskr_group_descriptor groups[] = { { .threshold = 2, .count = 3 } };
-    const size_t groups_len = 1;
-    const size_t seed_len = sizeof(seed);
-    const size_t share_buffer_len = (seed_len + SSKR_METADATA_LENGTH_BYTES) * groups[0].count;
+    const uint8_t groups_len = 1;
+    const uint8_t seed_len = sizeof(seed);
+    const uint16_t share_buffer_len = (seed_len + SSKR_METADATA_LENGTH_BYTES) * groups[0].count;
     uint8_t share_buffer[share_buffer_len];
     uint8_t share_len;
 
-    int share_count = sskr_generate(groups_threshold,
-                                    groups,
-                                    groups_len,
-                                    seed,
-                                    seed_len,
-                                    &share_len,
-                                    share_buffer,
-                                    share_buffer_len,
-                                    cx_rng);
+    int16_t share_count = sskr_generate(groups_threshold,
+                                        groups,
+                                        groups_len,
+                                        seed,
+                                        seed_len,
+                                        &share_len,
+                                        share_buffer,
+                                        share_buffer_len,
+                                        cx_rng);
 
     assert_int_equal(share_count, groups[0].count);
     assert_int_equal(share_len, share_buffer_len / groups[0].count);
@@ -126,12 +126,12 @@ static void test_sskr_combine(void **state) {
 			  0x48, 0xF1, 0x90, 0x65, 0x36, 0x21, 0xB9, 0xE8,
 			  0xA6, 0x02, 0xDD, 0x13, 0x2A};
 
-    size_t share_len = sizeof(share1_1);
+    uint8_t share_len = sizeof(share1_1);
     const uint8_t *shares[] = {share1_1, share1_2};
-    size_t share_count = 2;
+    uint8_t share_count = 2;
     uint8_t output[sizeof(seed)];
 
-    int output_len = sskr_combine(shares, share_len, share_count, output, sizeof(output));
+    int16_t output_len = sskr_combine(shares, share_len, share_count, output, sizeof(output));
 
     assert_int_equal(output_len, sizeof(seed));
     assert_memory_equal(output, seed, output_len);
