@@ -70,9 +70,9 @@ int16_t shamir_split_secret(uint8_t threshold,
         }
         return share_count;
     } else {
-        uint8_t digest[secret_length];
-        uint8_t x[16];
-        const uint8_t *y[16];
+        uint8_t digest[SHAMIR_MAX_SECRET_SIZE];
+        uint8_t x[SHAMIR_MAX_SHARE_COUNT];
+        const uint8_t *y[SHAMIR_MAX_SHARE_COUNT];
         uint8_t n = 0;
         uint8_t *share = result;
 
@@ -120,7 +120,7 @@ int16_t shamir_recover_secret(uint8_t threshold,
         return err;
     }
 
-    uint8_t digest[share_length];
+    uint8_t digest[SHAMIR_MAX_SECRET_SIZE];
     uint8_t verify[4];
     uint8_t valid = 1;
 

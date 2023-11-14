@@ -163,7 +163,7 @@ static int16_t generate_shards(uint8_t group_threshold,
         return SSKR_ERROR_INVALID_GROUP_THRESHOLD;
     }
 
-    uint8_t group_shares[master_secret_len * groups_len];
+    uint8_t group_shares[SHAMIR_MAX_SECRET_SIZE * SSKR_MAX_GROUP_COUNT];
 
     shamir_split_secret(group_threshold,
                         groups_len,
@@ -178,7 +178,7 @@ static int16_t generate_shards(uint8_t group_threshold,
     sskr_shard *shard;
 
     for (uint8_t i = 0; i < groups_len; ++i, group_share += master_secret_len) {
-        uint8_t member_shares[master_secret_len * groups[i].count];
+        uint8_t member_shares[SHAMIR_MAX_SECRET_SIZE * SHAMIR_MAX_SHARE_COUNT];
         shamir_split_secret(groups[i].threshold,
                             groups[i].count,
                             group_share,
@@ -247,7 +247,7 @@ int16_t sskr_generate(uint8_t group_threshold,
     int16_t error = 0;
 
     // allocate space for shard representations
-    sskr_shard shards[total_shards];
+    sskr_shard shards[SHAMIR_MAX_SHARE_COUNT * SSKR_MAX_GROUP_COUNT];
 
     // generate shards
     total_shards = generate_shards(group_threshold,
@@ -292,8 +292,8 @@ typedef struct sskr_group_struct {
     uint8_t group_index;
     uint8_t member_threshold;
     uint8_t count;
-    uint8_t member_index[16];
-    const uint8_t *value[16];
+    uint8_t member_index[SHAMIR_MAX_SHARE_COUNT];
+    const uint8_t *value[SHAMIR_MAX_SHARE_COUNT];
 } sskr_group;
 
 /**
@@ -317,7 +317,7 @@ static int16_t combine_shards_internal(
     }
 
     uint8_t next_group = 0;
-    sskr_group groups[16];
+    sskr_group groups[SSKR_MAX_GROUP_COUNT];
     uint8_t secret_len = 0;
 
     for (uint8_t i = 0; i < shards_count; ++i) {
@@ -376,11 +376,12 @@ static int16_t combine_shards_internal(
     // here, all of the shards are unpacked into member groups. Now we go through each
     // group and recover the group secret, and then use the result to recover the
     // master secret
-    uint8_t gx[16];
-    const uint8_t *gy[16];
+    uint8_t gx[SHAMIR_MAX_SHARE_COUNT];
+    const uint8_t *gy[SHAMIR_MAX_SHARE_COUNT];
 
     // allocate enough space for the group shards and the encrypted master secret
-    uint8_t group_shares[secret_len * (group_threshold + 1)];
+    uint8_t group_shares[SSKR_MAX_STRENGTH_BYTES * (SSKR_MAX_GROUP_COUNT + 1)];
+
     uint8_t *group_share = group_shares;
 
     for (uint8_t i = 0; !error && i < (uint8_t) next_group; ++i) {
@@ -449,7 +450,7 @@ int16_t sskr_combine(const uint8_t **input_shards,  // array of pointers to 10-b
         return SSKR_ERROR_EMPTY_SHARD_SET;
     }
 
-    sskr_shard shards[shards_count];
+    sskr_shard shards[SHAMIR_MAX_SHARE_COUNT * SSKR_MAX_GROUP_COUNT];
 
     for (uint16_t i = 0; !result && i < shards_count; ++i) {
         shards[i].value_len = 32;

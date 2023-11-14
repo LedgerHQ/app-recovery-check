@@ -56,7 +56,7 @@ static void on_quit(void) {
 /*
  * About menu
  */
-static const char *const infoTypes[] = {"Version", APPNAME};
+static const char *const infoTypes[] = {"Version", "Seed Tool"};
 static const char *const infoContents[] = {APPVERSION, "(c) 2023 Ledger"};
 
 static bool on_infos(uint8_t page, nbgl_pageContent_t *content) {
@@ -411,18 +411,12 @@ static void display_bip39_keyboard_page() {
  */
 
 static void display_settings_page() {
-    char infos[] = " infos";
-    size_t len = sizeof(APPNAME) + sizeof(infos);
-    char appname_infos[len];
-
-    strlcpy(appname_infos, APPNAME, len);
-    strlcat(appname_infos, infos, len);
-    nbgl_useCaseSettings(appname_infos, 0, 1, false, display_home_page, on_infos, NULL);
+    nbgl_useCaseSettings("Seed Tool infos", 0, 1, false, display_home_page, on_infos, NULL);
 }
 
 static void display_home_page() {
     reset_globals();
-    nbgl_useCaseHomeExt(APPNAME,
+    nbgl_useCaseHomeExt("Seed Tool",
                         &C_seed_stax_64px,
                         "This app lets you enter a\nSecret Recovery Phrase and\ntest if it matches "
                         "the one\npresent on this Ledger Stax",

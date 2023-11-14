@@ -25,7 +25,7 @@ void bolos_ux_bip39_mnemonic_to_seed(unsigned char* mnemonic,
                                      unsigned char* seed) {
     // Need to keep BIP39 mnemonic in case we want to generate SSKR from it
     // It will be zeroed later if not needed
-    unsigned char mnemonic_hash[mnemonic_length];
+    unsigned char mnemonic_hash[257];
     memcpy(mnemonic_hash, mnemonic, mnemonic_length);
     unsigned char passphrase[BIP39_MNEMONIC_LENGTH + 4];
     mnemonic_length =
@@ -38,7 +38,7 @@ void bolos_ux_bip39_mnemonic_to_seed(unsigned char* mnemonic,
                      BIP39_PBKDF2_ROUNDS,
                      seed,
                      64);
-    memzero(mnemonic_hash, mnemonic_length);
+    memzero(mnemonic_hash, sizeof(mnemonic_hash));
     PRINTF("BIP39 seed:\n %.*H\n", 64, seed);
 }
 

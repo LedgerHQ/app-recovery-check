@@ -6,7 +6,7 @@
 
 #include "onboarding_seed_rom_variables.h"
 #include "common_bip39.h"
-#include "bc-sskr/sskr.h"
+#include "sskr.h"
 
 // Returns the CRC-32 checksum of the input buffer in network byte order (big endian).
 uint32_t cx_crc32_hw_nbo(const uint8_t *bytes, size_t len) {
@@ -24,7 +24,7 @@ unsigned int bolos_ux_sskr_size_get(uint8_t bip39_onboarding_kind,
                                     unsigned int *group_descriptor,
                                     uint8_t groups_len,
                                     uint8_t *share_len) {
-    sskr_group_descriptor groups[groups_len];
+    sskr_group_descriptor groups[SSKR_MAX_GROUP_COUNT];
     for (uint8_t i = 0; i < groups_len; i++) {
         groups[i].threshold = *(group_descriptor + i * sizeof(*(group_descriptor)) / groups_len);
         groups[i].count = *(group_descriptor + 1 + i * sizeof(*(group_descriptor)) / groups_len);
@@ -40,7 +40,7 @@ unsigned int bolos_ux_sskr_hex_decode(unsigned char *mnemonic_hex,
                                       unsigned int mnemonic_length,
                                       unsigned int sskr_shares_count,
                                       unsigned char *output) {
-    const uint8_t *ptr_sskr_shares[sskr_shares_count];
+    const uint8_t *ptr_sskr_shares[SSKR_MAX_GROUP_COUNT * SHAMIR_MAX_SHARE_COUNT];
     uint8_t sskr_share_len = mnemonic_hex[3] & 0x1F;
     if (sskr_share_len > 23) {
         sskr_share_len = mnemonic_hex[4];
@@ -58,7 +58,7 @@ unsigned int bolos_ux_sskr_hex_decode(unsigned char *mnemonic_hex,
                                        SSKR_MAX_STRENGTH_BYTES);
 
     if (output_len < 1) {
-        memzero(mnemonic_hex, mnemonic_length);
+        memzero(mnemonic_hex, sizeof(mnemonic_hex));
         return 0;
     }
 
@@ -96,7 +96,8 @@ unsigned int bolos_ux_sskr_generate(uint8_t groups_threshold,
                                     unsigned int share_buffer_len,
                                     uint8_t share_len_expected,
                                     uint8_t share_count_expected) {
-    sskr_group_descriptor groups[groups_len];
+    sskr_group_descriptor groups[SSKR_MAX_GROUP_COUNT];
+
     for (uint8_t i = 0; i < (uint8_t) groups_len; i++) {
         groups[i].threshold = *(group_descriptor + i * 2);
         groups[i].count = *(group_descriptor + 1 + i * 2);
@@ -121,7 +122,7 @@ unsigned int bolos_ux_sskr_generate(uint8_t groups_threshold,
 
     if ((share_count < 0) || ((unsigned int) share_count != share_count_expected) ||
         (*share_len != share_len_expected)) {
-        memzero(&share_buffer, share_buffer_len);
+        memzero(&share_buffer, sizeof(share_buffer));
         return 0;
     }
     PRINTF("SSKR generate output:\n %.*H\n", share_buffer_len, share_buffer);
@@ -144,7 +145,7 @@ unsigned int bolos_ux_sskr_mnemonic_encode(unsigned char *input,
             (offset <= SSKR_WORDLIST_LENGTH - SSKR_MNEMONIC_LENGTH)) {
             memcpy(output + position, SSKR_WORDLIST + offset, SSKR_MNEMONIC_LENGTH);
         } else {
-            memzero(output, output_len);
+            memzero(output, sizeof(output));
             return 0;
         }
         position += SSKR_MNEMONIC_LENGTH;
@@ -165,14 +166,13 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                                             unsigned int *mnemonics_len) {
     // get seed from bip39 mnemonic
     uint8_t seed_len = bip39_onboarding_kind * 4 / 3;
-    uint8_t seed_buffer[seed_len + 1];
+    uint8_t seed_buffer[SSKR_MAX_STRENGTH_BYTES + 1];
 
     if (bolos_ux_bip39_mnemonic_decode(bip39_words_buffer,
                                        bip39_words_buffer_length,
                                        seed_buffer,
                                        seed_len + 1) == 1) {
-        memzero(bip39_words_buffer, bip39_words_buffer_length);
-        bip39_words_buffer_length = 0;
+        memzero(bip39_words_buffer, sizeof(bip39_words_buffer));
         uint8_t groups_len = 1;
         uint8_t groups_threshold = 1;
         uint8_t share_len_expected = 0;
@@ -182,8 +182,9 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                                                               groups_len,
                                                               &share_len_expected);
 
-        size_t share_buffer_len = share_count_expected * share_len_expected;
-        uint8_t share_buffer[share_buffer_len];
+        uint16_t share_buffer_len = share_count_expected * share_len_expected;
+        uint8_t share_buffer[SSKR_MAX_GROUP_COUNT * SHAMIR_MAX_SHARE_COUNT *
+                             (SSKR_MAX_STRENGTH_BYTES + SSKR_METADATA_LENGTH_BYTES)];
         uint8_t share_len = 0;
         *share_count = bolos_ux_sskr_generate(groups_threshold,
                                               group_descriptor,
@@ -195,7 +196,7 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                                               share_buffer_len,
                                               share_len_expected,
                                               share_count_expected);
-        memzero(seed_buffer, seed_len);
+        memzero(seed_buffer, sizeof(seed_buffer));
         if (*share_count > 0) {
             // CBOR Tag #309 is D9 0135
             // CBOR Major type 2 is 0x40
@@ -214,7 +215,8 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
             uint8_t checksum_len = sizeof(checksum);
 
             size_t cbor_share_crc_buffer_len = cbor_len + share_len + checksum_len;
-            uint8_t cbor_share_crc_buffer[cbor_share_crc_buffer_len];
+            uint8_t cbor_share_crc_buffer[4 + SSKR_METADATA_LENGTH_BYTES + 1 +
+                                          SSKR_MAX_STRENGTH_BYTES + 4];
 
             // mnemonics_len is space separated bytewords of cbor + share + checksum
             *mnemonics_len =
@@ -234,20 +236,20 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                         cbor_share_crc_buffer_len,
                         mnemonics + share * (*mnemonics_len / *share_count),
                         *mnemonics_len / *share_count) < 1) {
-                    memzero(share_buffer, share_buffer_len);
-                    memzero(cbor_share_crc_buffer, cbor_share_crc_buffer_len);
-                    memzero(mnemonics, *mnemonics_len);
+                    memzero(share_buffer, sizeof(share_buffer));
+                    memzero(cbor_share_crc_buffer, sizeof(cbor_share_crc_buffer));
+                    memzero(mnemonics, sizeof(mnemonics));
                     mnemonics_len = 0;
-                    memzero(bip39_words_buffer, bip39_words_buffer_length);
+                    memzero(bip39_words_buffer, sizeof(bip39_words_buffer));
                     return 0;
                 }
-                memzero(cbor_share_crc_buffer, cbor_share_crc_buffer_len);
+                memzero(cbor_share_crc_buffer, sizeof(cbor_share_crc_buffer));
                 checksum = 0;
             }
-            memzero(share_buffer, share_buffer_len);
+            memzero(share_buffer, sizeof(share_buffer));
         }
     }
-    memzero(bip39_words_buffer, bip39_words_buffer_length);
+    memzero(bip39_words_buffer, sizeof(bip39_words_buffer));
 
     return 1;
 }
@@ -273,7 +275,7 @@ unsigned int bolos_ux_sskr_hex_check(unsigned char *mnemonic_hex,
                  &checksum,
                  mnemonic_hex + ((mnemonic_length / sskr_shares_count) * (i + 1)) - checksum_len,
                  checksum_len) != 0)) {
-            memzero(mnemonic_hex, mnemonic_length);
+            memzero(mnemonic_hex, sizeof(mnemonic_hex));
             checksum = 0;
             return 0;
         };

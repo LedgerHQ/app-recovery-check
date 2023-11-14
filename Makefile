@@ -113,7 +113,7 @@ ifeq ($(GCCPATH),)
 endif
 
 CC := $(CLANGPATH)clang
-CFLAGS += -O3 -Os -Wshadow -Wformat -Wno-vla -DAPPNAME=\"$(APPNAME)\"
+CFLAGS += -O3 -Os -Wshadow -Wformat -DAPPNAME=\"$(APPNAME)\"
 AS := $(GCCPATH)arm-none-eabi-gcc
 LD := $(GCCPATH)arm-none-eabi-gcc
 LDFLAGS += -O3 -Os

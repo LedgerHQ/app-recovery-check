@@ -11,9 +11,8 @@
 #include <stdint.h>
 #include "shamir-constants.h"
 
-#define SHAMIR_MAX_SHARE_COUNT 16
-#define SECRET_INDEX           255
-#define DIGEST_INDEX           254
+#define SECRET_INDEX 255
+#define DIGEST_INDEX 254
 
 /**
  * creates a digest used to help valididate secret reconstruction (see SLIP-39 docs)

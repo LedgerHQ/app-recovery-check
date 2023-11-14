@@ -33,7 +33,7 @@ static void hazmat_lagrange_basis(uint8_t *values, uint8_t n, const uint8_t *xc,
     uint8_t xx[32 + 16];
     uint8_t i;
 
-    uint32_t x_slice[8], lxi[n][8];
+    uint32_t x_slice[8], lxi[SHAMIR_MAX_SHARE_COUNT][8];
 
     uint32_t numerator[8], denominator[8], temp[8];
 
@@ -124,8 +124,8 @@ int16_t interpolate(uint8_t n,            // number of points to interpolate
 ) {
     // The hazmat gf256 implementation needs the y-coordinate data
     // to be in 32-byte blocks
-    uint8_t *y[n];
-    uint8_t yv[SHAMIR_MAX_SECRET_SIZE * n];
+    uint8_t *y[SHAMIR_MAX_SHARE_COUNT];
+    uint8_t yv[SHAMIR_MAX_SECRET_SIZE * SHAMIR_MAX_SHARE_COUNT];
     uint8_t values[SHAMIR_MAX_SECRET_SIZE];
 
     memzero(yv, SHAMIR_MAX_SECRET_SIZE * n);
@@ -134,7 +134,7 @@ int16_t interpolate(uint8_t n,            // number of points to interpolate
         memcpy(y[i], yij[i], yl);
     }
 
-    uint8_t lagrange[n];
+    uint8_t lagrange[SHAMIR_MAX_SHARE_COUNT];
     uint32_t y_slice[8], result_slice[8], temp[8];
 
     hazmat_lagrange_basis(lagrange, n, xi, x);
