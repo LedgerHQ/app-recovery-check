@@ -376,8 +376,8 @@ static int16_t combine_shards_internal(
     // here, all of the shards are unpacked into member groups. Now we go through each
     // group and recover the group secret, and then use the result to recover the
     // master secret
-    uint8_t gx[SHAMIR_MAX_SHARE_COUNT];
-    const uint8_t *gy[SHAMIR_MAX_SHARE_COUNT];
+    uint8_t gx[SSKR_MAX_GROUP_COUNT];
+    const uint8_t *gy[SSKR_MAX_GROUP_COUNT];
 
     // allocate enough space for the group shards and the encrypted master secret
     uint8_t group_shares[SSKR_MAX_STRENGTH_BYTES * (SSKR_MAX_GROUP_COUNT + 1)];

@@ -1,5 +1,15 @@
 # Change log
 
+## [1.5.3] - 2023-11-16
+### Added
+-
+
+### Changed
+- 
+
+### Fixed
+- Fixed CodeQL warnings about sign check of a bitwise operation
+
 ## [1.5.2] - 2023-11-15
 ### Added
 -
@@ -9,7 +19,6 @@
   - There is just enough memory available on Nano S to hold the phrases for 10 shares. Other devices can hold the full 16 shares.
 - Tidied up code that sets 'Processing' screen on Nano S devices
 - Changed all Variable Length Arrays to a defined length
-
 
 ### Fixed
 - Fix freezing at 'Processing' screen on Nano S devices

@@ -153,7 +153,7 @@ unsigned int bolos_ux_bip39_mnemonic_encode(const uint8_t* seed,
         idx = 0;
         for (j = 0; j < 11; j++) {
             idx <<= 1;
-            idx += (bits[(i * 11 + j) / 8] & (1 << (7 - ((i * 11 + j) % 8)))) > 0;
+            idx += (bits[(i * 11 + j) / 8] & (1 << (7 - ((i * 11 + j) % 8)))) != 0;
         }
         word_len = BIP39_WORDLIST_OFFSETS[idx + 1] - BIP39_WORDLIST_OFFSETS[idx];
         if ((offset + word_len) > out_len) {

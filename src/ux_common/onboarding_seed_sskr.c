@@ -141,8 +141,7 @@ unsigned int bolos_ux_sskr_mnemonic_encode(unsigned char *input,
 
     for (uint8_t i = 0; i < (uint8_t) input_len; i++) {
         offset = SSKR_MNEMONIC_LENGTH * input[i];
-        if ((position + SSKR_MNEMONIC_LENGTH <= output_len) &&
-            (offset <= SSKR_WORDLIST_LENGTH - SSKR_MNEMONIC_LENGTH)) {
+        if (position + SSKR_MNEMONIC_LENGTH <= output_len) {
             memcpy(output + position, SSKR_WORDLIST + offset, SSKR_MNEMONIC_LENGTH);
         } else {
             memzero(output, sizeof(output));

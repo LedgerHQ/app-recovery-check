@@ -37,7 +37,10 @@ The application uses [Sharded Secret Key Reconstruction (SSKR)](https://github.c
 For more information about SSKR, see [SSKR for Users](https://github.com/BlockchainCommons/crypto-commons/blob/master/Docs/sskr-users.md).
 
 > [!NOTE]
-> Generated Shamir's Secret Shares may be cheaply and safely backed up to a steel wallet using the method described [here](https://blockmit.com/english/guides/diy/make-cold-wallet-washers/) or [here](https://jlopp.github.io/metal-bitcoin-storage-reviews/reviews/safu-ninja/). This will keep your backup safe in event of fire, flood or natural disaster.
+> SSKR is non-deterministic. There is a random factor introduced when the shares are created, which means that every time you generate shares they will be different. This is an expected and correct result.
+
+> [!TIP]
+> Generated Shamir's Secret Shares may be cheaply and safely backed up to a steel wallet using the methods described [here](https://blockmit.com/english/guides/diy/make-cold-wallet-washers/), [here](https://jlopp.github.io/metal-bitcoin-storage-reviews/reviews/safu-ninja/) or [here](https://github.com/BlockchainCommons/crypto-commons/blob/master/Docs/sskr-cold-storage.md). This will keep your backup safe in event of fire, flood or natural disaster.
 
 ## Check Shamir's secret shares
 The Ledger application also provides an option to confirm the onboarded seed against SSKR shares.
