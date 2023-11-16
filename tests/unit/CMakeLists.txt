@@ -71,10 +71,14 @@ target_link_libraries(test_shamir PUBLIC cmocka gcov testutils shamir)
 add_executable(test_sskr tests/sskr.c)
 target_link_libraries(test_sskr PUBLIC cmocka gcov testutils sskr shamir)
 
+add_executable(test_bip39 ./tests/bip39.c ../../src/ux_common/onboarding_seed_rom_variables.c  ../../src/ux_common/onboarding_seed_bip39.c)
+target_include_directories(test_bip39 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src/ux_common)
+target_link_libraries(test_bip39 PUBLIC cmocka gcov testutils)
+
 add_executable(test_roundtrip ./tests/roundtrip.c ../../src/ux_common/onboarding_seed_rom_variables.c ../../src/ux_common/onboarding_seed_bip39.c ../../src/ux_common/onboarding_seed_sskr.c)
 target_include_directories(test_roundtrip PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src ${CMAKE_CURRENT_SOURCE_DIR}/../../src/ux_common)
 target_link_libraries(test_roundtrip PUBLIC cmocka gcov testutils sskr shamir)
 
-foreach(target test_shamir test_sskr test_roundtrip)
+foreach(target test_shamir test_sskr test_bip39 test_roundtrip)
     add_test(NAME ${target} COMMAND ${target})
 endforeach()

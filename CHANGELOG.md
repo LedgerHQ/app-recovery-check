@@ -2,7 +2,7 @@
 
 ## [1.5.3] - 2023-11-16
 ### Added
--
+-  Added unit tests for BIP39
 
 ### Changed
 - 
