@@ -5,7 +5,6 @@
 #include <cmocka.h>
 #include <string.h>
 
-
 #include "testutils.h"
 #include "common_bip39.h"
 
@@ -46,7 +45,6 @@ static void test_bip39_words(void **state) {
     assert_int_equal(return_num, 2);
     assert_string_equal(next_letters, "eo");
 }
-
 
 int main(void) {
     const struct CMUnitTest tests[] = {

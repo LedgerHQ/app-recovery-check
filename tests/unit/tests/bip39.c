@@ -28,7 +28,6 @@ static void test_bip39(void **state) {
     assert_memory_equal(buffer, seed, sizeof(seed));
 }
 
-
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_bip39)

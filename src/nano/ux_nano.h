@@ -18,11 +18,6 @@
 
 #include "ux_common/common.h"
 
-/*
-#if defined(TARGET_NANOS)
-#define ARRAYLEN(array) (sizeof(array) / sizeof(array[0]))
-#endif
-*/
 #if defined(TARGET_NANOS)
 #define BIP39_ICON                         C_bip39_nanos
 #define SSKR_ICON                          C_sskr_nanos

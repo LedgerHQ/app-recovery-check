@@ -46,7 +46,6 @@ static void test_sskr_words(void **state) {
     assert_string_equal(next_letters, "aeio");
 }
 
-
 int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_sskr_words)
