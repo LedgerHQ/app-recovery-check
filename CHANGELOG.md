@@ -1,6 +1,6 @@
 # Change log
 
-## [1.5.3] - 2023-11-16
+## [1.5.3] - 2023-11-18
 ### Added
 - Added unit tests for BIP39
 - Added unit tests for BIP39 word list and SSKR word list
@@ -10,6 +10,7 @@
 
 ### Fixed
 - Fixed CodeQL warnings about sign check of a bitwise operation
+- Fixed issue with restarting input from a previous word on Nano S
 
 ## [1.5.2] - 2023-11-15
 ### Added

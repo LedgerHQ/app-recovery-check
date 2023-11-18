@@ -47,6 +47,9 @@ For more information about SSKR, see [SSKR for Users](https://github.com/Blockch
 ## Check Shamir's secret shares
 The Ledger application also provides an option to confirm the onboarded seed against SSKR shares.
 
+## Generate BIP39
+When the Shamir's secret shares have been validated the user can generate the BIP39 recovery phrase derived from those shares. This option takes advantage of SSKR's ability to perform a BIP39 <-> SSKR round trip. If a user has lost or damaged their original Ledger device they may need to generate the BIP39 recovery phrase on another secure device. A BIP39 recovery phrase may still be generated even if the SSKR phrases do not match the onboarded seed of a device but are still valid SSKR shares.
+
 ## Generate [BIP85](https://github.com/bitcoin/bips/blob/master/bip-0085.mediawiki)
 Coming soon!!!!
 

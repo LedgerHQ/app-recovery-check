@@ -7,7 +7,7 @@ There are a couple of ways of running each test. Using curl to POST button pushe
 ### 12 Word Tests
 #### API with curl 
 ```bash
-./speculos.py ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "fly mule excess resource treat plunge nose soda reflect adult ramp planet"
+./speculos.py ../app-seed-tool/build/nanos/bin/app.elf --model nanos --seed "fly mule excess resource treat plunge nose soda reflect adult ramp planet"
 ```
 ##### nanos
 ```bash
@@ -22,12 +22,12 @@ cut -d# -f1 ./tests/deprecated/stax-bip39-12-word.test | while read LINE ; do ec
 ```
 #### Speculos automation
 ```bash
-./speculos.py --automation file:../app-sskr-check/test/speculos/nanos-bip39-12-word.json ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "fly mule excess resource treat plunge nose soda reflect adult ramp planet"
+./speculos.py --automation file:../app-seed-tool/test/speculos/nanos-bip39-12-word.json ../app-seed-tool/build/nanos/bin/app.elf --model nanos --seed "fly mule excess resource treat plunge nose soda reflect adult ramp planet"
 ```
 ### 18 Word Tests
 #### API with curl 
 ```bash
-./speculos.py ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "profit result tip galaxy hawk immune hockey series melody grape unusual prize nothing federal dad crew pact sad"
+./speculos.py ../app-seed-tool/build/nanos/bin/app.elf --model nanos --seed "profit result tip galaxy hawk immune hockey series melody grape unusual prize nothing federal dad crew pact sad"
 ```
 ```bash
 while read -a LINE
@@ -37,12 +37,12 @@ done < ./test/speculos/nanos-bip39-18-word.test > /dev/null 2>&1 &
 ```
 #### Speculos automation
 ```bash
-./speculos.py --automation file:../app-sskr-check/test/speculos/nanos-bip39-18-word.json ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "profit result tip galaxy hawk immune hockey series melody grape unusual prize nothing federal dad crew pact sad"
+./speculos.py --automation file:../app-seed-tool/test/speculos/nanos-bip39-18-word.json ../app-seed-tool/build/nanos/bin/app.elf --model nanos --seed "profit result tip galaxy hawk immune hockey series melody grape unusual prize nothing federal dad crew pact sad"
 ```
 ### 24 Word Tests
 #### API with curl 
 ```bash
-./speculos.py ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "toe priority custom gauge jacket theme arrest bargain gloom wide ill fit eagle prepare capable fish limb cigar reform other priority speak rough imitate"
+./speculos.py ../app-seed-tool/build/nanos/bin/app.elf --model nanos --seed "toe priority custom gauge jacket theme arrest bargain gloom wide ill fit eagle prepare capable fish limb cigar reform other priority speak rough imitate"
 ```
 ```bash
 while read -a LINE
@@ -52,7 +52,7 @@ done < ./test/speculos/nanos-bip39-24-word.test > /dev/null 2>&1 &
 ```
 #### Speculos automation
 ```bash
-./speculos.py --automation file:../app-sskr-check/test/speculos/nanos-bip39-24-word.json ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "toe priority custom gauge jacket theme arrest bargain gloom wide ill fit eagle prepare capable fish limb cigar reform other priority speak rough imitate"
+./speculos.py --automation file:../app-seed-tool/test/speculos/nanos-bip39-24-word.json ../app-seed-tool/build/nanos/bin/app.elf --model nanos --seed "toe priority custom gauge jacket theme arrest bargain gloom wide ill fit eagle prepare capable fish limb cigar reform other priority speak rough imitate"
 ```
 ## SSKR
 ### 128-bit seed
@@ -60,7 +60,7 @@ Tests taken from the [SSKR Example & Test Vector]( https://github.com/Blockchain
 
 #### API with curl 
 ```bash
-./speculos.py ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "fly mule excess resource treat plunge nose soda reflect adult ramp planet"
+./speculos.py ../app-seed-tool/build/nanos/bin/app.elf --model nanos --seed "fly mule excess resource treat plunge nose soda reflect adult ramp planet"
 ```
 ```bash
 while read -a LINE
@@ -70,13 +70,13 @@ done < ./test/speculos/nanos-sskr-128bit.test > /dev/null 2>&1 &
 ```
 #### Speculos automation
 ```bash
-./speculos.py --automation file:../app-sskr-check/test/speculos/nanos-sskr-128bit.json ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "fly mule excess resource treat plunge nose soda reflect adult ramp planet"
+./speculos.py --automation file:../app-seed-tool/test/speculos/nanos-sskr-128bit.json ../app-seed-tool/build/nanos/bin/app.elf --model nanos --seed "fly mule excess resource treat plunge nose soda reflect adult ramp planet"
 ```
 ### 256-bit seed
 Tests taken from the [SSKR Example & Test Vector]( https://github.com/BlockchainCommons/crypto-commons/blob/master/Docs/sskr-test-vector.md#256-bit-seed) page.
 #### API with curl 
 ```bash
-./speculos.py ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "toe priority custom gauge jacket theme arrest bargain gloom wide ill fit eagle prepare capable fish limb cigar reform other priority speak rough imitate"
+./speculos.py ../app-seed-tool/build/nanos/bin/app.elf --model nanos --seed "toe priority custom gauge jacket theme arrest bargain gloom wide ill fit eagle prepare capable fish limb cigar reform other priority speak rough imitate"
 ```
 ```bash
 while read -a LINE
@@ -86,5 +86,5 @@ done < ./test/speculos/nanos-sskr-256bit.test > /dev/null 2>&1 &
 ```
 #### Speculos automation
 ```bash
-./speculos.py --automation file:../app-sskr-check/test/speculos/nanos-sskr-256bit.json ../app-sskr-check/build/nanos/bin/app.elf --model nanos --seed "toe priority custom gauge jacket theme arrest bargain gloom wide ill fit eagle prepare capable fish limb cigar reform other priority speak rough imitate"
+./speculos.py --automation file:../app-seed-tool/test/speculos/nanos-sskr-256bit.json ../app-seed-tool/build/nanos/bin/app.elf --model nanos --seed "toe priority custom gauge jacket theme arrest bargain gloom wide ill fit eagle prepare capable fish limb cigar reform other priority speak rough imitate"
 ```

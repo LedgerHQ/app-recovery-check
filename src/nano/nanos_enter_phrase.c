@@ -23,7 +23,8 @@
 #ifdef TARGET_NANOS
 
 // allow to edit back any entered word
-#define RESTORE_WORD_MAX_BACKWARD_STEPS 24
+#define RESTORE_BIP39_WORD_MAX_BACKWARD_STEPS 24
+#define RESTORE_SSKR_WORD_MAX_BACKWARD_STEPS  46
 
 const bagl_element_t* screen_onboarding_restore_word_before_element_display_callback(
     const bagl_element_t* element);
@@ -280,9 +281,15 @@ const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned 
                     // update the slider's possible words
                     // account for the extra clear word, and clear any previous word items (go back
                     // in the onboarding process)
-                    bolos_ux_hslider3_init(G_bolos_ux_context.onboarding_words_checked +
-                                           MIN(G_bolos_ux_context.onboarding_step + 1,
-                                               RESTORE_WORD_MAX_BACKWARD_STEPS));
+                    if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39) {
+                        bolos_ux_hslider3_init(G_bolos_ux_context.onboarding_words_checked +
+                                               MIN(G_bolos_ux_context.onboarding_step + 1,
+                                                   RESTORE_BIP39_WORD_MAX_BACKWARD_STEPS));
+                    } else if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_SSKR) {
+                        bolos_ux_hslider3_init(G_bolos_ux_context.onboarding_words_checked +
+                                               MIN(G_bolos_ux_context.onboarding_step + 1,
+                                                   RESTORE_SSKR_WORD_MAX_BACKWARD_STEPS));
+                    }
                     screen_onboarding_restore_word_display_word_selection();
                 }
                 return NULL;
@@ -635,28 +642,33 @@ unsigned int screen_onboarding_restore_word_select_button(unsigned int button_ma
                                               G_bolos_ux_context.onboarding_words_checked;
                 // remove x words
                 while (word_to_delete--) {
-                    if (G_bolos_ux_context.onboarding_step &&
-                        G_bolos_ux_context.words_buffer_length) {
-                        // remove the last space and up to the previous space (but keep the
-                        // previous space)
-                        do {
-                            G_bolos_ux_context
-                                .words_buffer[G_bolos_ux_context.words_buffer_length - 1] = 0;
-                            G_bolos_ux_context.words_buffer_length--;
-                        }
-                        // until a previous word exists!
-                        while (G_bolos_ux_context.words_buffer_length &&
-                               G_bolos_ux_context
-                                       .words_buffer[G_bolos_ux_context.words_buffer_length - 1] !=
-                                   ' ');
+                    if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39) {
+                        if (G_bolos_ux_context.onboarding_step &&
+                            G_bolos_ux_context.words_buffer_length) {
+                            // remove the last space and up to the previous space (but keep the
+                            // previous space)
+                            do {
+                                G_bolos_ux_context
+                                    .words_buffer[G_bolos_ux_context.words_buffer_length - 1] = 0;
+                                G_bolos_ux_context.words_buffer_length--;
+                            }
+                            // until a previous word exists!
+                            while (
+                                G_bolos_ux_context.words_buffer_length &&
+                                G_bolos_ux_context
+                                        .words_buffer[G_bolos_ux_context.words_buffer_length - 1] !=
+                                    ' ');
 
-                        // decrement onboarding_step (current word #)
-                        G_bolos_ux_context.onboarding_step--;
-                    }
-                    if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_SSKR) {
-                        G_bolos_ux_context
-                            .sskr_words_buffer[G_bolos_ux_context.sskr_words_buffer_length - 1] = 0;
-                        G_bolos_ux_context.sskr_words_buffer_length--;
+                            // decrement onboarding_step (current word #)
+                            G_bolos_ux_context.onboarding_step--;
+                        }
+                    } else if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_SSKR) {
+                        if (G_bolos_ux_context.onboarding_step &&
+                            G_bolos_ux_context.sskr_words_buffer_length) {
+                            G_bolos_ux_context.sskr_words_buffer_length--;
+                            // decrement onboarding_step (current word #)
+                            G_bolos_ux_context.onboarding_step--;
+                        }
                     }
                 }
                 // clear previous word
@@ -673,7 +685,6 @@ void screen_onboarding_restore_word_init(unsigned int action) {
             // start by restore first word (+1 when displayed)
             G_bolos_ux_context.onboarding_step = 0;
             G_bolos_ux_context.sskr_share_index = 0;
-            G_bolos_ux_context.sskr_share_count = 0;
 
             // flush the words first
             memzero(G_bolos_ux_context.words_buffer, sizeof(G_bolos_ux_context.words_buffer));

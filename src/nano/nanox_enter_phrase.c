@@ -702,7 +702,6 @@ void screen_onboarding_restore_word_init(unsigned int firstWord) {
         // start by restore first word (+1 when displayed)
         G_bolos_ux_context.onboarding_step = 0;
         G_bolos_ux_context.sskr_share_index = 0;
-        G_bolos_ux_context.sskr_share_count = 0;
 
         // flush the words first
         memzero(G_bolos_ux_context.words_buffer, sizeof(G_bolos_ux_context.words_buffer));
