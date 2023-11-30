@@ -1,5 +1,15 @@
 # Change log
 
+## [1.5.4] - 2023-11-30
+### Added
+- Added mandatory Ledger embedded application manifest file
+
+### Changed
+-  Combined BIP39 wordlist and SSKR wordlist unit tests
+
+### Fixed
+-
+
 ## [1.5.3] - 2023-11-18
 ### Added
 - Added unit tests for BIP39

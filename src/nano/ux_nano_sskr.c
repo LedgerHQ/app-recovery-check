@@ -37,12 +37,11 @@ bool get_next_data(bool share_step) {
         G_bolos_ux_context.sskr_share_index += share_step ? 1 : -1;
         return true;
     }
-    if (G_bolos_ux_context.sskr_share_index < 1) {
-        G_bolos_ux_context.sskr_share_index = 1;
-    }
-    if (G_bolos_ux_context.sskr_share_index > G_bolos_ux_context.sskr_share_count) {
-        G_bolos_ux_context.sskr_share_index = G_bolos_ux_context.sskr_share_count;
-    }
+    G_bolos_ux_context.sskr_share_index =
+        (G_bolos_ux_context.sskr_share_index < 1) ? 1
+        : (G_bolos_ux_context.sskr_share_index > G_bolos_ux_context.sskr_share_count)
+            ? G_bolos_ux_context.sskr_share_count
+            : G_bolos_ux_context.sskr_share_index;
 
     return false;
 }

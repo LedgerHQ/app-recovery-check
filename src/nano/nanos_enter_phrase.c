@@ -281,15 +281,12 @@ const bagl_element_t* screen_onboarding_restore_word_keyboard_callback(unsigned 
                     // update the slider's possible words
                     // account for the extra clear word, and clear any previous word items (go back
                     // in the onboarding process)
-                    if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39) {
-                        bolos_ux_hslider3_init(G_bolos_ux_context.onboarding_words_checked +
-                                               MIN(G_bolos_ux_context.onboarding_step + 1,
-                                                   RESTORE_BIP39_WORD_MAX_BACKWARD_STEPS));
-                    } else if (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_SSKR) {
-                        bolos_ux_hslider3_init(G_bolos_ux_context.onboarding_words_checked +
-                                               MIN(G_bolos_ux_context.onboarding_step + 1,
-                                                   RESTORE_SSKR_WORD_MAX_BACKWARD_STEPS));
-                    }
+                    bolos_ux_hslider3_init(
+                        G_bolos_ux_context.onboarding_words_checked +
+                        MIN(G_bolos_ux_context.onboarding_step + 1,
+                            (G_bolos_ux_context.onboarding_type == ONBOARDING_TYPE_BIP39)
+                                ? RESTORE_BIP39_WORD_MAX_BACKWARD_STEPS
+                                : RESTORE_SSKR_WORD_MAX_BACKWARD_STEPS));
                     screen_onboarding_restore_word_display_word_selection();
                 }
                 return NULL;

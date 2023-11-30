@@ -6,7 +6,7 @@ endif()
 
 # project information
 project(unit_tests
-        VERSION 1.5.3
+        VERSION 1.5.4
 	      DESCRIPTION "Unit tests for app-seed-tool Ledger Application"
         LANGUAGES C)
 
@@ -79,14 +79,10 @@ add_executable(test_roundtrip ./tests/roundtrip.c ../../src/ux_common/onboarding
 target_include_directories(test_roundtrip PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src ${CMAKE_CURRENT_SOURCE_DIR}/../../src/ux_common)
 target_link_libraries(test_roundtrip PUBLIC cmocka gcov testutils sskr shamir)
 
-add_executable(test_bip39_words ./tests/bip39_words.c ../../src/ux_common/onboarding_seed_rom_variables.c  ../../src/ux_common/onboarding_seed_bip39.c)
-target_include_directories(test_bip39_words PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src/ux_common)
-target_link_libraries(test_bip39_words PUBLIC cmocka gcov testutils)
+add_executable(test_words ./tests/words.c ../../src/ux_common/onboarding_seed_rom_variables.c  ../../src/ux_common/onboarding_seed_bip39.c ../../src/ux_common/onboarding_seed_sskr.c)
+target_include_directories(test_words PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src/ux_common)
+target_link_libraries(test_words PUBLIC cmocka gcov testutils sskr shamir)
 
-add_executable(test_sskr_words ./tests/sskr_words.c ../../src/ux_common/onboarding_seed_rom_variables.c  ../../src/ux_common/onboarding_seed_sskr.c ../../src/ux_common/onboarding_seed_bip39.c)
-target_include_directories(test_sskr_words PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src/ux_common)
-target_link_libraries(test_sskr_words PUBLIC cmocka gcov testutils sskr shamir)
-
-foreach(target test_shamir test_sskr test_bip39 test_roundtrip test_bip39_words test_sskr_words)
+foreach(target test_shamir test_sskr test_bip39 test_roundtrip test_words)
     add_test(NAME ${target} COMMAND ${target})
 endforeach()
