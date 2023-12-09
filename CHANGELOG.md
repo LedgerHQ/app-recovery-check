@@ -1,11 +1,21 @@
 # Change log
 
+## [1.5.5] - 2023-12-10
+### Added
+- Use CX_CHECK macro in compare_recovery_phrase()
+
+### Changed
+-
+
+### Fixed
+-
+
 ## [1.5.4] - 2023-11-30
 ### Added
 - Added mandatory Ledger embedded application manifest file
 
 ### Changed
--  Combined BIP39 wordlist and SSKR wordlist unit tests
+- Combined BIP39 wordlist and SSKR wordlist unit tests
 
 ### Fixed
 -
