@@ -16,6 +16,7 @@
 
 #include <os_io_seproxyhal.h>
 #include <lcx_hmac.h>
+#include <ledger_assert.h>
 
 #include "constants.h"
 #include "glyphs.h"
@@ -229,8 +230,10 @@ void compare_recovery_phrase(void) {
     cx_hmac_sha512_t ctx;
     const char key[] = "Bitcoin seed";
 
-    cx_hmac_sha512_init_no_throw(&ctx, (const uint8_t*) key, strlen(key));
-    cx_hmac_no_throw((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64);
+    LEDGER_ASSERT(cx_hmac_sha512_init_no_throw(&ctx, (const uint8_t*) key, strlen(key)) == CX_OK,
+                  "HMAC init failed");
+    LEDGER_ASSERT(cx_hmac_no_throw((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64) == CX_OK,
+                  "HMAC failed");
     PRINTF("Root key from input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
