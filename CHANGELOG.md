@@ -1,8 +1,10 @@
 # Change log
 
-## [1.5.5] - 2023-12-10
+## [1.6.0] - 2024-01-14
 ### Added
 - Use CX_CHECK macro in compare_recovery_phrase()
+- Added a `cx_crc32()` function
+  - The implementation of `cx_crc32_hw()` on Ledger devices is buggy and produces incorrect CRC32 checks. Ledger are fixing `cx_crc32_hw()` on each device either through SDK or OS updates but until then `cx_crc32()` can be used.
 
 ### Changed
 -

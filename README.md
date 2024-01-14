@@ -20,11 +20,22 @@
 
 Use the utilities provided by this Ledger application to check a backed up seed or generate [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) for a seed.
 
+Not all Ledger devices are equal. The older, less capable devices do not have the capacity to provide a full range of seed utilities. The following table lists the seed utilities provided by each devices type:
+<div align="center">
+
+||Nano S|Nano S+|Nano X|Stax|
+| :--- | :---: | :---: | :---: | :---: |
+|[Check BIP39](#check-bip39)|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|
+|[Check Shamir's secret shares](#check-shamirs-secret-shares)|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|
+|[Generate Shamir's secret sharing](#generate-shamirs-secret-sharing)|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|
+|[Generate BIP85](#generate-bip85)|$${\color{red}✗}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|
+</div>
+
 ## Check BIP39
 The application invites the user to type a [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) mnemonic on their Ledger device. The BIP-39 mnemonic is compared to the onboarded seed and the application notifies the user whether both seeds match or not.
 
 ## Generate Shamir's secret sharing
-When the seed is validated, the user can create [Shamir's secret sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) from the BIP-39 phrase that they provided.
+If the user provided seed is valid and matches the onboarded seed, the user can create [Shamir's secret sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) from their BIP-39 phrase.
 The application uses [Sharded Secret Key Reconstruction (SSKR)](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-2020-011-sskr.md), an interoperable implementation of [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing). This provides a way for you to divide or 'shard' the master seed underlying a Bitcoin HD wallet into 'shares', which you can then distribute to friends, family, or fiduciaries. If you lose your seed, you can reconstruct it by collecting a sufficient number of your shares (the 'threshold'). Knowledge of fewer than the required number of parts ensures that information about the master secret is not leaked.
 
 * SSKR is round-trip compatible with BIP-39.
@@ -66,7 +77,7 @@ flowchart LR
         1.1 --> 1.2.1[Enter 12 Words] --> 1.3{Validate BIP39 Phrases}
         1.1 --> 1.2.2[Enter 18 Words] --> 1.3
         1.1 --> 1.2.3[Enter 24 Words] --> 1.3
-        1.3 --> |Valid BIP39| 1.4
+        1.3 --> |Matching BIP39| 1.4
         1.3 --> |Invalid BIP39| 1.3.1[Quit]
         subgraph 1.4[Generate SSKR Shares]
             direction TB

@@ -8,12 +8,32 @@
 #include "common_bip39.h"
 #include "sskr.h"
 
+// NOTE:
+// The implementation of cx_crc32_hw() on Ledger devices is buggy and produces incorrect CRC32
+// checks. Ledger are fixing cx_crc32_hw() on each device either through SDK or OS updates.
+// The following function is a temporary workaround that can be removed once cx_crc32_hw()
+// works on all Ledger devices
+
+uint32_t cx_crc32(const uint8_t *data, size_t len) {
+    uint32_t crc = ~0;
+    const uint8_t *end = data + len;
+
+    while (data < end) {
+        crc ^= *data++;
+        for (uint8_t i = 0; i < 8; i++) {
+            uint32_t mask = ~((crc & 1) - 1);
+            crc = (crc >> 1) ^ (0xEDB88320 & mask);
+        }
+    }
+    return ~crc;
+}
+
 // Returns the CRC-32 checksum of the input buffer in network byte order (big endian).
 uint32_t cx_crc32_hw_nbo(const uint8_t *bytes, size_t len) {
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-    return cx_crc32_hw(bytes, len);
+    return cx_crc32(bytes, len);
 #elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-    return os_swap_u32(cx_crc32_hw(bytes, len));
+    return os_swap_u32(cx_crc32(bytes, len));
 #else
 #error "What kind of system is this?"
 #endif
