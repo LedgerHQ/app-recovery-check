@@ -28,7 +28,7 @@ all: default
 APPNAME = "Seed Tool"
 APPVERSION_M = 1
 APPVERSION_N = 6
-APPVERSION_P = 0
+APPVERSION_P = 1
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --curve secp256k1 --path ""
@@ -113,10 +113,9 @@ ifeq ($(GCCPATH),)
 endif
 
 CC := $(CLANGPATH)clang
-CFLAGS += -O3 -Os -Wshadow -Wformat -DAPPNAME=\"$(APPNAME)\"
+CFLAGS += -Wshadow -Wformat -DAPPNAME=\"$(APPNAME)\"
 AS := $(GCCPATH)arm-none-eabi-gcc
 LD := $(GCCPATH)arm-none-eabi-gcc
-LDFLAGS += -O3 -Os
 LDLIBS += -lm -lgcc -lc
 
 

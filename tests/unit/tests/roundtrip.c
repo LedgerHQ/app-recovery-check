@@ -119,7 +119,7 @@ static void test_bip39_to_sskr(void **state) {
                                                     &sskr_words_buffer_len), 1);
     assert_int_equal(share_count, sskr_group_descriptor[1]);
     assert_int_equal(sskr_words_buffer_len, sizeof(sskr_shares) - 1);
-    assert_string_equal(sskr_words_buffer, sskr_shares);
+    assert_string_equal((const char *) sskr_words_buffer, (const char *) sskr_shares);
 }
 
 static void test_sskr_to_bip39(void **state) {

@@ -40,7 +40,7 @@ jobs:
 
     steps:
       - name: Clone
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Build unit tests
         run: |
           cd tests/unit/
@@ -49,7 +49,7 @@ jobs:
         run: |
           cd tests/unit/
           make coverage
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: code-coverage
           path: tests/unit/coverage

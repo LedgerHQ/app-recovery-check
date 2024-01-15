@@ -16,7 +16,7 @@ jobs:
       contents: write
     steps:
       - name: Clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_branch }}
 
@@ -27,7 +27,7 @@ jobs:
           echo "VERSION_NAME=${HEAD_BRANCH//./_}" >> ${GITHUB_ENV}
 
       - name: Download app binaries
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v3
         with:
           name: compiled_app_binaries
           path: ./bin/

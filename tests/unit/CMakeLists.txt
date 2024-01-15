@@ -6,7 +6,7 @@ endif()
 
 # project information
 project(unit_tests
-        VERSION 1.5.4
+        VERSION 1.6.1
 	      DESCRIPTION "Unit tests for app-seed-tool Ledger Application"
         LANGUAGES C)
 
@@ -39,7 +39,7 @@ include(FetchContent)
 FetchContent_Declare(
     cmocka
     GIT_REPOSITORY https://git.cryptomilk.org/projects/cmocka.git
-    GIT_TAG        cmocka-1.1.5
+    GIT_TAG        cmocka-1.1.7
     GIT_SHALLOW    1
 )
 set(WITH_STATIC_LIB ON CACHE BOOL "CMocka: Build with a static library" FORCE)

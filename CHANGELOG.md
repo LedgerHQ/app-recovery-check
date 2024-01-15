@@ -1,8 +1,19 @@
 # Change log
 
+## [1.6.1] - 2024-01-15
+### Added
+-
+
+### Changed
+- Updated version of cmocka used for unit tests
+- Updated version of github actions used
+
+### Fixed
+-
+
 ## [1.6.0] - 2024-01-14
 ### Added
-- Use CX_CHECK macro in compare_recovery_phrase()
+- Use CX_CHECK macro in `compare_recovery_phrase()`
 - Added a `cx_crc32()` function
   - The implementation of `cx_crc32_hw()` on Ledger devices is buggy and produces incorrect CRC32 checks. Ledger are fixing `cx_crc32_hw()` on each device either through SDK or OS updates but until then `cx_crc32()` can be used.
 

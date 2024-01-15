@@ -8,6 +8,15 @@
 #include "common_bip39.h"
 #include "sskr.h"
 
+// Return the CRC-32 checksum of the input buffer in network byte order (big endian).
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define cx_crc32_nbo(...) cx_crc32(__VA_ARGS__)
+#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define cx_crc32_nbo(...) os_swap_u32(cx_crc32(__VA_ARGS__))
+#else
+#error "What kind of system is this?"
+#endif
+
 // NOTE:
 // The implementation of cx_crc32_hw() on Ledger devices is buggy and produces incorrect CRC32
 // checks. Ledger are fixing cx_crc32_hw() on each device either through SDK or OS updates.
@@ -26,17 +35,6 @@ uint32_t cx_crc32(const uint8_t *data, size_t len) {
         }
     }
     return ~crc;
-}
-
-// Returns the CRC-32 checksum of the input buffer in network byte order (big endian).
-uint32_t cx_crc32_hw_nbo(const uint8_t *bytes, size_t len) {
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-    return cx_crc32(bytes, len);
-#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-    return os_swap_u32(cx_crc32(bytes, len));
-#else
-#error "What kind of system is this?"
-#endif
 }
 
 unsigned int bolos_ux_sskr_size_get(uint8_t bip39_onboarding_kind,
@@ -247,7 +245,7 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                 memcpy(cbor_share_crc_buffer + cbor_len,
                        share_buffer + share_len * share,
                        share_len);
-                checksum = cx_crc32_hw_nbo(cbor_share_crc_buffer, cbor_len + share_len);
+                checksum = cx_crc32_nbo(cbor_share_crc_buffer, cbor_len + share_len);
                 memcpy(cbor_share_crc_buffer + cbor_len + share_len, &checksum, checksum_len);
 
                 if (bolos_ux_sskr_mnemonic_encode(
@@ -281,8 +279,8 @@ unsigned int bolos_ux_sskr_hex_check(unsigned char *mnemonic_hex,
     uint8_t checksum_len = sizeof(checksum);
 
     for (unsigned int i = 0; i < sskr_shares_count; i++) {
-        checksum = cx_crc32_hw_nbo(mnemonic_hex + i * (mnemonic_length / sskr_shares_count),
-                                   (mnemonic_length / sskr_shares_count) - checksum_len);
+        checksum = cx_crc32_nbo(mnemonic_hex + i * (mnemonic_length / sskr_shares_count),
+                                (mnemonic_length / sskr_shares_count) - checksum_len);
         // First 8 bytes of all shares in group should be same
         // Test checksum
         if ((os_secure_memcmp(cbor, mnemonic_hex + i * mnemonic_length / sskr_shares_count, 3) !=

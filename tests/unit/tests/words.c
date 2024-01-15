@@ -20,14 +20,14 @@ static void test_words_bip39(void **state) {
 
     return_num = bolos_ux_bip39_idx_strcpy(return_num, buffer);
     assert_int_equal(return_num, 7);
-    assert_string_equal(buffer, "abandon");
+    assert_string_equal((const char *) buffer, "abandon");
 
     return_num = bolos_ux_bip39_get_word_count_starting_with((const unsigned char *) prefix, 2);
     assert_int_equal(return_num, 10);
 
     return_num = bolos_ux_bip39_get_word_next_letters_starting_with((const unsigned char *) prefix, 2, next_letters);
     assert_int_equal(return_num, 6);
-    assert_string_equal(next_letters, "ailosu");
+    assert_string_equal((const char *) next_letters, "ailosu");
 
     prefix[0] = 'z';
     memset(next_letters,0,sizeof(next_letters));
@@ -37,14 +37,14 @@ static void test_words_bip39(void **state) {
 
     return_num = bolos_ux_bip39_idx_strcpy(return_num, buffer);
     assert_int_equal(return_num, 5);
-    assert_string_equal(buffer, "zebra");
+    assert_string_equal((const char *) buffer, "zebra");
 
     return_num = bolos_ux_bip39_get_word_count_starting_with((const unsigned char *) prefix, 1);
     assert_int_equal(return_num, 4);
 
     return_num = bolos_ux_bip39_get_word_next_letters_starting_with((const unsigned char *) prefix, 1, next_letters);
     assert_int_equal(return_num, 2);
-    assert_string_equal(next_letters, "eo");
+    assert_string_equal((const char *) next_letters, "eo");
 }
 
 static void test_words_sskr(void **state) {
@@ -58,14 +58,14 @@ static void test_words_sskr(void **state) {
 
     return_num = bolos_ux_sskr_idx_strcpy(return_num, buffer);
     assert_int_equal(return_num, 4);
-    assert_string_equal(buffer, "able");
+    assert_string_equal((const char *) buffer, "able");
 
     return_num = bolos_ux_sskr_get_word_count_starting_with((const unsigned char *) prefix, 2);
     assert_int_equal(return_num, 1);
 
     return_num = bolos_ux_sskr_get_word_next_letters_starting_with((const unsigned char *) prefix, 2, next_letters);
     assert_int_equal(return_num, 1);
-    assert_string_equal(next_letters, "l");
+    assert_string_equal((const char *) next_letters, "l");
 
     prefix[0] = 'z';
     memset(next_letters,0,sizeof(next_letters));
@@ -75,14 +75,14 @@ static void test_words_sskr(void **state) {
 
     return_num = bolos_ux_sskr_idx_strcpy(return_num, buffer);
     assert_int_equal(return_num, 4);
-    assert_string_equal(buffer, "zaps");
+    assert_string_equal((const char *) buffer, "zaps");
 
     return_num = bolos_ux_sskr_get_word_count_starting_with((const unsigned char *) prefix, 1);
     assert_int_equal(return_num, 6);
 
     return_num = bolos_ux_sskr_get_word_next_letters_starting_with((const unsigned char *) prefix, 1, next_letters);
     assert_int_equal(return_num, 4);
-    assert_string_equal(next_letters, "aeio");
+    assert_string_equal((const char *) next_letters, "aeio");
 }
 
 int main(void) {
