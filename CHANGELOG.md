@@ -1,6 +1,6 @@
 # Change log
 
-## [1.6.1] - 2024-01-15
+## [1.6.1] - 2024-01-18
 ### Added
 -
 
@@ -9,7 +9,7 @@
 - Updated version of github actions used
 
 ### Fixed
--
+- Fixed failing Ledger rule enforcer check
 
 ## [1.6.0] - 2024-01-14
 ### Added

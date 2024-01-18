@@ -143,4 +143,4 @@ include $(BOLOS_SDK)/Makefile.rules
 
 
 listvariants:
-	@echo VARIANTS APP recovery_check
+	@echo VARIANTS APP seed_tool
