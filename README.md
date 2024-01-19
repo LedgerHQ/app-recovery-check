@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/github/license/aido/app-seed-tool)](https://github.com/aido/app-seed-tool/blob/develop/LICENSE)
 
 ![nanos](https://img.shields.io/badge/nanos-working-green)
-![nanox](https://img.shields.io/badge/nanox-working-green])
+![nanox](https://img.shields.io/badge/nanox-working-green)
 ![nanosp](https://img.shields.io/badge/nanosp-working-green)
 ![stax](https://img.shields.io/badge/stax-in_progress-orange)
 

@@ -1,8 +1,8 @@
 # Change log
 
-## [1.6.1] - 2024-01-18
+## [1.6.1] - 2024-01-19
 ### Added
--
+- Added a Release Policy document
 
 ### Changed
 - Updated version of cmocka used for unit tests
