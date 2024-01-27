@@ -483,8 +483,8 @@ static uint8_t compare_recovery_phrase(void) {
     cx_hmac_sha512_t ctx;
     const char key[] = "Bitcoin seed";
 
-    CX_CHECK(cx_hmac_sha512_init_no_throw(&ctx, (const uint8_t*) key, strlen(key)));
-    CX_CHECK(cx_hmac_no_throw((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64));
+    CX_ASSERT(cx_hmac_sha512_init_no_throw(&ctx, (const uint8_t*) key, strlen(key)));
+    CX_ASSERT(cx_hmac_no_throw((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64));
     PRINTF("Root key from BIP39 input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
@@ -504,10 +504,6 @@ static uint8_t compare_recovery_phrase(void) {
 end:
     memzero(buffer, 64);
     memzero(buffer_device, 64);
-
-    if ((error == CX_INVALID_PARAMETER) || (error == CX_INTERNAL_ERROR)) {
-        PRINTF("ERROR: compare_recovery_phrase(): %d\n", error);
-    }
 
     if (error != CX_OK) {
         return 0;

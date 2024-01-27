@@ -10,9 +10,9 @@
 
 // Return the CRC-32 checksum of the input buffer in network byte order (big endian).
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#define cx_crc32_nbo(...) cx_crc32(__VA_ARGS__)
+#define crc32_nbo(...) crc32(__VA_ARGS__)
 #elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#define cx_crc32_nbo(...) os_swap_u32(cx_crc32(__VA_ARGS__))
+#define crc32_nbo(...) os_swap_u32(crc32(__VA_ARGS__))
 #else
 #error "What kind of system is this?"
 #endif
@@ -23,7 +23,7 @@
 // The following function is a temporary workaround that can be removed once cx_crc32_hw()
 // works on all Ledger devices
 
-uint32_t cx_crc32(const uint8_t *data, size_t len) {
+uint32_t crc32(const uint8_t *data, size_t len) {
     uint32_t crc = ~0;
     const uint8_t *end = data + len;
 
@@ -245,7 +245,7 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                 memcpy(cbor_share_crc_buffer + cbor_len,
                        share_buffer + share_len * share,
                        share_len);
-                checksum = cx_crc32_nbo(cbor_share_crc_buffer, cbor_len + share_len);
+                checksum = crc32_nbo(cbor_share_crc_buffer, cbor_len + share_len);
                 memcpy(cbor_share_crc_buffer + cbor_len + share_len, &checksum, checksum_len);
 
                 if (bolos_ux_sskr_mnemonic_encode(
@@ -279,7 +279,7 @@ unsigned int bolos_ux_sskr_hex_check(unsigned char *mnemonic_hex,
     uint8_t checksum_len = sizeof(checksum);
 
     for (unsigned int i = 0; i < sskr_shares_count; i++) {
-        checksum = cx_crc32_nbo(mnemonic_hex + i * (mnemonic_length / sskr_shares_count),
+        checksum = crc32_nbo(mnemonic_hex + i * (mnemonic_length / sskr_shares_count),
                                 (mnemonic_length / sskr_shares_count) - checksum_len);
         // First 8 bytes of all shares in group should be same
         // Test checksum

@@ -1,12 +1,13 @@
 # Change log
 
-## [1.6.1] - 2024-01-19
+## [1.6.1] - 2024-01-27
 ### Added
 - Added a Release Policy document
 
 ### Changed
 - Updated version of cmocka used for unit tests
 - Updated version of github actions used
+- Assert HMAC return values
 
 ### Fixed
 - Fixed failing Ledger rule enforcer check
