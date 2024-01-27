@@ -11,6 +11,8 @@
 
 ### Fixed
 - Fixed failing Ledger rule enforcer check
+- Use `cx_crc32_hw()`
+  - Ledger have fixed their buggy implementation of so we can start using it again
 
 ## [1.6.0] - 2024-01-14
 ### Added

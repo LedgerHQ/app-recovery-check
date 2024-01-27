@@ -10,32 +10,12 @@
 
 // Return the CRC-32 checksum of the input buffer in network byte order (big endian).
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#define crc32_nbo(...) crc32(__VA_ARGS__)
+#define crc32_nbo(...) cx_crc32_hw(__VA_ARGS__)
 #elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#define crc32_nbo(...) os_swap_u32(crc32(__VA_ARGS__))
+#define crc32_nbo(...) os_swap_u32(cx_crc32_hw(__VA_ARGS__))
 #else
 #error "What kind of system is this?"
 #endif
-
-// NOTE:
-// The implementation of cx_crc32_hw() on Ledger devices is buggy and produces incorrect CRC32
-// checks. Ledger are fixing cx_crc32_hw() on each device either through SDK or OS updates.
-// The following function is a temporary workaround that can be removed once cx_crc32_hw()
-// works on all Ledger devices
-
-uint32_t crc32(const uint8_t *data, size_t len) {
-    uint32_t crc = ~0;
-    const uint8_t *end = data + len;
-
-    while (data < end) {
-        crc ^= *data++;
-        for (uint8_t i = 0; i < 8; i++) {
-            uint32_t mask = ~((crc & 1) - 1);
-            crc = (crc >> 1) ^ (0xEDB88320 & mask);
-        }
-    }
-    return ~crc;
-}
 
 unsigned int bolos_ux_sskr_size_get(uint8_t bip39_onboarding_kind,
                                     uint8_t groups_threshold,
@@ -280,7 +260,7 @@ unsigned int bolos_ux_sskr_hex_check(unsigned char *mnemonic_hex,
 
     for (unsigned int i = 0; i < sskr_shares_count; i++) {
         checksum = crc32_nbo(mnemonic_hex + i * (mnemonic_length / sskr_shares_count),
-                                (mnemonic_length / sskr_shares_count) - checksum_len);
+                             (mnemonic_length / sskr_shares_count) - checksum_len);
         // First 8 bytes of all shares in group should be same
         // Test checksum
         if ((os_secure_memcmp(cbor, mnemonic_hex + i * mnemonic_length / sskr_shares_count, 3) !=
