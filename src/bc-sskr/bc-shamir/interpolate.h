@@ -32,7 +32,7 @@
  */
 int16_t interpolate(uint8_t n,            // number of points to interpolate
                     const uint8_t* xi,    // x coordinates for points (array of length n)
-                    uint32_t yl,          // length of y coordinate array
+                    uint8_t yl,           // length of y coordinate array
                     const uint8_t** yij,  // n arrays of yl bytes representing y values
                     uint8_t x,            // x coordinate to interpolate
                     uint8_t* result       // space for yl bytes of results

@@ -15,7 +15,7 @@
 
 #define memzero(...) explicit_bzero(__VA_ARGS__)
 
-static int16_t check_secret_length(uint8_t len) {
+static int16_t sskr_check_secret_length(uint8_t len) {
     if (len < SSKR_MIN_STRENGTH_BYTES) {
         return SSKR_ERROR_SECRET_TOO_SHORT;
     }
@@ -28,9 +28,9 @@ static int16_t check_secret_length(uint8_t len) {
     return 0;
 }
 
-static int16_t serialize_shard(const sskr_shard *shard,
-                               uint8_t *destination,
-                               uint16_t destination_len) {
+static int16_t sskr_serialize_shard(const sskr_shard *shard,
+                                    uint8_t *destination,
+                                    uint16_t destination_len) {
     if (destination_len < SSKR_METADATA_LENGTH_BYTES + shard->value_len) {
         return SSKR_ERROR_INSUFFICIENT_SPACE;
     }
@@ -68,7 +68,9 @@ static int16_t serialize_shard(const sskr_shard *shard,
     return shard->value_len + SSKR_METADATA_LENGTH_BYTES;
 }
 
-static int16_t deserialize_shard(const uint8_t *source, uint16_t source_len, sskr_shard *shard) {
+static int16_t sskr_deserialize_shard(const uint8_t *source,
+                                      uint16_t source_len,
+                                      sskr_shard *shard) {
     if (source_len < SSKR_MIN_SERIALIZED_LENGTH_BYTES) {
         return SSKR_ERROR_NOT_ENOUGH_SERIALIZED_BYTES;
     }
@@ -93,7 +95,7 @@ static int16_t deserialize_shard(const uint8_t *source, uint16_t source_len, ssk
     shard->value_len = source_len - SSKR_METADATA_LENGTH_BYTES;
     memcpy(shard->value, source + SSKR_METADATA_LENGTH_BYTES, shard->value_len);
 
-    int16_t err = check_secret_length(shard->value_len);
+    int16_t err = sskr_check_secret_length(shard->value_len);
     if (err) {
         return err;
     }
@@ -132,15 +134,15 @@ int16_t sskr_count_shards(uint8_t group_threshold,
 //////////////////////////////////////////////////
 // generate shards
 //
-static int16_t generate_shards(uint8_t group_threshold,
-                               const sskr_group_descriptor *groups,
-                               uint8_t groups_len,
-                               const uint8_t *master_secret,
-                               uint16_t master_secret_len,
-                               sskr_shard *shards,
-                               uint16_t shards_size,
-                               unsigned char *(*random_generator)(uint8_t *, size_t)) {
-    int16_t err = check_secret_length(master_secret_len);
+static int16_t sskr_generate_shards(uint8_t group_threshold,
+                                    const sskr_group_descriptor *groups,
+                                    uint8_t groups_len,
+                                    const uint8_t *master_secret,
+                                    uint16_t master_secret_len,
+                                    sskr_shard *shards,
+                                    uint16_t shards_size,
+                                    unsigned char *(*random_generator)(uint8_t *, size_t)) {
+    int16_t err = sskr_check_secret_length(master_secret_len);
     if (err) {
         return err;
     }
@@ -226,7 +228,7 @@ int16_t sskr_generate(uint8_t group_threshold,
                       uint8_t *output,
                       uint16_t buffer_size,
                       unsigned char *(*random_generator)(uint8_t *, size_t)) {
-    int16_t err = check_secret_length(master_secret_len);
+    int16_t err = sskr_check_secret_length(master_secret_len);
     if (err) {
         return err;
     }
@@ -250,14 +252,14 @@ int16_t sskr_generate(uint8_t group_threshold,
     sskr_shard shards[SHAMIR_MAX_SHARE_COUNT * SSKR_MAX_GROUP_COUNT];
 
     // generate shards
-    total_shards = generate_shards(group_threshold,
-                                   groups,
-                                   groups_len,
-                                   master_secret,
-                                   master_secret_len,
-                                   shards,
-                                   (uint16_t) total_shards,
-                                   random_generator);
+    total_shards = sskr_generate_shards(group_threshold,
+                                        groups,
+                                        groups_len,
+                                        master_secret,
+                                        master_secret_len,
+                                        shards,
+                                        (uint16_t) total_shards,
+                                        random_generator);
 
     if (total_shards < 0) {
         error = total_shards;
@@ -268,7 +270,7 @@ int16_t sskr_generate(uint8_t group_threshold,
     uint16_t byte_count = 0;
 
     for (uint16_t i = 0; !error && i < (uint16_t) total_shards; ++i) {
-        int16_t bytes = serialize_shard(&shards[i], cur_output, remaining_buffer);
+        int16_t bytes = sskr_serialize_shard(&shards[i], cur_output, remaining_buffer);
         if (bytes < 0) {
             error = bytes;
             break;
@@ -301,7 +303,7 @@ typedef struct sskr_group_struct {
  * in place, so it is for internal use only, however it provides the implementation
  * for both combine_shards and sskr_combine.
  */
-static int16_t combine_shards_internal(
+static int16_t sskr_combine_shards_internal(
     sskr_shard *shards,    // array of shard structures
     uint8_t shards_count,  // number of shards in array
     uint8_t *buffer,       // working space, and place to return secret
@@ -455,7 +457,7 @@ int16_t sskr_combine(const uint8_t **input_shards,  // array of pointers to 10-b
     for (uint16_t i = 0; !result && i < shards_count; ++i) {
         shards[i].value_len = 32;
 
-        int16_t bytes = deserialize_shard(input_shards[i], shard_len, &shards[i]);
+        int16_t bytes = sskr_deserialize_shard(input_shards[i], shard_len, &shards[i]);
 
         if (bytes < 0) {
             result = bytes;
@@ -463,7 +465,7 @@ int16_t sskr_combine(const uint8_t **input_shards,  // array of pointers to 10-b
     }
 
     if (!result) {
-        result = combine_shards_internal(shards, shards_count, buffer, buffer_len);
+        result = sskr_combine_shards_internal(shards, shards_count, buffer, buffer_len);
     }
 
     memzero(shards, sizeof(shards));

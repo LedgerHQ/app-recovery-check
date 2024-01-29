@@ -13,26 +13,9 @@
 
 #define memzero(...) explicit_bzero(__VA_ARGS__)
 
-//////////////////////////////////////////////////
-// hmac sha256
-
-uint8_t *create_digest(const uint8_t *random_data,
-                       uint32_t rdlen,
-                       const uint8_t *shared_secret,
-                       uint32_t sslen,
-                       uint8_t *result) {
-    uint8_t buf[32];
-
-    cx_hmac_sha256(random_data, rdlen, shared_secret, sslen, buf, sizeof(buf));
-
-    for (uint8_t j = 0; j < 4; ++j) {
-        result[j] = buf[j];
-    }
-
-    return result;
-}
-
-static int16_t validate_parameters(uint8_t threshold, uint8_t share_count, uint8_t secret_length) {
+static int16_t shamir_validate_parameters(uint8_t threshold,
+                                          uint8_t share_count,
+                                          uint8_t secret_length) {
     if (share_count > SHAMIR_MAX_SHARE_COUNT) {
         return SHAMIR_ERROR_TOO_MANY_SHARES;
     } else if (threshold < 1 || threshold > share_count) {
@@ -48,6 +31,34 @@ static int16_t validate_parameters(uint8_t threshold, uint8_t share_count, uint8
 }
 
 //////////////////////////////////////////////////
+// hmac sha256
+/**
+ * creates a digest used to help valididate secret reconstruction (see SLIP-39 docs)
+ *
+ * returns: a pointer to the resulting 4-byte digest
+ * inputs: random_data: array of data to create a digest for
+ *         rdlen: length of random_data array
+ *         shared_secret: bytes to use as the key for the hmac when generating digest
+ *         sslen: length of the shared secret array
+ *         result: a pointer to a block of 4 bytes to store the resulting digest
+ */
+uint8_t *shamir_create_digest(const uint8_t *random_data,
+                              uint32_t rdlen,
+                              const uint8_t *shared_secret,
+                              uint32_t sslen,
+                              uint8_t *result) {
+    uint8_t buf[32];
+
+    cx_hmac_sha256(random_data, rdlen, shared_secret, sslen, buf, sizeof(buf));
+
+    for (uint8_t j = 0; j < 4; ++j) {
+        result[j] = buf[j];
+    }
+
+    return result;
+}
+
+//////////////////////////////////////////////////
 // shamir sharing
 int16_t shamir_split_secret(uint8_t threshold,
                             uint8_t share_count,
@@ -55,7 +66,7 @@ int16_t shamir_split_secret(uint8_t threshold,
                             uint8_t secret_length,
                             uint8_t *result,
                             unsigned char *(*random_generator)(uint8_t *, size_t)) {
-    int32_t err = validate_parameters(threshold, share_count, secret_length);
+    int16_t err = shamir_validate_parameters(threshold, share_count, secret_length);
     if (err) {
         return err;
     }
@@ -86,7 +97,7 @@ int16_t shamir_split_secret(uint8_t threshold,
         // generate secret_length - 4 bytes worth of random data
         random_generator(digest + 4, secret_length - 4);
         // put 4 bytes of digest at the top of the digest array
-        create_digest(digest + 4, secret_length - 4, secret, secret_length, digest);
+        shamir_create_digest(digest + 4, secret_length - 4, secret, secret_length, digest);
         x[n] = DIGEST_INDEX;
         y[n] = digest;
         n += 1;
@@ -115,7 +126,7 @@ int16_t shamir_recover_secret(uint8_t threshold,
                               const uint8_t **shares,
                               uint8_t share_length,
                               uint8_t *secret) {
-    int32_t err = validate_parameters(threshold, threshold, share_length);
+    int16_t err = shamir_validate_parameters(threshold, threshold, share_length);
     if (err) {
         return err;
     }
@@ -140,7 +151,7 @@ int16_t shamir_recover_secret(uint8_t threshold,
         return SHAMIR_ERROR_INTERPOLATION_FAILURE;
     }
 
-    create_digest(digest + 4, share_length - 4, secret, share_length, verify);
+    shamir_create_digest(digest + 4, share_length - 4, secret, share_length, verify);
 
     for (uint8_t i = 0; i < 4; i++) {
         valid &= digest[i] == verify[i];

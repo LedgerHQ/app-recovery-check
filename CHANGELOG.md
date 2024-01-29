@@ -1,5 +1,15 @@
 # Change log
 
+## [1.6.2] - 2024-01-30
+### Added
+-
+
+### Changed
+- Changed some function names to be more descriptive
+
+### Fixed
+-
+
 ## [1.6.1] - 2024-01-27
 ### Added
 - Added a Release Policy document
@@ -12,7 +22,7 @@
 ### Fixed
 - Fixed failing Ledger rule enforcer check
 - Use `cx_crc32_hw()`
-  - Ledger have fixed their buggy implementation of so we can start using it again
+  - Ledger have fixed their buggy implementation of CRC32 so we can start using it again
 
 ## [1.6.0] - 2024-01-14
 ### Added

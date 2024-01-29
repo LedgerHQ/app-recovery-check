@@ -14,22 +14,6 @@
 #define SECRET_INDEX 255
 #define DIGEST_INDEX 254
 
-/**
- * creates a digest used to help valididate secret reconstruction (see SLIP-39 docs)
- *
- * returns: a pointer to the resulting 4-byte digest
- * inputs: random_data: array of data to create a digest for
- *         rdlen: length of random_data array
- *         shared_secret: bytes to use as the key for the hmac when generating digest
- *         sslen: length of the shared secret array
- *         result: a pointer to a block of 4 bytes to store the resulting digest
- */
-uint8_t *create_digest(const uint8_t *random_data,
-                       uint32_t rdlen,
-                       const uint8_t *shared_secret,
-                       uint32_t sslen,
-                       uint8_t *result);
-
 //////////////////////////////////////////////////
 // Shamir Secret Sharing (based on SLIP-39)
 
