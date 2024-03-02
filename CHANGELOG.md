@@ -1,8 +1,8 @@
 # Change log
 
-## [1.7.0] - 2024-03-02
+## [1.7.0] - 2024-03-03
 ### Added
--
+- Added detailed documentation for all SSKR and SSS functions
 
 ### Changed
 - Changed Shamir interpolate function to use `cx_bn_gf2_n_mul()` syscalls

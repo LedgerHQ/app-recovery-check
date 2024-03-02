@@ -135,8 +135,24 @@ end:
 }
 #endif
 
-/*
- * Invert `bn_a` in GF(2^8) and write the result to `bn_r`
+/**
+ * @brief Performs an invert operation over GF(2^8).
+ *
+ * @param[out] bn_r BN index for the result.
+ *
+ * @param[in]  bn_a BN index of the first operand.
+ *
+ * @param[in]  bn_n BN index of the modulus.
+ *                  The modulus must be an irreducible polynomial over GF(2)
+ *                  of degree n.
+ *
+ * @param[in]  bn_h BN index of the second montgomery constant.
+ *
+ * @return          Error code:
+ *                  - CX_OK on success
+ *                  - CX_NOT_LOCKED
+ *                  - CX_INVALID_PARAMETER
+ *                  - CX_MEMORY_FULL
  */
 cx_err_t bn_gf2_8_inv(cx_bn_t bn_r, const cx_bn_t bn_a, const cx_bn_t bn_n, const cx_bn_t bn_h) {
     cx_err_t error = CX_OK;  // By default, until some error occurs
@@ -168,32 +184,38 @@ end:
 }
 
 /**
- * safely interpolate the polynomial going through
- * the points (x0 [y0_0 y0_1 y0_2 ... y0_31]) , (x1 [y1_0 ...]), ...
+ * @brief Performs polynomial interpolation on SSS shares.
  *
- * where
- *   xi points to [x0 x1 ... xn-1 ]
- *   y contains an array of pointers to 32-bit arrays of y values
- *   y contains [y0 y1 y2 ... yn-1]
- *   and each of the yi arrays contain [yi_0 yi_i ... yi_31].
+ * @details This function interpolates a polynomial that passes through the provided points
+ *          represented by `xi` (x-coordinates) and `yij` (y-coordinate arrays) i.e.
+ *          where:
+ *                 xi points to [x0 x1 ... xn-1 ]
+ *                 y contains an array of pointers to 32-bit arrays of y values
+ *                 y contains [y0 y1 y2 ... yn-1]
+ *                 and each of the yi arrays contain [yi_0 yi_i ... yi_31].
  *
- * returns: on success, CX_OK
- *          on failure, a negative error code
+ *          This interpolation is used in Shamir's Secret Sharing (SSS) to recover
+ *          the secret from a set of shares.
  *
- * inputs: n: number of points to interpolate
- *         xi: x coordinates for points (array of length n)
- *         yl: length of y coordinate arrays
- *         yij: array of n pointers to arrays of length yl
- *         x: coordinate to interpolate at
- *         result: space for yl bytes of interpolate data
+ * @param[in]  n      Number of points to interpolate (length of `xi` and `yij`).
+ * @param[in]  xi     Pointer to an array containing the x-coordinates of the points (length `n`).
+ * @param[in]  yl     Length of each y-coordinate array in bytes.
+ * @param[in]  yij    Pointer to an array of `n` pointers, each pointing to a y-coordinate array of
+ *                    length `yl`.
+ * @param[in]  x      X-coordinate at which to perform the interpolation.
+ * @param[out] result Pointer to a buffer where the interpolated value will be stored (must be `yl`
+ *                    bytes long).
+ *
+ * @return            - CX_OK on success
+ *                    - A negative error code on failure (specific error codes not defined here,
+ *                      consult implementation details for specific error handling)
  */
-cx_err_t interpolate(uint8_t n,            // number of points to interpolate
-                     const uint8_t *xi,    // x coordinates for points (array of length n)
-                     uint8_t yl,           // length of y coordinate array
-                     const uint8_t **yij,  // n arrays of yl bytes representing y values
-                     uint8_t x,            // x coordinate to interpolate
-                     uint8_t *result       // space for yl bytes of results
-) {
+cx_err_t interpolate(uint8_t n,
+                     const uint8_t* xi,
+                     uint8_t yl,
+                     const uint8_t** yij,
+                     uint8_t x,
+                     uint8_t* result) {
     const uint8_t N[2] = SSS_POLYNOMIAL;
     const uint8_t R2[1] = MONTGOMERY_CONSTANT_R2;
 

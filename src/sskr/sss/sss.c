@@ -13,6 +13,28 @@
 
 #define memzero(...) explicit_bzero(__VA_ARGS__)
 
+/**
+ * @brief Validates the parameters for Shamir's Secret Sharing (SSS) functions.
+ *
+ * @details This function checks if the provided threshold, share count, and
+ *          secret length are within the acceptable ranges for SSS operations.
+ *          It enforces constraints to ensure the integrity and security of the
+ *          secret sharing process.
+ *
+ * @param[in] threshold     The minimum number of shares required to recover the secret.
+ * @param[in] share_count   The total number of shares to be generated.
+ * @param[in] secret_length The length of the secret in bytes.
+ *
+ * @return                  0 on success, or a negative error code on failure:
+ *                          - SSS_ERROR_TOO_MANY_SHARES: if share_count exceeds SSS_MAX_SHARE_COUNT
+ *                          - SSS_ERROR_INVALID_THRESHOLD: if threshold is invalid (< 1 or >
+ *                            share_count)
+ *                          - SSS_ERROR_SECRET_TOO_LONG: if secret_length exceeds
+ *                            SSS_MAX_SECRET_SIZE
+ *                          - SSS_ERROR_SECRET_TOO_SHORT: if secret_length is less than
+ *                            SSS_MIN_SECRET_SIZE
+ *                          - SSS_ERROR_SECRET_NOT_EVEN_LEN: if secret_length is not even
+ */
 static int16_t sss_validate_parameters(uint8_t threshold,
                                        uint8_t share_count,
                                        uint8_t secret_length) {
@@ -30,17 +52,21 @@ static int16_t sss_validate_parameters(uint8_t threshold,
     return 0;
 }
 
-//////////////////////////////////////////////////
-// hmac sha256
 /**
- * creates a digest used to help valididate secret reconstruction (see SLIP-39 docs)
+ * @brief Creates a digest used to help validate secret reconstruction (see SLIP-39 docs).
  *
- * returns: a pointer to the resulting 4-byte digest
- * inputs: random_data: array of data to create a digest for
- *         rdlen: length of random_data array
- *         shared_secret: bytes to use as the key for the hmac when generating digest
- *         sslen: length of the shared secret array
- *         result: a pointer to a block of 4 bytes to store the resulting digest
+ * @details This function takes random data, a shared secret, and calculates a 4-byte
+ *          digest using HMAC. This digest can be used to verify the integrity of the
+ *          reconstructed secret during Shamir's Secret Sharing (SSS) recovery process.
+ *
+ * @param[in]  random_data   Pointer to the array containing the random data.
+ * @param[in]  rdlen         Length of the `random_data` array in bytes.
+ * @param[in]  shared_secret Pointer to the array containing the shared secret.
+ * @param[in]  sslen         Length of the `shared_secret` array in bytes.
+ * @param[out] result        Pointer to a 4-byte array where the digest will be stored.
+ *
+ * @return                   Pointer to the `result` array containing the digest,
+ *                           or `NULL` on failure.
  */
 uint8_t *sss_create_digest(const uint8_t *random_data,
                            uint32_t rdlen,
@@ -58,8 +84,6 @@ uint8_t *sss_create_digest(const uint8_t *random_data,
     return result;
 }
 
-//////////////////////////////////////////////////
-// shamir secret sharing
 int16_t sss_split_secret(uint8_t threshold,
                          uint8_t share_count,
                          const uint8_t *secret,
@@ -119,8 +143,6 @@ int16_t sss_split_secret(uint8_t threshold,
     return share_count;
 }
 
-// returns the number of bytes written to the secret array, or a negative value if there was an
-// error
 int16_t sss_recover_secret(uint8_t threshold,
                            const uint8_t *x,
                            const uint8_t **shares,

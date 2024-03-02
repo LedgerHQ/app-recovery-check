@@ -49,11 +49,11 @@ unsigned int bolos_ux_sskr_hex_decode(unsigned char *mnemonic_hex,
             mnemonic_hex + (i * mnemonic_length / sskr_shares_count) + 4 + (sskr_share_len > 23);
     }
 
-    uint16_t output_len = sskr_combine(ptr_sskr_shares,
-                                       sskr_share_len,
-                                       (uint8_t) sskr_shares_count,
-                                       output,
-                                       SSKR_MAX_STRENGTH_BYTES);
+    uint16_t output_len = sskr_combine_shards(ptr_sskr_shares,
+                                              sskr_share_len,
+                                              (uint8_t) sskr_shares_count,
+                                              output,
+                                              SSKR_MAX_STRENGTH_BYTES);
 
     if (output_len < 1) {
         memzero(mnemonic_hex, sizeof(mnemonic_hex));
@@ -108,15 +108,15 @@ unsigned int bolos_ux_sskr_generate(uint8_t groups_threshold,
 
     PRINTF("SSKR generate input:\n %.*H\n", seed_len, seed);
     // convert seed to SSKR shares
-    int share_count = sskr_generate(groups_threshold,
-                                    groups,
-                                    groups_len,
-                                    seed,
-                                    seed_len,
-                                    share_len,
-                                    share_buffer,
-                                    share_buffer_len,
-                                    cx_rng);
+    int share_count = sskr_generate_shards(groups_threshold,
+                                           groups,
+                                           groups_len,
+                                           seed,
+                                           seed_len,
+                                           share_len,
+                                           share_buffer,
+                                           share_buffer_len,
+                                           cx_rng);
 
     if ((share_count < 0) || ((unsigned int) share_count != share_count_expected) ||
         (*share_len != share_len_expected)) {

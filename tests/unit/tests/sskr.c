@@ -92,7 +92,7 @@ static void test_sskr_generate(void **state) {
     uint8_t share_buffer[share_buffer_len];
     uint8_t share_len;
 
-    int16_t share_count = sskr_generate(groups_threshold,
+    int16_t share_count = sskr_generate_shards(groups_threshold,
                                         groups,
                                         groups_len,
                                         seed,
@@ -131,21 +131,21 @@ static void test_sskr_combine(void **state) {
     uint8_t share_count = 2;
     uint8_t output[sizeof(seed)];
 
-    int16_t output_len = sskr_combine(shares, share_len, share_count, output, sizeof(output));
+    int16_t output_len = sskr_combine_shards(shares, share_len, share_count, output, sizeof(output));
 
     assert_int_equal(output_len, sizeof(seed));
     assert_memory_equal(output, seed, output_len);
 
     shares[1] = share1_3;
 
-    output_len = sskr_combine(shares, share_len, share_count, output, sizeof(output));
+    output_len = sskr_combine_shards(shares, share_len, share_count, output, sizeof(output));
 
     assert_int_equal(output_len, sizeof(seed));
     assert_memory_equal(output, seed, output_len);
 
     shares[0] = share1_2;
 
-    output_len = sskr_combine(shares, share_len, share_count, output, sizeof(output));
+    output_len = sskr_combine_shards(shares, share_len, share_count, output, sizeof(output));
 
     assert_int_equal(output_len, sizeof(seed));
     assert_memory_equal(output, seed, output_len);
@@ -171,27 +171,27 @@ static void test_sskr_combine(void **state) {
     shares[0] = share2_1;
     shares[1] = share2_2;
 
-    output_len = sskr_combine(shares, share_len, share_count, output, sizeof(output));
+    output_len = sskr_combine_shards(shares, share_len, share_count, output, sizeof(output));
 
     assert_int_equal(output_len, sizeof(seed));
     assert_memory_equal(output, seed, output_len);
 
     shares[1] = share2_3;
 
-    output_len = sskr_combine(shares, share_len, share_count, output, sizeof(output));
+    output_len = sskr_combine_shards(shares, share_len, share_count, output, sizeof(output));
 
     assert_int_equal(output_len, sizeof(seed));
     assert_memory_equal(output, seed, output_len);
 
     shares[0] = share2_2;
 
-    output_len = sskr_combine(shares, share_len, share_count, output, sizeof(output));
+    output_len = sskr_combine_shards(shares, share_len, share_count, output, sizeof(output));
 
     assert_int_equal(output_len, sizeof(seed));
     assert_memory_equal(output, seed, output_len);
 
     share_count = 0;
-    output_len = sskr_combine(shares, share_len, share_count, output, sizeof(output));
+    output_len = sskr_combine_shards(shares, share_len, share_count, output, sizeof(output));
     assert_int_equal(output_len, SSKR_ERROR_EMPTY_SHARD_SET);
 
 }
