@@ -1,18 +1,18 @@
 //
-//  shamir.h
+//  sss.h
 //
 //  Copyright © 2020 by Blockchain Commons, LLC
 //  Licensed under the "BSD-2-Clause Plus Patent License"
 //
 
-#ifndef SHAMIR_H
-#define SHAMIR_H
+#ifndef SSS_H
+#define SSS_H
 
 #include <stdint.h>
-#include "shamir-constants.h"
+#include "sss-constants.h"
 
-#define SECRET_INDEX 255
-#define DIGEST_INDEX 254
+#define SSS_SECRET_INDEX 255
+#define SSS_DIGEST_INDEX 254
 
 //////////////////////////////////////////////////
 // Shamir Secret Sharing (based on SLIP-39)
@@ -29,12 +29,12 @@
  * secret secret_length: length of the secret array. must be >= 16, <= 32 and even. result: place to
  * store the resulting shares. Must be able to hold share_count * secret_length bytes
  */
-int16_t shamir_split_secret(uint8_t threshold,
-                            uint8_t share_count,
-                            const uint8_t *secret,
-                            uint8_t secret_length,
-                            uint8_t *result,
-                            unsigned char *(*random_generator)(uint8_t *, size_t));
+int16_t sss_split_secret(uint8_t threshold,
+                         uint8_t share_count,
+                         const uint8_t *secret,
+                         uint8_t secret_length,
+                         uint8_t *result,
+                         unsigned char *(*random_generator)(uint8_t *, size_t));
 
 /**
  * recover a secret from shares
@@ -48,10 +48,10 @@ int16_t shamir_split_secret(uint8_t threshold,
  *         share_length: number of bytes in each y value array
  *         secret: array for writing results (must be at least share_length long)
  */
-int16_t shamir_recover_secret(uint8_t threshold,
-                              const uint8_t *x,
-                              const uint8_t **shares,
-                              uint8_t share_length,
-                              uint8_t *secret);
+int16_t sss_recover_secret(uint8_t threshold,
+                           const uint8_t *x,
+                           const uint8_t **shares,
+                           uint8_t share_length,
+                           uint8_t *secret);
 
-#endif /* SHAMIR_H */
+#endif /* SSS_H */

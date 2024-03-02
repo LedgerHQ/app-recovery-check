@@ -58,7 +58,7 @@
 
 #include <lcx_rng.h>
 
-#include "shamir.h"
+#include "sss.h"
 #include "interpolate.h"
 #include "testutils.h"
 
@@ -68,7 +68,7 @@ const uint8_t seed[] = {0xE3, 0x95, 0x5C, 0xDA, 0x30, 0x47, 0x71, 0xC0,
                         0x1E, 0xD1, 0x4E, 0x8A, 0xAF, 0xA1, 0xAF, 0x13};
 
 
-static void test_shamir_recover(void **state) {
+static void test_sss_recover(void **state) {
     const uint8_t share1_1[] = {0x30, 0xCC, 0x0D, 0xCF, 0x70, 0x83, 0xBD, 0x1F,
                                 0x0D, 0xAF, 0xBD, 0x88, 0x69, 0xE8, 0x8C, 0x0B,
                                 0xDF, 0x81, 0xD9, 0x0D, 0x53, 0x15, 0x85, 0x37,
@@ -91,7 +91,7 @@ static void test_shamir_recover(void **state) {
 
     const uint8_t *shares[] = {share1_1, share1_2};
 
-    int16_t recovery = shamir_recover_secret(threshold,
+    int16_t recovery = sss_recover_secret(threshold,
                                              member_indexs,
                                              shares,
                                              share_length,
@@ -103,7 +103,7 @@ static void test_shamir_recover(void **state) {
     shares[0] = share1_3;
     member_indexs[0] = 0x02;
 
-    recovery = shamir_recover_secret(threshold,
+    recovery = sss_recover_secret(threshold,
                                      member_indexs,
                                      shares,
                                      share_length,
@@ -115,7 +115,7 @@ static void test_shamir_recover(void **state) {
     shares[1] = share1_1;
     member_indexs[1] = 0x00;
 
-    recovery = shamir_recover_secret(threshold,
+    recovery = sss_recover_secret(threshold,
                                      member_indexs,
                                      shares,
                                      share_length,
@@ -127,13 +127,13 @@ static void test_shamir_recover(void **state) {
     shares[0] = share1_1;
     member_indexs[0] = 0x01;
 
-    recovery = shamir_recover_secret(threshold,
+    recovery = sss_recover_secret(threshold,
                                      member_indexs,
                                      shares,
                                      share_length,
                                      secret);
 
-    assert_int_equal(recovery, SHAMIR_ERROR_CHECKSUM_FAILURE);
+    assert_int_equal(recovery, SSS_ERROR_CHECKSUM_FAILURE);
     assert_memory_not_equal(secret, seed, share_length);
 
     const uint8_t share2_1[] = {0xFF, 0x0F, 0xBB, 0x2A, 0x8B, 0xCC, 0x6F, 0x00,
@@ -155,7 +155,7 @@ static void test_shamir_recover(void **state) {
     member_indexs[0] = 0x00;
     member_indexs[1] = 0x01;
 
-    recovery = shamir_recover_secret(threshold,
+    recovery = sss_recover_secret(threshold,
                                      member_indexs,
                                      shares,
                                      share_length,
@@ -167,7 +167,7 @@ static void test_shamir_recover(void **state) {
     shares[0] = share2_3;
     member_indexs[0] = 0x02;
 
-    recovery = shamir_recover_secret(threshold,
+    recovery = sss_recover_secret(threshold,
                                      member_indexs,
                                      shares,
                                      share_length,
@@ -179,7 +179,7 @@ static void test_shamir_recover(void **state) {
     shares[1] = share2_1;
     member_indexs[1] = 0x00;
 
-    recovery = shamir_recover_secret(threshold,
+    recovery = sss_recover_secret(threshold,
                                      member_indexs,
                                      shares,
                                      share_length,
@@ -191,17 +191,17 @@ static void test_shamir_recover(void **state) {
     shares[0] = share2_1;
     member_indexs[0] = 0x01;
 
-    recovery = shamir_recover_secret(threshold,
+    recovery = sss_recover_secret(threshold,
                                      member_indexs,
                                      shares,
                                      share_length,
                                      secret);
 
-    assert_int_equal(recovery, SHAMIR_ERROR_CHECKSUM_FAILURE);
+    assert_int_equal(recovery, SSS_ERROR_CHECKSUM_FAILURE);
     assert_memory_not_equal(secret, seed, share_length);
 }
 
-static void test_shamir_split(void **state) {
+static void test_sss_split(void **state) {
     const uint8_t shares[] = {0xFF, 0x0F, 0xBB, 0x2A, 0x8B, 0xCC, 0x6F, 0x00,
                               0xC8, 0xE6, 0x83, 0xDF, 0xB0, 0xEB, 0x5F, 0x1C,
                               0x55, 0xEF, 0x12, 0xD9, 0x4B, 0x62, 0x97, 0x42,
@@ -220,7 +220,7 @@ static void test_shamir_split(void **state) {
     const uint8_t seed_length = sizeof(seed);
     uint8_t result[seed_length * share_count];
  
-    int16_t ret_val = shamir_split_secret(threshold,
+    int16_t ret_val = sss_split_secret(threshold,
                                           share_count,
                                           seed,
                                           seed_length,
@@ -231,20 +231,20 @@ static void test_shamir_split(void **state) {
     assert_memory_equal(result, shares, sizeof(result));
 
     threshold = 4;
-    ret_val = shamir_split_secret(threshold,
+    ret_val = sss_split_secret(threshold,
                                   share_count,
                                   seed,
                                   seed_length,
                                   result,
                                   cx_rng);
 
-    assert_int_equal(ret_val, SHAMIR_ERROR_INVALID_THRESHOLD);
+    assert_int_equal(ret_val, SSS_ERROR_INVALID_THRESHOLD);
 }
 
 int main(void) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_shamir_recover),
-        cmocka_unit_test(test_shamir_split)
+        cmocka_unit_test(test_sss_recover),
+        cmocka_unit_test(test_sss_split)
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

@@ -85,7 +85,7 @@ static void test_sskr_generate(void **state) {
                               0x49, 0x91, 0x30, 0xCF, 0xAD, 0x2E, 0xBA};
 
     const uint8_t groups_threshold = 1;
-    const sskr_group_descriptor groups[] = { { .threshold = 2, .count = 3 } };
+    const sskr_group_descriptor_t groups[] = { { .threshold = 2, .count = 3 } };
     const uint8_t groups_len = 1;
     const uint8_t seed_len = sizeof(seed);
     const uint16_t share_buffer_len = (seed_len + SSKR_METADATA_LENGTH_BYTES) * groups[0].count;

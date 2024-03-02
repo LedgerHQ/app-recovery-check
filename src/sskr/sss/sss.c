@@ -1,5 +1,5 @@
 //
-//  shamir.c
+//  sss.c
 //
 //  Copyright © 2020 by Blockchain Commons, LLC
 //  Licensed under the "BSD-2-Clause Plus Patent License"
@@ -8,24 +8,24 @@
 #include <string.h>
 #include <cx.h>
 
-#include "shamir.h"
+#include "sss.h"
 #include "interpolate.h"
 
 #define memzero(...) explicit_bzero(__VA_ARGS__)
 
-static int16_t shamir_validate_parameters(uint8_t threshold,
-                                          uint8_t share_count,
-                                          uint8_t secret_length) {
-    if (share_count > SHAMIR_MAX_SHARE_COUNT) {
-        return SHAMIR_ERROR_TOO_MANY_SHARES;
+static int16_t sss_validate_parameters(uint8_t threshold,
+                                       uint8_t share_count,
+                                       uint8_t secret_length) {
+    if (share_count > SSS_MAX_SHARE_COUNT) {
+        return SSS_ERROR_TOO_MANY_SHARES;
     } else if (threshold < 1 || threshold > share_count) {
-        return SHAMIR_ERROR_INVALID_THRESHOLD;
-    } else if (secret_length > SHAMIR_MAX_SECRET_SIZE) {
-        return SHAMIR_ERROR_SECRET_TOO_LONG;
-    } else if (secret_length < SHAMIR_MIN_SECRET_SIZE) {
-        return SHAMIR_ERROR_SECRET_TOO_SHORT;
+        return SSS_ERROR_INVALID_THRESHOLD;
+    } else if (secret_length > SSS_MAX_SECRET_SIZE) {
+        return SSS_ERROR_SECRET_TOO_LONG;
+    } else if (secret_length < SSS_MIN_SECRET_SIZE) {
+        return SSS_ERROR_SECRET_TOO_SHORT;
     } else if (secret_length & 1) {
-        return SHAMIR_ERROR_SECRET_NOT_EVEN_LEN;
+        return SSS_ERROR_SECRET_NOT_EVEN_LEN;
     }
     return 0;
 }
@@ -42,11 +42,11 @@ static int16_t shamir_validate_parameters(uint8_t threshold,
  *         sslen: length of the shared secret array
  *         result: a pointer to a block of 4 bytes to store the resulting digest
  */
-uint8_t *shamir_create_digest(const uint8_t *random_data,
-                              uint32_t rdlen,
-                              const uint8_t *shared_secret,
-                              uint32_t sslen,
-                              uint8_t *result) {
+uint8_t *sss_create_digest(const uint8_t *random_data,
+                           uint32_t rdlen,
+                           const uint8_t *shared_secret,
+                           uint32_t sslen,
+                           uint8_t *result) {
     uint8_t buf[32];
 
     cx_hmac_sha256(random_data, rdlen, shared_secret, sslen, buf, sizeof(buf));
@@ -59,14 +59,14 @@ uint8_t *shamir_create_digest(const uint8_t *random_data,
 }
 
 //////////////////////////////////////////////////
-// shamir sharing
-int16_t shamir_split_secret(uint8_t threshold,
-                            uint8_t share_count,
-                            const uint8_t *secret,
-                            uint8_t secret_length,
-                            uint8_t *result,
-                            unsigned char *(*random_generator)(uint8_t *, size_t)) {
-    int16_t err = shamir_validate_parameters(threshold, share_count, secret_length);
+// shamir secret sharing
+int16_t sss_split_secret(uint8_t threshold,
+                         uint8_t share_count,
+                         const uint8_t *secret,
+                         uint8_t secret_length,
+                         uint8_t *result,
+                         unsigned char *(*random_generator)(uint8_t *, size_t)) {
+    int16_t err = sss_validate_parameters(threshold, share_count, secret_length);
     if (err) {
         return err;
     }
@@ -81,9 +81,9 @@ int16_t shamir_split_secret(uint8_t threshold,
         }
         return share_count;
     } else {
-        uint8_t digest[SHAMIR_MAX_SECRET_SIZE];
-        uint8_t x[SHAMIR_MAX_SHARE_COUNT];
-        const uint8_t *y[SHAMIR_MAX_SHARE_COUNT];
+        uint8_t digest[SSS_MAX_SECRET_SIZE];
+        uint8_t x[SSS_MAX_SHARE_COUNT];
+        const uint8_t *y[SSS_MAX_SHARE_COUNT];
         uint8_t n = 0;
         uint8_t *share = result;
 
@@ -97,18 +97,18 @@ int16_t shamir_split_secret(uint8_t threshold,
         // generate secret_length - 4 bytes worth of random data
         random_generator(digest + 4, secret_length - 4);
         // put 4 bytes of digest at the top of the digest array
-        shamir_create_digest(digest + 4, secret_length - 4, secret, secret_length, digest);
-        x[n] = DIGEST_INDEX;
+        sss_create_digest(digest + 4, secret_length - 4, secret, secret_length, digest);
+        x[n] = SSS_DIGEST_INDEX;
         y[n] = digest;
         n += 1;
 
-        x[n] = SECRET_INDEX;
+        x[n] = SSS_SECRET_INDEX;
         y[n] = secret;
         n += 1;
 
         for (uint8_t i = threshold - 2; i < share_count; ++i, share += secret_length) {
             if (interpolate(n, x, secret_length, y, i, share) != CX_OK) {
-                return SHAMIR_ERROR_INTERPOLATION_FAILURE;
+                return SSS_ERROR_INTERPOLATION_FAILURE;
             }
         }
 
@@ -121,17 +121,17 @@ int16_t shamir_split_secret(uint8_t threshold,
 
 // returns the number of bytes written to the secret array, or a negative value if there was an
 // error
-int16_t shamir_recover_secret(uint8_t threshold,
-                              const uint8_t *x,
-                              const uint8_t **shares,
-                              uint8_t share_length,
-                              uint8_t *secret) {
-    int16_t err = shamir_validate_parameters(threshold, threshold, share_length);
+int16_t sss_recover_secret(uint8_t threshold,
+                           const uint8_t *x,
+                           const uint8_t **shares,
+                           uint8_t share_length,
+                           uint8_t *secret) {
+    int16_t err = sss_validate_parameters(threshold, threshold, share_length);
     if (err) {
         return err;
     }
 
-    uint8_t digest[SHAMIR_MAX_SECRET_SIZE];
+    uint8_t digest[SSS_MAX_SECRET_SIZE];
     uint8_t verify[4];
     uint8_t valid = 1;
 
@@ -142,16 +142,16 @@ int16_t shamir_recover_secret(uint8_t threshold,
         return share_length;
     }
 
-    if (interpolate(threshold, x, share_length, shares, DIGEST_INDEX, digest) != CX_OK ||
-        interpolate(threshold, x, share_length, shares, SECRET_INDEX, secret) != CX_OK) {
+    if (interpolate(threshold, x, share_length, shares, SSS_DIGEST_INDEX, digest) != CX_OK ||
+        interpolate(threshold, x, share_length, shares, SSS_SECRET_INDEX, secret) != CX_OK) {
         memzero(secret, sizeof(digest));
         memzero(digest, sizeof(digest));
         memzero(verify, sizeof(verify));
 
-        return SHAMIR_ERROR_INTERPOLATION_FAILURE;
+        return SSS_ERROR_INTERPOLATION_FAILURE;
     }
 
-    shamir_create_digest(digest + 4, share_length - 4, secret, share_length, verify);
+    sss_create_digest(digest + 4, share_length - 4, secret, share_length, verify);
 
     for (uint8_t i = 0; i < 4; i++) {
         valid &= digest[i] == verify[i];
@@ -161,7 +161,7 @@ int16_t shamir_recover_secret(uint8_t threshold,
     memzero(verify, sizeof(verify));
 
     if (!valid) {
-        return SHAMIR_ERROR_CHECKSUM_FAILURE;
+        return SSS_ERROR_CHECKSUM_FAILURE;
     }
 
     return share_length;

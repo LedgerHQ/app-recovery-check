@@ -12,7 +12,7 @@
 #include "interpolate.h"
 
 // The irreducible polynomial N(x) = x^8 + x^4 + x^3 + x + 1
-#define SHAMIR_POLYNOMIAL \
+#define SSS_POLYNOMIAL \
     { 0x01, 0x1B }
 
 // 2nd Montgomery constant: R2 = x^(2*t*8) mod N(x)
@@ -194,7 +194,7 @@ cx_err_t interpolate(uint8_t n,            // number of points to interpolate
                      uint8_t x,            // x coordinate to interpolate
                      uint8_t *result       // space for yl bytes of results
 ) {
-    const uint8_t N[2] = SHAMIR_POLYNOMIAL;
+    const uint8_t N[2] = SSS_POLYNOMIAL;
     const uint8_t R2[1] = MONTGOMERY_CONSTANT_R2;
 
     cx_err_t error = CX_OK;  // By default, until some error occurs

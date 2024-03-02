@@ -15,7 +15,7 @@
 #include "group.h"
 
 int16_t sskr_count_shards(uint8_t group_threshold,
-                          const sskr_group_descriptor *groups,
+                          const sskr_group_descriptor_t *groups,
                           uint8_t groups_len);
 
 /**
@@ -40,7 +40,7 @@ int16_t sskr_count_shards(uint8_t group_threshold,
  *         buffer_size: maximum number of bytes to write to the output array
  */
 int16_t sskr_generate(uint8_t group_threshold,
-                      const sskr_group_descriptor *groups,
+                      const sskr_group_descriptor_t *groups,
                       uint8_t groups_length,
                       const uint8_t *master_secret,
                       uint16_t master_secret_length,

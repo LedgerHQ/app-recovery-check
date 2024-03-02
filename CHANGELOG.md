@@ -7,6 +7,7 @@
 ### Changed
 - Changed Shamir interpolate function to use `cx_bn_gf2_n_mul()` syscalls
 - Changed some function names to be more descriptive
+- Reorganised and renamed some of the SSKR and Shamir code
 
 ### Fixed
 -

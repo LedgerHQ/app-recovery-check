@@ -20,6 +20,6 @@ typedef struct sskr_shard_struct {
     uint8_t member_threshold;
     uint8_t value_len;
     uint8_t value[32];
-} sskr_shard;
+} sskr_shard_t;
 
 #endif /* SHARD_H */

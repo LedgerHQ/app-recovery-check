@@ -22,7 +22,7 @@ unsigned int bolos_ux_sskr_size_get(uint8_t bip39_onboarding_kind,
                                     unsigned int *group_descriptor,
                                     uint8_t groups_len,
                                     uint8_t *share_len) {
-    sskr_group_descriptor groups[SSKR_MAX_GROUP_COUNT];
+    sskr_group_descriptor_t groups[SSKR_MAX_GROUP_COUNT];
     for (uint8_t i = 0; i < groups_len; i++) {
         groups[i].threshold = *(group_descriptor + i * sizeof(*(group_descriptor)) / groups_len);
         groups[i].count = *(group_descriptor + 1 + i * sizeof(*(group_descriptor)) / groups_len);
@@ -38,7 +38,7 @@ unsigned int bolos_ux_sskr_hex_decode(unsigned char *mnemonic_hex,
                                       unsigned int mnemonic_length,
                                       unsigned int sskr_shares_count,
                                       unsigned char *output) {
-    const uint8_t *ptr_sskr_shares[SSKR_MAX_GROUP_COUNT * SHAMIR_MAX_SHARE_COUNT];
+    const uint8_t *ptr_sskr_shares[SSKR_MAX_GROUP_COUNT * SSS_MAX_SHARE_COUNT];
     uint8_t sskr_share_len = mnemonic_hex[3] & 0x1F;
     if (sskr_share_len > 23) {
         sskr_share_len = mnemonic_hex[4];
@@ -94,7 +94,7 @@ unsigned int bolos_ux_sskr_generate(uint8_t groups_threshold,
                                     unsigned int share_buffer_len,
                                     uint8_t share_len_expected,
                                     uint8_t share_count_expected) {
-    sskr_group_descriptor groups[SSKR_MAX_GROUP_COUNT];
+    sskr_group_descriptor_t groups[SSKR_MAX_GROUP_COUNT];
 
     for (uint8_t i = 0; i < (uint8_t) groups_len; i++) {
         groups[i].threshold = *(group_descriptor + i * 2);
@@ -180,7 +180,7 @@ unsigned int bolos_ux_bip39_to_sskr_convert(unsigned char *bip39_words_buffer,
                                                               &share_len_expected);
 
         uint16_t share_buffer_len = share_count_expected * share_len_expected;
-        uint8_t share_buffer[SSKR_MAX_GROUP_COUNT * SHAMIR_MAX_SHARE_COUNT *
+        uint8_t share_buffer[SSKR_MAX_GROUP_COUNT * SSS_MAX_SHARE_COUNT *
                              (SSKR_MAX_STRENGTH_BYTES + SSKR_METADATA_LENGTH_BYTES)];
         uint8_t share_len = 0;
         *share_count = bolos_ux_sskr_generate(groups_threshold,

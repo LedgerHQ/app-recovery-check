@@ -8,7 +8,7 @@
 #ifndef SSKR_CONSTANTS_H
 #define SSKR_CONSTANTS_H
 
-#include "shamir-constants.h"
+#include "sss-constants.h"
 
 #define SSKR_METADATA_LENGTH_BYTES       5
 #define SSKR_MIN_STRENGTH_BYTES          16

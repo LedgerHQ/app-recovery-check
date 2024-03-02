@@ -53,6 +53,13 @@ function(install_apk_packages)
   endforeach()
 endfunction()
 
+# Check if linux-headers package is installed
+if(NOT EXISTS "/usr/include/linux/version.h")
+  install_apk_packages(linux-headers)
+else()
+  message(STATUS "linux-headers package found")
+endif()
+
 include(ExternalProject)
 if (PRECOMPILED_DEPENDENCIES_DIR)
   message(STATUS "Using OpenSSL from ${PRECOMPILED_DEPENDENCIES_DIR}")
@@ -79,7 +86,7 @@ else()
     openssl
     URL https://www.openssl.org/source/openssl-3.0.13.tar.gz
     URL_HASH SHA256=88525753f79d3bec27d2fa7c66aa0b92b3aa9498dafd93d7cfa4b3780cdae313
-    CONFIGURE_COMMAND ./Configure "CC=${CMAKE_C_COMPILER}" "CFLAGS=${OPENSSL_CFLAGS}" no-afalgeng no-aria no-asan no-asm no-async no-autoalginit no-autoerrinit no-autoload-config no-bf no-buildtest-c++ no-camellia no-capieng no-cast no-chacha no-cmac no-cms no-comp no-crypto-mdebug no-ct no-deprecated no-des no-devcryptoeng no-dgram no-dh no-dsa no-dso no-dtls no-ecdh no-egd no-engine no-err no-external-tests no-filenames no-fuzz-afl no-fuzz-libfuzzer no-gost no-idea no-makedepend no-md2 no-md4 no-mdc2 no-msan no-multiblock no-nextprotoneg no-ocb no-ocsp no-pinshared no-poly1305 no-posix-io no-psk no-rc2 no-rc4 no-rc5 no-rdrand no-rfc3779 no-scrypt no-sctp no-seed no-shared no-siphash no-sm2 no-sm3 no-sm4 no-sock no-srp no-srtp no-sse2 no-ssl no-ssl3-method no-ssl-trace no-stdio no-tests no-threads no-tls no-ts no-ubsan no-ui-console no-unit-test no-whirlpool no-zlib no-zlib-dynamic linux-armv4 --prefix=${INSTALL_DIR}
+    CONFIGURE_COMMAND ./Configure "CC=${CMAKE_C_COMPILER}" "CFLAGS=${OPENSSL_CFLAGS}" no-afalgeng no-aria no-asan no-asm no-async no-autoalginit no-autoerrinit no-autoload-config no-bf no-buildtest-c++ no-camellia no-capieng no-cast no-chacha no-cmac no-cms no-comp no-crypto-mdebug no-ct no-deprecated no-des no-devcryptoeng no-dgram no-dh no-dsa no-dso no-dtls no-ec2m no-ecdh no-egd no-engine no-err no-external-tests no-filenames no-fuzz-afl no-fuzz-libfuzzer no-gost no-idea no-makedepend no-md2 no-md4 no-mdc2 no-msan no-multiblock no-nextprotoneg no-ocb no-ocsp no-pinshared no-poly1305 no-posix-io no-psk no-rc2 no-rc4 no-rc5 no-rdrand no-rfc3779 no-scrypt no-sctp no-seed no-shared no-siphash no-sm2 no-sm3 no-sm4 no-sock no-srp no-srtp no-sse2 no-ssl no-ssl3-method no-ssl-trace no-stdio no-tests no-threads no-tls no-ts no-ubsan no-ui-console no-unit-test no-whirlpool no-zlib no-zlib-dynamic linux-armv4 --prefix=${INSTALL_DIR}
     BUILD_COMMAND make
     INSTALL_COMMAND make install_sw
     BUILD_IN_SOURCE 1
@@ -103,7 +110,7 @@ set(PICKY_DEVELOPER OFF CACHE BOOL "CMocka: Build with picky developer flags" FO
 FetchContent_MakeAvailable(cmocka)
 
 add_compile_definitions(TEST DEBUG=0 SKIP_FOR_CMOCKA)
-add_compile_definitions(HAVE_HASH HAVE_HMAC HAVE_SHA224 HAVE_SHA256 HAVE_SHA512 HAVE_PBKDF2 HAVE_ECC HAVE_CRC HAVE_RNG IO_HID_EP_LENGTH=64)
+add_compile_definitions(TARGET_NANOS HAVE_HASH HAVE_HMAC HAVE_SHA224 HAVE_SHA256 HAVE_SHA512 HAVE_PBKDF2 HAVE_ECC HAVE_CRC HAVE_RNG IO_HID_EP_LENGTH=64)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib $ENV{LEDGER_SECURE_SDK}/include $ENV{LEDGER_SECURE_SDK}/lib_cxng/src $ENV{LEDGER_SECURE_SDK}/lib_cxng/include $ENV{LEDGER_SECURE_SDK}/lib_ux/include $ENV{LEDGER_SECURE_SDK}/lib_bagl/include)
 
@@ -114,23 +121,23 @@ set(BOLOS_SOURCES ./lib/bolos/cx_bn.c ./lib/bolos/cx_crc.c ./lib/bolos/cx_mpi.c)
 set(LIBCXNG_SOURCES $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_ram.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_hash.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_sha256.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_sha512.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_pbkdf2.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_hmac.c $ENV{LEDGER_SECURE_SDK}/lib_cxng/src/cx_utils.c)
 set(TESTLIB_SOURCES ./lib/testutils.c)
 add_library(testutils SHARED ${TESTLIB_SOURCES} ${LIBCXNG_SOURCES} ${BOLOS_SOURCES})
-target_include_directories(testutils PUBLIC ${INSTALL_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../src/bc-sskr/bc-shamir ${CMAKE_CURRENT_SOURCE_DIR}/../../src/bc-sskr)
+target_include_directories(testutils PUBLIC ${INSTALL_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../../src/sskr/sss ${CMAKE_CURRENT_SOURCE_DIR}/../../src/sskr)
 target_link_directories(testutils PUBLIC ${INSTALL_DIR}/lib)
 target_link_libraries(testutils PUBLIC ssl crypto)
 add_dependencies(testutils openssl)
 
-add_library(shamir SHARED ../../src/bc-sskr/bc-shamir/shamir.c ../../src/bc-sskr/bc-shamir/interpolate.c)
-target_include_directories(shamir PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src/bc-sskr/bc-shamir)
+add_library(sss SHARED ../../src/sskr/sss/sss.c ../../src/sskr/sss/interpolate.c)
+target_include_directories(sss PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src/sskr/sss)
 
-add_library(sskr SHARED ../../src/bc-sskr/sskr.c)
-target_include_directories(sskr PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src/bc-sskr/bc-shamir ${CMAKE_CURRENT_SOURCE_DIR}/../../src/bc-sskr)
+add_library(sskr SHARED ../../src/sskr/sskr.c)
+target_include_directories(sskr PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src/sskr/sss ${CMAKE_CURRENT_SOURCE_DIR}/../../src/sskr)
 
 # add cmocka tests
-add_executable(test_shamir tests/shamir.c)
-target_link_libraries(test_shamir PUBLIC cmocka gcov testutils shamir)
+add_executable(test_sss tests/sss.c)
+target_link_libraries(test_sss PUBLIC cmocka gcov testutils sss)
 
 add_executable(test_sskr tests/sskr.c)
-target_link_libraries(test_sskr PUBLIC cmocka gcov testutils sskr shamir)
+target_link_libraries(test_sskr PUBLIC cmocka gcov testutils sskr sss)
 
 add_executable(test_bip39 ./tests/bip39.c ../../src/ux_common/onboarding_seed_rom_variables.c  ../../src/ux_common/onboarding_seed_bip39.c)
 target_include_directories(test_bip39 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src/ux_common)
@@ -138,12 +145,12 @@ target_link_libraries(test_bip39 PUBLIC cmocka gcov testutils)
 
 add_executable(test_roundtrip ./tests/roundtrip.c ../../src/ux_common/onboarding_seed_rom_variables.c ../../src/ux_common/onboarding_seed_bip39.c ../../src/ux_common/onboarding_seed_sskr.c)
 target_include_directories(test_roundtrip PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src ${CMAKE_CURRENT_SOURCE_DIR}/../../src/ux_common)
-target_link_libraries(test_roundtrip PUBLIC cmocka gcov testutils sskr shamir)
+target_link_libraries(test_roundtrip PUBLIC cmocka gcov testutils sskr sss)
 
 add_executable(test_words ./tests/words.c ../../src/ux_common/onboarding_seed_rom_variables.c  ../../src/ux_common/onboarding_seed_bip39.c ../../src/ux_common/onboarding_seed_sskr.c)
 target_include_directories(test_words PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../../src/ux_common)
-target_link_libraries(test_words PUBLIC cmocka gcov testutils sskr shamir)
+target_link_libraries(test_words PUBLIC cmocka gcov testutils sskr sss)
 
-foreach(target test_shamir test_sskr test_bip39 test_roundtrip test_words)
+foreach(target test_sss test_sskr test_bip39 test_roundtrip test_words)
     add_test(NAME ${target} COMMAND ${target})
 endforeach()
