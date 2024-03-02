@@ -8,8 +8,6 @@
 #ifndef INTERPOLATE_H
 #define INTERPOLATE_H
 
-#include "hazmat.h"
-
 /**
  * safely interpolate the polynomial going through
  * the points (x0 [y0_0 y0_1 y0_2 ... y0_31]) , (x1 [y1_0 ...]), ...
@@ -20,7 +18,7 @@
  *   y contains [y0 y1 y2 ... yn-1]
  *   and each of the yi arrays contain [yi_0 yi_i ... yi_31].
  *
- * returns: on success, the number of bytes written to result
+ * returns: on success, CX_OK
  *          on failure, a negative error code
  *
  * inputs: n: number of points to interpolate
@@ -30,12 +28,12 @@
  *         x: coordinate to interpolate at
  *         result: space for yl bytes of interpolate data
  */
-int16_t interpolate(uint8_t n,            // number of points to interpolate
-                    const uint8_t* xi,    // x coordinates for points (array of length n)
-                    uint8_t yl,           // length of y coordinate array
-                    const uint8_t** yij,  // n arrays of yl bytes representing y values
-                    uint8_t x,            // x coordinate to interpolate
-                    uint8_t* result       // space for yl bytes of results
+cx_err_t interpolate(uint8_t n,            // number of points to interpolate
+                     const uint8_t* xi,    // x coordinates for points (array of length n)
+                     uint8_t yl,           // length of y coordinate array
+                     const uint8_t** yij,  // n arrays of yl bytes representing y values
+                     uint8_t x,            // x coordinate to interpolate
+                     uint8_t* result       // space for yl bytes of results
 );
 
 #endif /* INTERPOLATE_H */

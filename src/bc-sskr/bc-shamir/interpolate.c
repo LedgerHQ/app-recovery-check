@@ -5,94 +5,166 @@
 //  Licensed under the "BSD-2-Clause Plus Patent License"
 //
 
-#include <string.h>
+#include "os.h"
+#include "ox_bn.h"
+#include "cx_errors.h"
 
 #include "interpolate.h"
-#include "hazmat.h"
-#include "shamir-constants.h"
+
+// The irreducible polynomial N(x) = x^8 + x^4 + x^3 + x + 1
+#define SHAMIR_POLYNOMIAL \
+    { 0x01, 0x1B }
+
+// 2nd Montgomery constant: R2 = x^(2*t*8) mod N(x)
+// t = 1 since the number of bytes of R is 1.
+#define MONTGOMERY_CONSTANT_R2 \
+    { 0xA1 }
+
+// Minimal required bytes for BN storing a GF(256) value
+#define GF2_8_MPI_BYTES 1
 
 #define memzero(...) explicit_bzero(__VA_ARGS__)
 
-/*
- * calculate the lagrange basis coefficients for the lagrange polynomial
- * defined byt the x coordinates xc at the value x.
+#ifdef TARGET_NANOS
+/**
+ * @brief Performs a multiplication over GF(2^n).
  *
- * inputs: values: pointer to an array to write the values
- *         n: number of points - length of the xc array, 0 < n <= 32
- *         xc: array of x components to use as interpolating points
- *         x: x coordinate to evaluate lagrange polynomials at
+ * @param[out] bn_r BN index for the result.
  *
- * After the function runs, the values array should hold data satisfying
- * the following:
- *                ---     (x-xc[j])
- *   values[i] =  | |   -------------
- *              j != i  (xc[i]-xc[j])
+ * @param[in]  bn_a BN index of the first operand.
+ *
+ * @param[in]  bn_b BN index of the second operand.
+ *
+ * @param[in]  bn_n BN index of the modulus.
+ *                  The modulus must be an irreducible polynomial over GF(2)
+ *                  of degree n.
+ *
+ * @param[in]  bn_h BN index of the second montgomery constant.
+ *
+ * @return          Error code:
+ *                  - CX_OK on success
+ *                  - CX_NOT_LOCKED
+ *                  - CX_INVALID_PARAMETER
+ *                  - CX_MEMORY_FULL
  */
-static void hazmat_lagrange_basis(uint8_t *values, uint8_t n, const uint8_t *xc, uint8_t x) {
-    // call the contents of xc [ x0 x1 x2 ... xn-1 ]
-    uint8_t xx[32 + 16];
-    uint8_t i;
+cx_err_t cx_bn_gf2_n_mul(cx_bn_t bn_r,
+                         const cx_bn_t bn_a,
+                         const cx_bn_t bn_b,
+                         const cx_bn_t bn_n,
+                         const cx_bn_t bn_h __attribute__((unused))) {
+    cx_err_t error = CX_OK;
+    cx_bn_t bn_x, bn_y, bn_temp;
+    int cmp_x, cmp_y;
+    uint32_t degree = 0;
+    size_t nbytes;
+    bool bit_set = 0;
 
-    uint32_t x_slice[8], lxi[SHAMIR_MAX_SHARE_COUNT][8];
+    // Preliminaries
+    CX_CHECK(cx_bn_nbytes(bn_n, &nbytes));
+    CX_CHECK(cx_bn_alloc(&bn_x, nbytes));
+    CX_CHECK(cx_bn_alloc(&bn_y, nbytes));
+    CX_CHECK(cx_bn_alloc(&bn_temp, nbytes));
+    CX_CHECK(cx_bn_copy(bn_x, bn_a));
+    CX_CHECK(cx_bn_copy(bn_y, bn_b));
 
-    uint32_t numerator[8], denominator[8], temp[8];
+    // Calculate the degree of the modulus polynomial
+    CX_CHECK(cx_bn_copy(bn_temp, bn_n));
+    do {
+        CX_CHECK(cx_bn_cmp_u32(bn_temp, (uint32_t) 0, &cmp_x));
+        CX_CHECK(cx_bn_shr(bn_temp, 1));
+    } while (cmp_x != 0 && ++degree);
 
-    memzero(xx, sizeof(xx));
-    for (i = 0; i < n; ++i) {
-        xx[i] = xc[i];
+    // After loop degree is offset by 1
+    degree--;
+    if (degree < 1) {
+        error = CX_INVALID_PARAMETER;
+        goto end;
     }
 
-    // xx now contains bitsliced [ x0 x1 x2 ... xn-1 0 0 0 ... ]
-    for (i = 0; i < n; ++i) {
-        // lxi = bitsliced [ xi xi+1 xi+2 ... xi-1 0 0 0 ]
-        bitslice(&(lxi[i][0]), &(xx[i]));
-        xx[i + n] = xx[i];
+    // Ensure both operands are in field
+    CX_CHECK(cx_bn_shr(bn_x, degree));
+    CX_CHECK(cx_bn_shr(bn_y, degree));
+    // Maybe change cx_bn_cmp_u32 to cx_bn_cnt_bits
+    CX_CHECK(cx_bn_cmp_u32(bn_x, (uint32_t) 0, &cmp_x));
+    CX_CHECK(cx_bn_cmp_u32(bn_y, (uint32_t) 0, &cmp_y));
+
+    if (cmp_x != 0 || cmp_y != 0) {
+        error = CX_INVALID_PARAMETER;
+        goto end;
     }
 
-    bitslice_setall(x_slice, x);
-    bitslice_setall(numerator, 1);
-    bitslice_setall(denominator, 1);
+    // Check if both operands are non-zero
+    CX_CHECK(cx_bn_copy(bn_x, bn_a));
+    CX_CHECK(cx_bn_copy(bn_y, bn_b));
+    // Maybe cx_bn_cmp_u32 change to cx_bn_cnt_bits
+    CX_CHECK(cx_bn_cmp_u32(bn_x, (uint32_t) 0, &cmp_x));
+    CX_CHECK(cx_bn_cmp_u32(bn_y, (uint32_t) 0, &cmp_y));
 
-    for (i = 1; i < n; ++i) {
-        memcpy(temp, x_slice, sizeof(temp));
-        gf256_add(temp, &(lxi[i][0]));
-        // temp = [ x-xi+i x-xi+2 x-xi+3 ... x-xi x x x]
-        gf256_mul(numerator, numerator, temp);
+    CX_CHECK(cx_bn_set_u32(bn_r, (uint32_t) 0));
 
-        memcpy(temp, &(lxi[0][0]), sizeof(temp));
-        gf256_add(temp, &(lxi[i][0]));
-        // temp = [x0-xi+1 x1-xi+1 x2-xi+2 ... xn-x0 0 0 0]
-        gf256_mul(denominator, denominator, temp);
+    // Main loop for multiplication
+    while (cmp_x != 0 && cmp_y != 0) {
+        CX_CHECK(cx_bn_tst_bit(bn_y, 0, &bit_set));
+        if (bit_set) {
+            CX_CHECK(cx_bn_copy(bn_temp, bn_r));
+            CX_CHECK(cx_bn_xor(bn_r, bn_x, bn_temp));
+        }
+
+        CX_CHECK(cx_bn_shl(bn_x, 1));
+        CX_CHECK(cx_bn_tst_bit(bn_x, degree, &bit_set));
+
+        if (bit_set) {
+            CX_CHECK(cx_bn_copy(bn_temp, bn_x));
+            CX_CHECK(cx_bn_xor(bn_x, bn_n, bn_temp));
+        }
+
+        CX_CHECK(cx_bn_shr(bn_y, 1));
+
+        // Maybe change cx_bn_cmp_u32 to cx_bn_cnt_bits
+        CX_CHECK(cx_bn_cmp_u32(bn_x, (uint32_t) 0, &cmp_x));
+        CX_CHECK(cx_bn_cmp_u32(bn_y, (uint32_t) 0, &cmp_y));
     }
 
-    // At this stage the numerator contains
-    // [ num0 num1 num2 ... numn 0 0 0]
-    //
-    // where numi = prod(j, j!=i, x-xj )
-    //
-    // and the denomintor contains
-    // [ d0 d1 d2 ... dn 0 0 0]
-    //
-    // where di = prod(j, j!=i, xi-xj)
+    // Clean up
+    CX_CHECK(cx_bn_destroy(&bn_x));
+    CX_CHECK(cx_bn_destroy(&bn_y));
+    CX_CHECK(cx_bn_destroy(&bn_temp));
 
-    gf256_inv(temp, denominator);
+end:
+    return error;
+}
+#endif
 
-    // gf256_inv uses exponentiaton to calculate inverse, so the zeros end up
-    // remaining zeros.
+/*
+ * Invert `bn_a` in GF(2^8) and write the result to `bn_r`
+ */
+cx_err_t bn_gf2_8_inv(cx_bn_t bn_r, const cx_bn_t bn_a, const cx_bn_t bn_n, const cx_bn_t bn_h) {
+    cx_err_t error = CX_OK;  // By default, until some error occurs
+    cx_bn_t bn_x, bn_y, bn_z;
 
-    // tmp = [ 1/d0 1/d1 1/d2 ... 1/dn 0 0 0]
+    CX_CHECK(cx_bn_alloc(&bn_x, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc(&bn_y, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc(&bn_z, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_copy(bn_x, bn_a));
 
-    gf256_mul(numerator, numerator, temp);
+    CX_CHECK(cx_bn_gf2_n_mul(bn_y, bn_x, bn_x, bn_n, bn_h));  // bn_y = bn_x^2
+    CX_CHECK(cx_bn_gf2_n_mul(bn_y, bn_y, bn_y, bn_n, bn_h));  // bn_y = bn_x^4
+    CX_CHECK(cx_bn_gf2_n_mul(bn_r, bn_y, bn_y, bn_n, bn_h));  // bn_r = bn_x^8
+    CX_CHECK(cx_bn_gf2_n_mul(bn_z, bn_r, bn_x, bn_n, bn_h));  // bn_z = bn_x^9
+    CX_CHECK(cx_bn_gf2_n_mul(bn_r, bn_r, bn_r, bn_n, bn_h));  // bn_r = bn_x^16
+    CX_CHECK(cx_bn_gf2_n_mul(bn_r, bn_r, bn_z, bn_n, bn_h));  // bn_r = bn_x^25
+    CX_CHECK(cx_bn_gf2_n_mul(bn_r, bn_r, bn_r, bn_n, bn_h));  // bn_r = bn_x^50
+    CX_CHECK(cx_bn_gf2_n_mul(bn_z, bn_r, bn_r, bn_n, bn_h));  // bn_z = bn_x^100
+    CX_CHECK(cx_bn_gf2_n_mul(bn_z, bn_z, bn_z, bn_n, bn_h));  // bn_z = bn_x^200
+    CX_CHECK(cx_bn_gf2_n_mul(bn_r, bn_r, bn_z, bn_n, bn_h));  // bn_r = bn_x^250
+    CX_CHECK(cx_bn_gf2_n_mul(bn_r, bn_r, bn_y, bn_n, bn_h));  // bn_r = bn_x^254
 
-    // numerator now contains [ l_n_0(x) l_n_1(x) ... l_n_n-1(x) 0 0 0]
-    // use the xx array to unpack it
+    CX_CHECK(cx_bn_destroy(&bn_x));
+    CX_CHECK(cx_bn_destroy(&bn_y));
+    CX_CHECK(cx_bn_destroy(&bn_z));
 
-    unbitslice(xx, numerator);
-
-    // copy results to output array
-    for (i = 0; i < n; ++i) {
-        values[i] = xx[i];
-    }
+end:
+    return error;
 }
 
 /**
@@ -105,7 +177,7 @@ static void hazmat_lagrange_basis(uint8_t *values, uint8_t n, const uint8_t *xc,
  *   y contains [y0 y1 y2 ... yn-1]
  *   and each of the yi arrays contain [yi_0 yi_i ... yi_31].
  *
- * returns: on success, the number of bytes written to result
+ * returns: on success, CX_OK
  *          on failure, a negative error code
  *
  * inputs: n: number of points to interpolate
@@ -115,51 +187,99 @@ static void hazmat_lagrange_basis(uint8_t *values, uint8_t n, const uint8_t *xc,
  *         x: coordinate to interpolate at
  *         result: space for yl bytes of interpolate data
  */
-int16_t interpolate(uint8_t n,            // number of points to interpolate
-                    const uint8_t *xi,    // x coordinates for points (array of length n)
-                    uint8_t yl,           // length of y coordinate array
-                    const uint8_t **yij,  // n arrays of yl bytes representing y values
-                    uint8_t x,            // x coordinate to interpolate
-                    uint8_t *result       // space for yl bytes of results
+cx_err_t interpolate(uint8_t n,            // number of points to interpolate
+                     const uint8_t *xi,    // x coordinates for points (array of length n)
+                     uint8_t yl,           // length of y coordinate array
+                     const uint8_t **yij,  // n arrays of yl bytes representing y values
+                     uint8_t x,            // x coordinate to interpolate
+                     uint8_t *result       // space for yl bytes of results
 ) {
-    // The hazmat gf256 implementation needs the y-coordinate data
-    // to be in 32-byte blocks
-    uint8_t *y[SHAMIR_MAX_SHARE_COUNT];
-    uint8_t yv[SHAMIR_MAX_SECRET_SIZE * SHAMIR_MAX_SHARE_COUNT];
-    uint8_t values[SHAMIR_MAX_SECRET_SIZE];
+    const uint8_t N[2] = SHAMIR_POLYNOMIAL;
+    const uint8_t R2[1] = MONTGOMERY_CONSTANT_R2;
 
-    memzero(yv, SHAMIR_MAX_SECRET_SIZE * n);
+    cx_err_t error = CX_OK;  // By default, until some error occurs
+    cx_bn_t bn_x, bn_xc_i, bn_xc_j;
+    cx_bn_t bn_numerator, bn_denominator;
+    cx_bn_t bn_lagrange, bn_y, bn_result, bn_temp, bn_n, bn_r2;
+    uint32_t result_u32;
+
+    CX_CHECK(cx_bn_lock(GF2_8_MPI_BYTES, 0));
+    CX_CHECK(cx_bn_alloc(&bn_x, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc(&bn_xc_i, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc(&bn_xc_j, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc(&bn_numerator, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc(&bn_denominator, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc(&bn_lagrange, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc(&bn_y, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc(&bn_result, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc(&bn_temp, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc_init(&bn_n, GF2_8_MPI_BYTES, N, sizeof(N)));
+    CX_CHECK(cx_bn_alloc_init(&bn_r2, GF2_8_MPI_BYTES, R2, sizeof(R2)));
+
+    CX_CHECK(cx_bn_set_u32(bn_x, (uint32_t) x));
+    memzero(result, yl);
+
     for (uint8_t i = 0; i < n; i++) {
-        y[i] = &yv[SHAMIR_MAX_SECRET_SIZE * i];
-        memcpy(y[i], yij[i], yl);
+        CX_CHECK(cx_bn_set_u32(bn_xc_i, (uint32_t) xi[i]));
+        CX_CHECK(cx_bn_set_u32(bn_lagrange, (uint32_t) 1));
+
+        // calculate the lagrange basis coefficient for the lagrange polynomial
+        // defined by the x coordinates xi at the value x.
+        //
+        // After loop runs, bn_lagrange should hold data satisfying
+        // the following:
+        //                ---     (x-xi[j])
+        // bn_lagrange =  | |   -------------
+        //              j != i  (xi[i]-xi[j])
+        for (uint8_t j = 0; j < n; j++) {
+            if (j != i) {
+                CX_CHECK(cx_bn_set_u32(bn_xc_j, (uint32_t) xi[j]));
+
+                // Calculate the numerator (x - xc[j])
+                CX_CHECK(cx_bn_xor(bn_numerator, bn_x, bn_xc_j));
+
+                // Calculate the denominator (xc[i] - xc[j])
+                CX_CHECK(cx_bn_xor(bn_denominator, bn_xc_i, bn_xc_j));
+
+                // Calculate the inverse of the denominator
+                CX_CHECK(bn_gf2_8_inv(bn_denominator, bn_denominator, bn_n, bn_r2));
+
+                // Calculate the lagrange basis coefficient
+                CX_CHECK(cx_bn_gf2_n_mul(bn_lagrange, bn_numerator, bn_lagrange, bn_n, bn_r2));
+                CX_CHECK(cx_bn_gf2_n_mul(bn_lagrange, bn_denominator, bn_lagrange, bn_n, bn_r2));
+            }
+        }
+
+        for (uint8_t j = 0; j < yl; j++) {
+            CX_CHECK(cx_bn_set_u32(bn_y, (uint32_t) yij[i][j]));
+            CX_CHECK(cx_bn_set_u32(bn_result, (uint32_t) result[j]));
+
+            CX_CHECK(cx_bn_gf2_n_mul(bn_y, bn_lagrange, bn_y, bn_n, bn_r2));
+            CX_CHECK(cx_bn_copy(bn_temp, bn_result));
+            CX_CHECK(cx_bn_xor(bn_result, bn_temp, bn_y));
+            CX_CHECK(cx_bn_get_u32(bn_result, &result_u32));
+            result[j] = (uint8_t) result_u32;
+            result_u32 = 0;
+        }
     }
-
-    uint8_t lagrange[SHAMIR_MAX_SHARE_COUNT];
-    uint32_t y_slice[8], result_slice[8], temp[8];
-
-    hazmat_lagrange_basis(lagrange, n, xi, x);
-
-    bitslice_setall(result_slice, 0);
-
-    for (uint8_t i = 0; i < n; ++i) {
-        bitslice(y_slice, y[i]);
-        bitslice_setall(temp, lagrange[i]);
-        gf256_mul(temp, temp, y_slice);
-        gf256_add(result_slice, temp);
-    }
-
-    unbitslice(values, result_slice);
-    // the calling code is only expecting yl bytes back,
-    memcpy(result, values, yl);
 
     // clean up stack
-    memzero(lagrange, sizeof(lagrange));
-    memzero(y_slice, sizeof(y_slice));
-    memzero(result_slice, sizeof(result_slice));
-    memzero(temp, sizeof(temp));
-    memzero(y, sizeof(y));
-    memzero(yv, sizeof(yv));
-    memzero(values, sizeof(values));
+    CX_CHECK(cx_bn_destroy(&bn_x));
+    CX_CHECK(cx_bn_destroy(&bn_xc_i));
+    CX_CHECK(cx_bn_destroy(&bn_xc_j));
+    CX_CHECK(cx_bn_destroy(&bn_numerator));
+    CX_CHECK(cx_bn_destroy(&bn_denominator));
+    CX_CHECK(cx_bn_destroy(&bn_lagrange));
+    CX_CHECK(cx_bn_destroy(&bn_y));
+    CX_CHECK(cx_bn_destroy(&bn_result));
+    CX_CHECK(cx_bn_destroy(&bn_temp));
+    CX_CHECK(cx_bn_destroy(&bn_n));
+    CX_CHECK(cx_bn_destroy(&bn_r2));
 
-    return yl;
+end:
+    if (cx_bn_is_locked()) {
+        cx_bn_unlock();
+    }
+
+    return error;
 }

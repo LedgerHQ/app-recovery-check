@@ -107,7 +107,7 @@ int16_t shamir_split_secret(uint8_t threshold,
         n += 1;
 
         for (uint8_t i = threshold - 2; i < share_count; ++i, share += secret_length) {
-            if (interpolate(n, x, secret_length, y, i, share) < 0) {
+            if (interpolate(n, x, secret_length, y, i, share) != CX_OK) {
                 return SHAMIR_ERROR_INTERPOLATION_FAILURE;
             }
         }
@@ -142,8 +142,8 @@ int16_t shamir_recover_secret(uint8_t threshold,
         return share_length;
     }
 
-    if (interpolate(threshold, x, share_length, shares, DIGEST_INDEX, digest) < 0 ||
-        interpolate(threshold, x, share_length, shares, SECRET_INDEX, secret) < 0) {
+    if (interpolate(threshold, x, share_length, shares, DIGEST_INDEX, digest) != CX_OK ||
+        interpolate(threshold, x, share_length, shares, SECRET_INDEX, secret) != CX_OK) {
         memzero(secret, sizeof(digest));
         memzero(digest, sizeof(digest));
         memzero(verify, sizeof(verify));

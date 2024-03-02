@@ -1,10 +1,11 @@
 # Change log
 
-## [1.6.2] - 2024-01-30
+## [1.7.0] - 2024-03-02
 ### Added
 -
 
 ### Changed
+- Changed Shamir interpolate function to use `cx_bn_gf2_n_mul()` syscalls
 - Changed some function names to be more descriptive
 
 ### Fixed
