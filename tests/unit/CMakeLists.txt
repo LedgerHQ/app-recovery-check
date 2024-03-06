@@ -46,9 +46,9 @@ function(install_apk_packages)
     if(${result} EQUAL 0)
       message(STATUS "Installed ${package} package")
     else()
-      message(FATAL_ERROR "Failed to install package :${package}\n"
-                            "Command: ${output}\n"
-                            "Error: ${error}")
+      message(FATAL_ERROR "Failed to install package: ${package}\n"
+                          "Command: ${output}\n"
+                          "Error: ${error}")
     endif()
   endforeach()
 endfunction()

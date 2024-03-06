@@ -23,8 +23,6 @@
 // Minimal required bytes for BN storing a GF(256) value
 #define GF2_8_MPI_BYTES 1
 
-#define memzero(...) explicit_bzero(__VA_ARGS__)
-
 #ifdef TARGET_NANOS
 /**
  * @brief Performs a multiplication over GF(2^n).
@@ -135,81 +133,6 @@ end:
 }
 #endif
 
-/**
- * @brief Performs an invert operation over GF(2^8).
- *
- * @param[out] bn_r BN index for the result.
- *
- * @param[in]  bn_a BN index of the first operand.
- *
- * @param[in]  bn_n BN index of the modulus.
- *                  The modulus must be an irreducible polynomial over GF(2)
- *                  of degree n.
- *
- * @param[in]  bn_h BN index of the second montgomery constant.
- *
- * @return          Error code:
- *                  - CX_OK on success
- *                  - CX_NOT_LOCKED
- *                  - CX_INVALID_PARAMETER
- *                  - CX_MEMORY_FULL
- */
-cx_err_t bn_gf2_8_inv(cx_bn_t bn_r, const cx_bn_t bn_a, const cx_bn_t bn_n, const cx_bn_t bn_h) {
-    cx_err_t error = CX_OK;  // By default, until some error occurs
-    cx_bn_t bn_x, bn_y, bn_z;
-
-    CX_CHECK(cx_bn_alloc(&bn_x, GF2_8_MPI_BYTES));
-    CX_CHECK(cx_bn_alloc(&bn_y, GF2_8_MPI_BYTES));
-    CX_CHECK(cx_bn_alloc(&bn_z, GF2_8_MPI_BYTES));
-    CX_CHECK(cx_bn_copy(bn_x, bn_a));
-
-    CX_CHECK(cx_bn_gf2_n_mul(bn_y, bn_x, bn_x, bn_n, bn_h));  // bn_y = bn_x^2
-    CX_CHECK(cx_bn_gf2_n_mul(bn_y, bn_y, bn_y, bn_n, bn_h));  // bn_y = bn_x^4
-    CX_CHECK(cx_bn_gf2_n_mul(bn_r, bn_y, bn_y, bn_n, bn_h));  // bn_r = bn_x^8
-    CX_CHECK(cx_bn_gf2_n_mul(bn_z, bn_r, bn_x, bn_n, bn_h));  // bn_z = bn_x^9
-    CX_CHECK(cx_bn_gf2_n_mul(bn_r, bn_r, bn_r, bn_n, bn_h));  // bn_r = bn_x^16
-    CX_CHECK(cx_bn_gf2_n_mul(bn_r, bn_r, bn_z, bn_n, bn_h));  // bn_r = bn_x^25
-    CX_CHECK(cx_bn_gf2_n_mul(bn_r, bn_r, bn_r, bn_n, bn_h));  // bn_r = bn_x^50
-    CX_CHECK(cx_bn_gf2_n_mul(bn_z, bn_r, bn_r, bn_n, bn_h));  // bn_z = bn_x^100
-    CX_CHECK(cx_bn_gf2_n_mul(bn_z, bn_z, bn_z, bn_n, bn_h));  // bn_z = bn_x^200
-    CX_CHECK(cx_bn_gf2_n_mul(bn_r, bn_r, bn_z, bn_n, bn_h));  // bn_r = bn_x^250
-    CX_CHECK(cx_bn_gf2_n_mul(bn_r, bn_r, bn_y, bn_n, bn_h));  // bn_r = bn_x^254
-
-    CX_CHECK(cx_bn_destroy(&bn_x));
-    CX_CHECK(cx_bn_destroy(&bn_y));
-    CX_CHECK(cx_bn_destroy(&bn_z));
-
-end:
-    return error;
-}
-
-/**
- * @brief Performs polynomial interpolation on SSS shares.
- *
- * @details This function interpolates a polynomial that passes through the provided points
- *          represented by `xi` (x-coordinates) and `yij` (y-coordinate arrays) i.e.
- *          where:
- *                 xi points to [x0 x1 ... xn-1 ]
- *                 y contains an array of pointers to 32-bit arrays of y values
- *                 y contains [y0 y1 y2 ... yn-1]
- *                 and each of the yi arrays contain [yi_0 yi_i ... yi_31].
- *
- *          This interpolation is used in Shamir's Secret Sharing (SSS) to recover
- *          the secret from a set of shares.
- *
- * @param[in]  n      Number of points to interpolate (length of `xi` and `yij`).
- * @param[in]  xi     Pointer to an array containing the x-coordinates of the points (length `n`).
- * @param[in]  yl     Length of each y-coordinate array in bytes.
- * @param[in]  yij    Pointer to an array of `n` pointers, each pointing to a y-coordinate array of
- *                    length `yl`.
- * @param[in]  x      X-coordinate at which to perform the interpolation.
- * @param[out] result Pointer to a buffer where the interpolated value will be stored (must be `yl`
- *                    bytes long).
- *
- * @return            - CX_OK on success
- *                    - A negative error code on failure (specific error codes not defined here,
- *                      consult implementation details for specific error handling)
- */
 cx_err_t interpolate(uint8_t n,
                      const uint8_t* xi,
                      uint8_t yl,
@@ -220,21 +143,20 @@ cx_err_t interpolate(uint8_t n,
     const uint8_t R2[1] = MONTGOMERY_CONSTANT_R2;
 
     cx_err_t error = CX_OK;  // By default, until some error occurs
-    cx_bn_t bn_x, bn_xc_i, bn_xc_j;
-    cx_bn_t bn_numerator, bn_denominator;
-    cx_bn_t bn_lagrange, bn_y, bn_result, bn_temp, bn_n, bn_r2;
+    cx_bn_t bn_x, bn_xc_i;
+    cx_bn_t bn_numerator, bn_denominator, bn_lagrange;
+    cx_bn_t bn_result, bn_tempa, bn_tempb, bn_n, bn_r2;
     uint32_t result_u32;
 
     CX_CHECK(cx_bn_lock(GF2_8_MPI_BYTES, 0));
     CX_CHECK(cx_bn_alloc(&bn_x, GF2_8_MPI_BYTES));
     CX_CHECK(cx_bn_alloc(&bn_xc_i, GF2_8_MPI_BYTES));
-    CX_CHECK(cx_bn_alloc(&bn_xc_j, GF2_8_MPI_BYTES));
     CX_CHECK(cx_bn_alloc(&bn_numerator, GF2_8_MPI_BYTES));
     CX_CHECK(cx_bn_alloc(&bn_denominator, GF2_8_MPI_BYTES));
     CX_CHECK(cx_bn_alloc(&bn_lagrange, GF2_8_MPI_BYTES));
-    CX_CHECK(cx_bn_alloc(&bn_y, GF2_8_MPI_BYTES));
     CX_CHECK(cx_bn_alloc(&bn_result, GF2_8_MPI_BYTES));
-    CX_CHECK(cx_bn_alloc(&bn_temp, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc(&bn_tempa, GF2_8_MPI_BYTES));
+    CX_CHECK(cx_bn_alloc(&bn_tempb, GF2_8_MPI_BYTES));
     CX_CHECK(cx_bn_alloc_init(&bn_n, GF2_8_MPI_BYTES, N, sizeof(N)));
     CX_CHECK(cx_bn_alloc_init(&bn_r2, GF2_8_MPI_BYTES, R2, sizeof(R2)));
 
@@ -255,16 +177,38 @@ cx_err_t interpolate(uint8_t n,
         //              j != i  (xi[i]-xi[j])
         for (uint8_t j = 0; j < n; j++) {
             if (j != i) {
-                CX_CHECK(cx_bn_set_u32(bn_xc_j, (uint32_t) xi[j]));
+                CX_CHECK(cx_bn_set_u32(bn_tempa, (uint32_t) xi[j]));
 
                 // Calculate the numerator (x - xc[j])
-                CX_CHECK(cx_bn_xor(bn_numerator, bn_x, bn_xc_j));
+                CX_CHECK(cx_bn_xor(bn_numerator, bn_x, bn_tempa));
 
                 // Calculate the denominator (xc[i] - xc[j])
-                CX_CHECK(cx_bn_xor(bn_denominator, bn_xc_i, bn_xc_j));
+                CX_CHECK(cx_bn_xor(bn_denominator, bn_xc_i, bn_tempa));
 
                 // Calculate the inverse of the denominator
-                CX_CHECK(bn_gf2_8_inv(bn_denominator, bn_denominator, bn_n, bn_r2));
+                // In GF(2^8) the inverse of x = x^254
+                // bn_result = bn_denominator^2
+                CX_CHECK(cx_bn_gf2_n_mul(bn_result, bn_denominator, bn_denominator, bn_n, bn_r2));
+                // bn_result = bn_denominator^4
+                CX_CHECK(cx_bn_gf2_n_mul(bn_result, bn_result, bn_result, bn_n, bn_r2));
+                // bn_tempa = bn_denominator^8
+                CX_CHECK(cx_bn_gf2_n_mul(bn_tempa, bn_result, bn_result, bn_n, bn_r2));
+                // bn_tempb = bn_denominator^9
+                CX_CHECK(cx_bn_gf2_n_mul(bn_tempb, bn_tempa, bn_denominator, bn_n, bn_r2));
+                // bn_tempa = bn_denominator^16
+                CX_CHECK(cx_bn_gf2_n_mul(bn_tempa, bn_tempa, bn_tempa, bn_n, bn_r2));
+                // bn_tempa = bn_denominator^25
+                CX_CHECK(cx_bn_gf2_n_mul(bn_tempa, bn_tempa, bn_tempb, bn_n, bn_r2));
+                // bn_tempa = bn_denominator^50
+                CX_CHECK(cx_bn_gf2_n_mul(bn_tempa, bn_tempa, bn_tempa, bn_n, bn_r2));
+                // bn_tempb = bn_denominator^100
+                CX_CHECK(cx_bn_gf2_n_mul(bn_tempb, bn_tempa, bn_tempa, bn_n, bn_r2));
+                // bn_tempb = bn_denominator^200
+                CX_CHECK(cx_bn_gf2_n_mul(bn_tempb, bn_tempb, bn_tempb, bn_n, bn_r2));
+                // bn_tempa = bn_denominator^250
+                CX_CHECK(cx_bn_gf2_n_mul(bn_tempa, bn_tempa, bn_tempb, bn_n, bn_r2));
+                // bn_denominator = bn_denominator^254
+                CX_CHECK(cx_bn_gf2_n_mul(bn_denominator, bn_result, bn_tempa, bn_n, bn_r2));
 
                 // Calculate the lagrange basis coefficient
                 CX_CHECK(cx_bn_gf2_n_mul(bn_lagrange, bn_numerator, bn_lagrange, bn_n, bn_r2));
@@ -273,12 +217,12 @@ cx_err_t interpolate(uint8_t n,
         }
 
         for (uint8_t j = 0; j < yl; j++) {
-            CX_CHECK(cx_bn_set_u32(bn_y, (uint32_t) yij[i][j]));
+            CX_CHECK(cx_bn_set_u32(bn_tempa, (uint32_t) yij[i][j]));
             CX_CHECK(cx_bn_set_u32(bn_result, (uint32_t) result[j]));
 
-            CX_CHECK(cx_bn_gf2_n_mul(bn_y, bn_lagrange, bn_y, bn_n, bn_r2));
-            CX_CHECK(cx_bn_copy(bn_temp, bn_result));
-            CX_CHECK(cx_bn_xor(bn_result, bn_temp, bn_y));
+            CX_CHECK(cx_bn_gf2_n_mul(bn_tempa, bn_lagrange, bn_tempa, bn_n, bn_r2));
+            CX_CHECK(cx_bn_copy(bn_tempb, bn_result));
+            CX_CHECK(cx_bn_xor(bn_result, bn_tempa, bn_tempb));
             CX_CHECK(cx_bn_get_u32(bn_result, &result_u32));
             result[j] = (uint8_t) result_u32;
             result_u32 = 0;
@@ -288,13 +232,12 @@ cx_err_t interpolate(uint8_t n,
     // clean up stack
     CX_CHECK(cx_bn_destroy(&bn_x));
     CX_CHECK(cx_bn_destroy(&bn_xc_i));
-    CX_CHECK(cx_bn_destroy(&bn_xc_j));
     CX_CHECK(cx_bn_destroy(&bn_numerator));
     CX_CHECK(cx_bn_destroy(&bn_denominator));
     CX_CHECK(cx_bn_destroy(&bn_lagrange));
-    CX_CHECK(cx_bn_destroy(&bn_y));
     CX_CHECK(cx_bn_destroy(&bn_result));
-    CX_CHECK(cx_bn_destroy(&bn_temp));
+    CX_CHECK(cx_bn_destroy(&bn_tempa));
+    CX_CHECK(cx_bn_destroy(&bn_tempb));
     CX_CHECK(cx_bn_destroy(&bn_n));
     CX_CHECK(cx_bn_destroy(&bn_r2));
 

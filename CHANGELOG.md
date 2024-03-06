@@ -1,5 +1,15 @@
 # Change log
 
+## [1.7.1] - 2024-03-06
+### Added
+-
+
+### Changed
+- Improve efficiency of SSS `interpolate()` function
+
+### Fixed
+-
+
 ## [1.7.0] - 2024-03-03
 ### Added
 - Added detailed documentation for all SSKR and SSS functions

@@ -16,8 +16,6 @@
 
 #pragma once
 
-#define memzero(...) explicit_bzero(__VA_ARGS__)
-
 #define ONBOARDING_WORD_COMPLETION_MAX_ITEMS 8
 #define BOLOS_UX_HASH_LENGTH                 4  // as on the blue
 

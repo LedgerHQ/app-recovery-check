@@ -11,8 +11,6 @@
 #include "sss.h"
 #include "interpolate.h"
 
-#define memzero(...) explicit_bzero(__VA_ARGS__)
-
 /**
  * @brief Validates the parameters for Shamir's Secret Sharing (SSS) functions.
  *

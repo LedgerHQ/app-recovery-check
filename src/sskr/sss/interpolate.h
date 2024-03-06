@@ -8,6 +8,8 @@
 #ifndef INTERPOLATE_H
 #define INTERPOLATE_H
 
+#define memzero(...) explicit_bzero(__VA_ARGS__)
+
 /**
  * @brief Performs polynomial interpolation on SSS shares.
  *
