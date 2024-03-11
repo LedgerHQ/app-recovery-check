@@ -19,7 +19,7 @@
 #include <stdbool.h>
 #include "constants.h"
 
-#if defined(TARGET_STAX)
+#if defined(SCREEN_SIZE_WALLET)
 
 #define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH + 1))
 
