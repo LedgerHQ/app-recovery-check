@@ -7,6 +7,7 @@
 #if defined(HAVE_NBGL)
 
 #include <nbgl_use_case.h>
+#include <nbgl_layout.h>
 #include <nbgl_fonts.h>
 #include <nbgl_front.h>
 #include <nbgl_debug.h>
