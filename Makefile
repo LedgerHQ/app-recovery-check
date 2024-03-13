@@ -35,7 +35,7 @@ APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --curve secp256k1 --path
 
 ifeq ($(TARGET_NAME), TARGET_NANOS)
     ICONNAME=icons/nanos_app_recovery_check.gif
-else ifeq ($(TARGET_NAME), TARGET_STAX)
+else ifeq ($(TARGET_NAME), $(filter $(TARGET_NAME), TARGET_STAX TARGET_EUROPA))
     ICONNAME=icons/stax_recovery_check_32px.gif
 else
     ICONNAME=icons/nanox_app_recovery_check.gif
@@ -55,7 +55,7 @@ DEFINES += BOLOS_APP_ICON_SIZE_B=\(9+32\)
 DEFINES += IO_USB_MAX_ENDPOINTS=4 IO_HID_EP_LENGTH=64
 DEFINES += HAVE_SPRINTF
 
-ifneq ($(TARGET_NAME), TARGET_STAX)
+ifneq ($(TARGET_NAME), $(filter $(TARGET_NAME), TARGET_STAX TARGET_EUROPA))
     $(info Using BAGL)
     DEFINES += HAVE_BAGL HAVE_UX_FLOW
 else
@@ -67,7 +67,7 @@ ifeq ($(TARGET_NAME), TARGET_NANOS)
     DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
 else
     DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
-    ifneq ($(TARGET_NAME), TARGET_STAX)
+    ifneq ($(TARGET_NAME), $(filter $(TARGET_NAME), TARGET_STAX TARGET_EUROPA))
         DEFINES += HAVE_GLO096
         DEFINES += BAGL_WIDTH=128 BAGL_HEIGHT=64
         DEFINES += HAVE_BAGL_ELLIPSIS # long label truncation feature
@@ -122,7 +122,7 @@ include $(BOLOS_SDK)/Makefile.glyphs
 APP_SOURCE_PATH += src
 
 ifneq ($(TARGET_NAME), TARGET_NANOS)
-    ifneq ($(TARGET_NAME), TARGET_STAX)
+    ifneq ($(TARGET_NAME), $(filter $(TARGET_NAME), TARGET_STAX TARGET_EUROPA))
         SDK_SOURCE_PATH  += lib_ux
     endif
 endif

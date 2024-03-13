@@ -4,7 +4,7 @@
 #include "../ux_common/common_bip39.h"
 #include "./mnemonic.h"
 
-#if defined(TARGET_STAX)
+#if defined(SCREEN_SIZE_WALLET)
 
 typedef struct buffer {
     // the mnemonic passphrase, built over time

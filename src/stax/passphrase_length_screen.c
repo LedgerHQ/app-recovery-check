@@ -1,12 +1,11 @@
 #include <os.h>
 #include "glyphs.h"
 
-#if defined(TARGET_STAX)
+#if defined(SCREEN_SIZE_WALLET)
 
 #include <nbgl_obj.h>
 
 #define UPPER_MARGIN    4
-#define BUTTON_DIAMETER 80
 #define ICON_X          0
 #define ICON_Y          148
 
@@ -27,7 +26,7 @@ nbgl_text_area_t *passphrase_length_set_title(nbgl_obj_t *align_to) {
     textArea->textColor = BLACK;
     textArea->text = "How long is your\nRecovery Phrase?";
     textArea->textAlignment = CENTER;
-    textArea->fontId = BAGL_FONT_INTER_MEDIUM_32px;
+    textArea->fontId = LARGE_MEDIUM_FONT;
     textArea->obj.area.width = SCREEN_WIDTH - 2 * BORDER_MARGIN;
     textArea->obj.area.height = nbgl_getTextHeight(textArea->fontId, textArea->text);
     textArea->style = NO_STYLE;
@@ -48,7 +47,7 @@ void passphrase_length_configure_buttons(nbgl_button_t **buttons, const size_t s
         button->obj.area.width = SCREEN_WIDTH - 2 * BORDER_MARGIN;
         button->obj.area.height = BUTTON_DIAMETER;
         button->radius = BUTTON_RADIUS;
-        button->fontId = BAGL_FONT_INTER_SEMIBOLD_24px;
+        button->fontId = SMALL_BOLD_1BPP_FONT;
         button->icon = NULL;
         button->localized = true;
         button->obj.alignmentMarginX = 0;
@@ -68,7 +67,7 @@ nbgl_button_t *passphrase_length_set_back_button() {
     button->obj.area.height = BUTTON_DIAMETER;
     button->radius = BUTTON_RADIUS;
     button->text = NULL;
-    button->icon = &C_leftArrow32px;
+    button->icon = &LEFT_ARROW_ICON;
     button->obj.alignmentMarginX = 0;
     button->obj.alignmentMarginY = UPPER_MARGIN;
     button->obj.alignment = TOP_LEFT;

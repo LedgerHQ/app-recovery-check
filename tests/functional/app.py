@@ -1,10 +1,10 @@
-from ragger.firmware.stax.layouts import CenteredFooter, _Layout, LetterOnlyKeyboard, \
+from ragger.firmware.nbgl.layouts import CenteredFooter, Element, LetterOnlyKeyboard, \
     NavigationHeader, Suggestions
-from ragger.firmware.stax.use_cases import UseCaseHomeExt, UseCaseSettings
-from ragger.firmware.stax.screen import MetaScreen
+from ragger.firmware.nbgl.use_cases import UseCaseHomeExt, UseCaseSettings
+from ragger.firmware.nbgl.screen import MetaScreen
 
 
-class CustomChoiceList(_Layout):
+class CustomChoiceList(Element):
 
     def choose(self, index: int):
         assert 1 <= index <= 6, "Choice index must be in [1, 6]"
