@@ -27,7 +27,7 @@ char os_secure_memcmp(const void *src1, const void *src2, size_t length)
     return xoracc;
 }
 
-uint32_t cx_crc32_hw(const void *buf, size_t len)
+uint32_t cx_crc32(const void *buf, size_t len)
 {
   uint32_t crc;
   crc = cx_crc32_update(0xFFFFFFFF, buf, len);
