@@ -3,6 +3,7 @@
 #include <string.h>
 #include <os.h>
 #include <cx.h>
+#include <lib_cxng/src/cx_crc.h>  // until cx_crc32 is properly define in lib_cxng/include/lcx_crc.h
 
 #include "onboarding_seed_rom_variables.h"
 #include "common_bip39.h"
@@ -10,9 +11,9 @@
 
 // Return the CRC-32 checksum of the input buffer in network byte order (big endian).
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#define crc32_nbo(...) cx_crc32_hw(__VA_ARGS__)
+#define crc32_nbo(...) cx_crc32(__VA_ARGS__)
 #elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#define crc32_nbo(...) os_swap_u32(cx_crc32_hw(__VA_ARGS__))
+#define crc32_nbo(...) os_swap_u32(cx_crc32(__VA_ARGS__))
 #else
 #error "What kind of system is this?"
 #endif
