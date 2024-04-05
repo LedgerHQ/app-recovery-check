@@ -23,7 +23,7 @@
 // Minimal required bytes for BN storing a GF(256) value
 #define GF2_8_MPI_BYTES 1
 
-#ifdef TARGET_NANOS
+#if defined(TARGET_NANOS) && !defined API_LEVEL
 /**
  * @brief Performs a multiplication over GF(2^n).
  *
