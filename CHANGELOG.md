@@ -1,5 +1,16 @@
 # Change log
 
+## [1.7.2] - 2024-05-06
+### Added
+-
+
+### Changed
+-
+
+### Fixed
+- Using Ledger SDK `cx_crc32()` function rather than buggy `cx_crc32_hw()`.
+
+
 ## [1.7.1] - 2024-03-06
 ### Added
 -
@@ -64,7 +75,7 @@
 - Added unit tests for BIP39 word list and SSKR word list
 
 ### Changed
-- 
+-
 
 ### Fixed
 - Fixed CodeQL warnings about sign check of a bitwise operation
