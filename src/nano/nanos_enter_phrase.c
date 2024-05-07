@@ -132,13 +132,13 @@ UX_STEP_VALID(ux_bip39_match_step_1,
               clean_exit(0),
               {&C_icon_validate_14, "BIP39 Phrase", "is correct"});
 UX_STEP_CB(ux_bip39_match_step_2, pb, clean_exit(0), {&C_icon_dashboard_x, "Quit"});
-UX_STEP_CB(ux_bip39_generate_step_1, pbb, set_sskr_descriptor_values();
+UX_STEP_CB(ux_bip39_recover_step_1, pbb, set_sskr_descriptor_values();
            , {&SSKR_ICON, "Generate", "SSKR phrases"});
 
 UX_FLOW(ux_bip39_match_flow,
         &ux_bip39_match_step_1,
         &ux_bip39_match_step_2,
-        &ux_bip39_generate_step_1);
+        &ux_bip39_recover_step_1);
 
 UX_STEP_CB(ux_sskr_invalid_step_1, pbb, screen_onboarding_sskr_restore_init();
            , {&C_icon_warning, "SSKR Recovery", "phrase invalid"});
@@ -158,14 +158,14 @@ UX_FLOW(ux_sskr_nomatch_flow,
         &ux_sskr_nomatch_step_1,
         &ux_sskr_nomatch_step_2,
         &ux_sskr_nomatch_step_3,
-        &ux_bip39_generate_step_1);
+        &ux_bip39_recover_step_1);
 
 UX_STEP_VALID(ux_sskr_match_step_1,
               pbb,
               clean_exit(0),
               {&C_icon_validate_14, "SSKR Phrase", "is correct"});
 UX_STEP_CB(ux_sskr_match_step_2, pb, clean_exit(0), {&C_icon_dashboard_x, "Quit"});
-UX_STEP_CB(ux_sskr_match_step_3, pbb, generate_bip39();, {&BIP39_ICON, "Generate", "BIP39 phrase"});
+UX_STEP_CB(ux_sskr_match_step_3, pbb, recover_bip39();, {&BIP39_ICON, "Recover", "BIP39 phrase"});
 
 UX_FLOW(ux_sskr_match_flow, &ux_sskr_match_step_1, &ux_sskr_match_step_2, &ux_sskr_match_step_3);
 

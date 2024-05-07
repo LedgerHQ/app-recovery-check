@@ -18,7 +18,7 @@
 
 ---
 
-Use the utilities provided by this Ledger application to check a backed up seed or generate [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) for a seed.
+Use the utilities provided by this Ledger application to check a backed up BIP-39 seed, generate [Shamir's Secret Sharing (SSS)](https://en.wikipedia.org/wiki/Shamir%27s_secret_sharing) for a seed or recover a BIP-39 phrase from a Shamir's Secret Sharing backup.
 
 Not all Ledger devices are equal. The older, less capable devices do not have the capacity to provide a full range of seed utilities. The following table lists the seed utilities provided by each devices type:
 <div align="center">
@@ -28,7 +28,7 @@ Not all Ledger devices are equal. The older, less capable devices do not have th
 |[Check BIP39](#check-bip39)|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|
 |[Check Shamir's secret shares](#check-shamirs-secret-shares)|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{orange}✓}$$|
 |[Generate Shamir's secret sharing](#generate-shamirs-secret-sharing)|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{orange}✓}$$|
-|[Generate BIP39](#generate-bip39)|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{orange}✓}$$|
+|[Recover BIP39](#recover-bip39)|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{green}✓}$$|$${\color{orange}✓}$$|
 |[Generate BIP85](#generate-bip85)|$${\color{red}✗}$$|$${\color{orange}✓}$$|$${\color{orange}✓}$$|$${\color{orange}✓}$$|
 </div>
 
@@ -59,8 +59,8 @@ For more information about SSKR, see [SSKR for Users](https://github.com/Blockch
 ## Check Shamir's secret shares
 The Ledger application also provides an option to confirm the onboarded seed against SSKR shares.
 
-## Generate BIP39
-When the Shamir's secret shares have been validated the user can generate the BIP39 recovery phrase derived from those shares. This option takes advantage of SSKR's ability to perform a BIP39 <-> SSKR round trip. If a user has lost or damaged their original Ledger device they may need to generate the BIP39 recovery phrase on another secure device. A BIP39 recovery phrase may still be generated even if the SSKR phrases do not match the onboarded seed of a device but are still valid SSKR shares.
+## Recover BIP39
+When the Shamir's secret shares have been validated the user can recover the BIP39 phrase derived from those shares. This option takes advantage of SSKR's ability to perform a BIP39 <-> SSKR round trip. If a user has lost or damaged their original Ledger device they may need to recover their BIP39 phrase on another secure device. A BIP39 phrase may still be recovered even if the SSKR phrases do not match the onboarded seed of a device but are still valid SSKR shares.
 
 ## Generate [BIP85](https://github.com/bitcoin/bips/blob/master/bip-0085.mediawiki)
 Coming soon!!!!
@@ -90,9 +90,9 @@ flowchart LR
         2.1[Check SSKR] --> 2.2[Enter SSKR Shares] --> 2.3{Validate SSKR Shares}
         2.3 --> |Valid SSKR| 2.4
         2.3 --> |Invalid SSKR| 2.3.1[Quit]
-        subgraph 2.4[Generate BIP39 Phrases]
+        subgraph 2.4[Recover BIP39 Phrases]
             direction TB
-            2.4.1[Generate BIP39 Phrases] --> 2.4.2[Display BIP39 Phrases] --> 2.4.3[Quit]
+            2.4.1[Recover BIP39 Phrases] --> 2.4.2[Display BIP39 Phrases] --> 2.4.3[Quit]
         end
     end
     subgraph 3[Version]

@@ -789,7 +789,7 @@ def nanos_sskr_128bit(backend, navigator):
     navigator.navigate([NavInsID.RIGHT_CLICK], screen_change_before_first_instruction=False)
     backend.wait_for_text_on_screen("Quit", 1)
     navigator.navigate([NavInsID.RIGHT_CLICK], screen_change_before_first_instruction=False)
-    backend.wait_for_text_on_screen("Generate", 1)
+    backend.wait_for_text_on_screen("Recover", 1)
     backend.wait_for_text_on_screen("BIP39 phrase", 1)
     navigator.navigate([NavInsID.BOTH_CLICK], screen_change_before_first_instruction=False)
     backend.wait_for_text_on_screen("BIP39 Phrase", 1)

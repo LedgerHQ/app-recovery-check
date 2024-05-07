@@ -21,15 +21,15 @@
 - [x] Save memory by setting the SSKR word buffer (G_bolos_ux_context.sskr_words_buffer) to a sensible size
 - [x] Add unit tests
 - [x] Add code coverage to GitHub actions
-- [x] Add option to generate BIP39 mnemonics from SSKR shares even if shares do not validate against seed on device
-  - A user may have lost or damaged original device and now needs to generate the recovery phrase from another secure device
+- [x] Add option to recover BIP39 mnemonics from SSKR shares even if shares do not validate against seed on device
+  - A user may have lost or damaged original device and now needs to recover the BIP39 phrase from another secure device
 - [x] Fix warnings about deprecated functions during build
 - [x] Remove duplicated nano code
 - [x] Simplified flow code
 - [x] Add flow to set SSKR threshold values
 - [x] Add automated tests
 - [x] Fix issue with using 'cx_crc32_hw()' function in 'onboarding_seed_sskr.c' when testing with Speculos
-- [x] Generate BIP39 mnemonic phrases from SSKR shares
+- [x] Recover BIP39 mnemonic phrases from SSKR shares
   - [x] Add SSKR Check menu option
   - [x] Add flow to the Check SSKR menu
   - [x] Write SSKR to BIP39 functionality

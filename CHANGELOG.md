@@ -1,5 +1,16 @@
 # Change log
 
+## [1.7.3] - 2024-05-07
+### Added
+-
+
+### Changed
+- Changed Second Montgomery constant used for `cx_bn_gf2_n_mul()` to a more suitable value
+- Changed name of 'Generate BIP39' menus to 'Recover BIP39'
+
+### Fixed
+-
+
 ## [1.7.2] - 2024-05-06
 ### Added
 -
@@ -9,7 +20,7 @@
 
 ### Fixed
 - Using Ledger SDK `cx_crc32()` function rather than buggy `cx_crc32_hw()`.
-
+- Fix build with SDK master for Nano S
 
 ## [1.7.1] - 2024-03-06
 ### Added
@@ -109,8 +120,8 @@
 
 ## [1.5.0] - 2023-10-20
 ### Added
-- Added option to generate BIP39 mnemonics from SSKR shares even if shares do not validate against seed on device
-  - A user may have lost or damaged original device and now needs to generate the recovery phrase from another secure device
+- Added option to recover BIP39 mnemonics from SSKR shares even if shares do not validate against seed on device
+  - A user may have lost or damaged original device and now needs to recover the BIP39 phrase from another secure device
 
 ### Changed
 -
@@ -194,7 +205,7 @@
 
 ## [1.1.0] - 2023-04-04
 ### Added
-- Generate BIP39 mnemonic phrases from SSKR shares
+- Recover BIP39 mnemonic phrases from SSKR shares
   - Add 'SSKR Check' menu option
   - Add flow to the 'SSKR Check' menu
   - Write SSKR to BIP39 functionality

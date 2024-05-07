@@ -18,7 +18,7 @@
 // 2nd Montgomery constant: R2 = x^(2*t*8) mod N(x)
 // t = 1 since the number of bytes of R is 1.
 #define MONTGOMERY_CONSTANT_R2 \
-    { 0xA1 }
+    { 0x02 }
 
 // Minimal required bytes for BN storing a GF(256) value
 #define GF2_8_MPI_BYTES 1

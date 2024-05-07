@@ -29,7 +29,7 @@ UX_STEP_CB(step_bip39_clean_exit, pb, clean_exit(0), {&C_icon_dashboard_x, "Quit
 
 UX_FLOW(display_bip39_flow, &step_display_bip39, &step_bip39_clean_exit, FLOW_LOOP);
 
-void generate_bip39(void) {
+void recover_bip39(void) {
     // BIP39 phrase should already be in G_bolos_ux_context.words_buffer so just need to display it
     ux_flow_init(0, display_bip39_flow, NULL);
 }

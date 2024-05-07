@@ -3,7 +3,6 @@
 #include <string.h>
 #include <os.h>
 #include <cx.h>
-#include <lib_cxng/src/cx_crc.h>  // until cx_crc32 is properly define in lib_cxng/include/lcx_crc.h
 
 #include "onboarding_seed_rom_variables.h"
 #include "common_bip39.h"
