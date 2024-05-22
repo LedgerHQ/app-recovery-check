@@ -58,7 +58,7 @@ bool remove_word_from_mnemonic() {
     mnemonic.current_word_index--;
     // removing previous word from mnemonic buffer (+ 1 blank space)
     mnemonic_shrink(current_length + 1);
-    PRINTF("Number of remaining words in the mnemonic: '%ld'\n", mnemonic.current_word_index + 1);
+    PRINTF("Number of remaining words in the mnemonic: '%d'\n", mnemonic.current_word_index + 1);
     return true;
 }
 

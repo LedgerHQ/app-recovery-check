@@ -1,6 +1,6 @@
 from ragger.navigator import NavIns
 
-from .navigator import CustomNavInsID, StaxNavigator
+from .navigator import CustomNavInsID, TouchNavigator
 from .utils import format_instructions
 
 
@@ -9,7 +9,7 @@ SPECULOS_MNEMONIC = "glory promote mansion idle axis finger extra " \
     "seven myth punch hobby comfort wild raise skin"
 
 
-def test_check_info_then_leave(navigator: StaxNavigator, functional_test_directory: str):
+def test_check_info_then_leave(navigator: TouchNavigator, functional_test_directory: str):
     instructions = format_instructions([
         CustomNavInsID.HOME_TO_SETTINGS,
         CustomNavInsID.SETTINGS_TO_HOME
@@ -21,7 +21,7 @@ def test_check_info_then_leave(navigator: StaxNavigator, functional_test_directo
                                    screen_change_after_last_instruction=True)
 
 
-def test_check_all_passphrase_lengths(navigator: StaxNavigator, functional_test_directory: str):
+def test_check_all_passphrase_lengths(navigator: TouchNavigator, functional_test_directory: str):
     instructions = format_instructions([
         CustomNavInsID.HOME_TO_CHECK,
         CustomNavInsID.LENGTH_CHOOSE_24,
@@ -38,7 +38,7 @@ def test_check_all_passphrase_lengths(navigator: StaxNavigator, functional_test_
                                    screen_change_after_last_instruction=True)
 
 
-def test_check_previous_word(navigator: StaxNavigator, functional_test_directory: str):
+def test_check_previous_word(navigator: TouchNavigator, functional_test_directory: str):
     instructions = format_instructions([
         CustomNavInsID.HOME_TO_CHECK,
         CustomNavInsID.LENGTH_CHOOSE_24,

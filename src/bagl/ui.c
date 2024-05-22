@@ -10,8 +10,6 @@ enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
 
 enum UI_STATE uiState;
 
-ux_state_t G_ux;
-
 #if defined(TARGET_NANOS)
 
 UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_24;

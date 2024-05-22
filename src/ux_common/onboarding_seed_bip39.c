@@ -240,7 +240,7 @@ size_t bolos_ux_bip39_fill_with_candidates(const unsigned char* startingChars,
 
 uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char* prefix,
                                           const unsigned int prefixLength) {
-    uint32_t existing_mask = 0;
+    uint32_t existing_mask = 1 << 28;  // Starting with the 'return' keypad activated
     unsigned char next_letters[ALPHABET_LENGTH] = {0};
     PRINTF("Looking for letter candidates following '%s'\n", prefix);
     const size_t nb_letters =

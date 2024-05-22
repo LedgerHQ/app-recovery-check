@@ -20,7 +20,7 @@
 
 #if defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2)
 
-#include "nano/ux_nano.h"
+#include "bagl/ux_nano.h"
 
 #endif
 

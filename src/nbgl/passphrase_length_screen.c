@@ -5,9 +5,9 @@
 
 #include <nbgl_obj.h>
 
-#define UPPER_MARGIN    4
-#define ICON_X          0
-#define ICON_Y          148
+#define UPPER_MARGIN 4
+#define ICON_X       0
+#define ICON_Y       148
 
 nbgl_image_t *passphrase_length_set_icon() {
     nbgl_image_t *image = (nbgl_image_t *) nbgl_objPoolGet(IMAGE, 0);

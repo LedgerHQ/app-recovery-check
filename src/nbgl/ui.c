@@ -56,7 +56,7 @@ static void on_quit(void) {
  * About menu
  */
 static const char *const infoTypes[] = {"Version", "Recovery Check"};
-static const char *const infoContents[] = {APPVERSION, "(c) 2023 Ledger"};
+static const char *const infoContents[] = {APPVERSION, "(c) 2018-2024 Ledger"};
 
 static bool on_infos(uint8_t page, nbgl_pageContent_t *content) {
     if (page == 0) {
@@ -140,7 +140,7 @@ static void passphrase_length_page(void) {
 #define BUTTON_VMARGIN 32
 
 static char textToEnter[MAX_WORD_LENGTH + 1] = {0};
-static int textIndex, suggestionIndex, keyboardIndex = 0;
+static int keyboardIndex = 0;
 // the biggest word of BIP39 list is 8 char (9 with trailing '\0'), and
 // the max number of showed suggestions is NB_MAX_SUGGESTION_BUTTONS
 static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] = {0};
@@ -172,6 +172,7 @@ static void keyboard_dispatcher(const int token, uint8_t index __attribute__((un
 static void key_press_callback(const char touchedKey) {
     size_t textLen = 0;
     uint32_t mask = 0;
+    // Update word currently displayed
     const size_t previousTextLen = strlen(textToEnter);
     if (touchedKey == BACKSPACE_KEY) {
         if (previousTextLen == 0) {
@@ -184,24 +185,44 @@ static void key_press_callback(const char touchedKey) {
         textToEnter[previousTextLen + 1] = '\0';
         textLen = previousTextLen + 1;
     }
+
+    // Update the screen (written word, suggestions, ...)
+    nbgl_layoutSuggestionButtons_t suggestionButtons = {
+        .buttons = PIC(buttonTexts),
+        .firstButtonToken = FIRST_SUGGESTION_TOKEN,
+        .nbUsedButtons = 0,
+    };
+    nbgl_layoutKeyboardContent_t keyboardContent = {
+        .type = KEYBOARD_WITH_SUGGESTIONS,
+        .title = PIC(headerText),
+        .text = PIC(textToEnter),
+        .numbered = true,
+        .number = get_current_word_number() + 1,
+        .grayedOut = false,
+        .textToken = KBD_TEXT_TOKEN,
+        .suggestionButtons = suggestionButtons,
+        .tuneId = TUNE_TAP_CASUAL,
+    };
     PRINTF("Current text is: '%s' (size '%d')\n", textToEnter, textLen);
-    if (textLen == 0) {
-        // no suggestion until there is at least 2 characters
-        nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, 0, buttonTexts);
+
+    if (textLen < 2) {
+        // Suggestions only when the word contains 2+ letters
+        nbgl_layoutUpdateKeyboardContent(layout, &keyboardContent);
     } else {
         const size_t nbMatchingWords =
             bolos_ux_bip39_fill_with_candidates((unsigned char *) &(textToEnter[0]),
                                                 strlen(textToEnter),
                                                 wordCandidates,
                                                 buttonTexts);
-        nbgl_layoutUpdateSuggestionButtons(layout, suggestionIndex, nbMatchingWords, buttonTexts);
+        keyboardContent.suggestionButtons.nbUsedButtons = nbMatchingWords;
+        nbgl_layoutUpdateKeyboardContent(layout, &keyboardContent);
     }
     if (textLen > 0) {
         mask = bolos_ux_bip39_get_keyboard_mask((unsigned char *) &(textToEnter[0]),
                                                 strlen(textToEnter));
     }
+    nbgl_layoutDraw(layout);
     nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask, false, LOWER_CASE);
-    nbgl_layoutUpdateEnteredText(layout, textIndex, false, 0, &(textToEnter[0]), false);
     nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_ON);
 }
 
@@ -212,13 +233,6 @@ static void display_keyboard_page() {
                                 .mode = MODE_LETTERS,  // start in letters mode
                                 .keyMask = 0,          // no inactive key
                                 .callback = &key_press_callback};
-    nbgl_layoutCenteredInfo_t centeredInfo = {.text1 = NULL,
-                                              .text2 = headerText,  // to use as "header"
-                                              .text3 = NULL,
-                                              .style = LARGE_CASE_INFO,
-                                              .icon = NULL,
-                                              .offsetY = 0,
-                                              .onTop = true};
     textToEnter[0] = '\0';
     memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
     layout = nbgl_layoutGet(&layoutDescription);
@@ -227,21 +241,33 @@ static void display_keyboard_page() {
              "Enter word n. %d/%d from your\nRecovery Sheet",
              get_current_word_number() + 1,
              get_mnemonic_final_size());
-    nbgl_layoutAddProgressIndicator(layout, 0, 0, true, BACK_BUTTON_TOKEN, TUNE_TAP_CASUAL);
-    nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
+
+    nbgl_layoutHeader_t headerDesc = {.type = HEADER_BACK_AND_TEXT,
+                                      .separationLine = false,
+                                      .backAndText.token = BACK_BUTTON_TOKEN,
+                                      .backAndText.tuneId = TUNE_TAP_CASUAL,
+                                      .backAndText.text = NULL};
+    nbgl_layoutAddHeader(layout, &headerDesc);
+
     keyboardIndex = nbgl_layoutAddKeyboard(layout, &kbdInfo);
-    suggestionIndex = nbgl_layoutAddSuggestionButtons(layout,
-                                                      0,  // no used buttons at start-up
-                                                      buttonTexts,
-                                                      FIRST_SUGGESTION_TOKEN,
-                                                      TUNE_TAP_CASUAL);
-    textIndex = nbgl_layoutAddEnteredText(layout,
-                                          true,                           // numbered
-                                          get_current_word_number() + 1,  // number to use
-                                          textToEnter,                    // text to display
-                                          false,                          // not grayed-out
-                                          BUTTON_VMARGIN,  // vertical margin from the buttons
-                                          KBD_TEXT_TOKEN);
+
+    nbgl_layoutSuggestionButtons_t suggestionButtons = {
+        .buttons = PIC(buttonTexts),
+        .firstButtonToken = FIRST_SUGGESTION_TOKEN,
+        .nbUsedButtons = 0,
+    };
+    nbgl_layoutKeyboardContent_t keyboardContent = {
+        .type = KEYBOARD_WITH_SUGGESTIONS,
+        .title = PIC(headerText),
+        .text = PIC(textToEnter),
+        .numbered = true,
+        .number = get_current_word_number() + 1,
+        .grayedOut = false,
+        .textToken = KBD_TEXT_TOKEN,
+        .suggestionButtons = suggestionButtons,
+        .tuneId = TUNE_TAP_CASUAL,
+    };
+    nbgl_layoutAddKeyboardContent(layout, &keyboardContent);
     nbgl_layoutDraw(layout);
 }
 
@@ -257,8 +283,13 @@ static void display_home_page() {
     reset_globals();
     nbgl_useCaseHomeExt("Recovery Check",
                         &C_stax_recovery_check_64px,
-                        "This app lets you enter a\nSecret Recovery Phrase and\ntest if it matches "
-                        "the one\npresent on this Ledger Stax",
+#if defined(TARGET_STAX)
+                        "This app lets you enter a Secret Recovery Phrase and test if it matches "
+                        "the one present on this Ledger Stax",
+#elif defined(TARGET_FLEX)
+                        "Enter a Recovery Phrase and test if it matches "
+                        "the one present on this Ledger Flex",
+#endif
                         false,
                         "Start check",
                         passphrase_length_page,
@@ -266,15 +297,21 @@ static void display_home_page() {
                         on_quit);
 }
 
+#if defined(TARGET_STAX)
+#define DEVICE "Ledger Stax"
+#elif defined(TARGET_FLEX)
+#define DEVICE "Ledger Flex"
+#endif
+
 /*
  * Result page
  */
 static const char *possible_results[2][2] = {
     {"Incorrect Secret\nRecovery Phrase",
-     "The Recovery Phrase you have\nentered doesn't match the one\npresent on this Ledger Stax."},
+     "The Recovery Phrase you have\nentered doesn't match the one\npresent on this " DEVICE "."},
     {"Correct Secret\nRecovery Phrase",
-     "The Recovery Phrase you have\nentered matches the one\npresent on this Ledger Stax."}};
-static const nbgl_icon_details_t *icons[2] = {&C_warning64px, &C_round_check_64px};
+     "The Recovery Phrase you have\nentered matches the one\npresent on this " DEVICE "."}};
+static const nbgl_icon_details_t *icons[2] = {&WARNING_ICON, &VALIDATE_ICON};
 
 static void result_callback(int token __attribute__((unused)),
                             uint8_t index __attribute__((unused))) {

@@ -1,6 +1,6 @@
 from ragger.navigator import NavIns
 
-from .navigator import CustomNavInsID, StaxNavigator
+from .navigator import CustomNavInsID, TouchNavigator
 from .utils import format_instructions
 
 
@@ -9,7 +9,7 @@ SPECULOS_MNEMONIC = "glory promote mansion idle axis finger extra " \
     "seven myth punch hobby comfort wild raise skin"
 
 
-def test_nominal_full_passphrase_check_ok(navigator: StaxNavigator, functional_test_directory: str):
+def test_nominal_full_passphrase_check_ok(navigator: TouchNavigator, functional_test_directory: str):
     # instructions to go the the keyboard
     instructions = [
         CustomNavInsID.HOME_TO_CHECK,
@@ -41,7 +41,7 @@ def test_nominal_full_passphrase_check_ok(navigator: StaxNavigator, functional_t
                                    screen_change_after_last_instruction=False)
 
 
-def test_nominal_full_passphrase_check_error_wrong_passphrase(navigator: StaxNavigator, functional_test_directory: str):
+def test_nominal_full_passphrase_check_error_wrong_passphrase(navigator: TouchNavigator, functional_test_directory: str):
     # instructions to go the the keyboard
     instructions = [
         CustomNavInsID.HOME_TO_CHECK,
@@ -51,7 +51,7 @@ def test_nominal_full_passphrase_check_error_wrong_passphrase(navigator: StaxNav
     for word in SPECULOS_MNEMONIC.split()[:12]:
         instructions += [
             # test is designed to fail, so the first character is enough to select a word
-            NavIns(CustomNavInsID.KEYBOARD_WRITE, args=(word[0], )),
+            NavIns(CustomNavInsID.KEYBOARD_WRITE, args=(word[0:2], )),
             NavIns(CustomNavInsID.KEYBOARD_SELECT_SUGGESTION, args=(1, )),
         ]
     instructions = format_instructions(instructions)
