@@ -1,0 +1,42 @@
+name: Code style check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths-ignore:
+      - '.github/workflows/*.yml'
+      - 'tests/*'
+
+jobs:
+  job_lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+
+      - name: Lint
+        uses: DoozyX/clang-format-lint-action@v0.11
+        with:
+          source: 'src'
+          extensions: 'h,c'
+          clangFormatVersion: 11
+
+  misspell:
+    name: Check misspellings
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Check misspellings
+      uses: codespell-project/actions-codespell@master
+      with:
+        builtin: clear,rare
+        check_filenames: true
+        ignore_words_list: ontop

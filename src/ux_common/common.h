@@ -16,13 +16,28 @@
 
 #pragma once
 
-#include <os.h>
+#include <ux.h>
 
-#if defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#ifdef OS_IO_SEPROXYHAL
 
-#include "nano/ux_nano.h"
-
+#ifndef SPRINTF
+// avoid typing the size each time
+#define SPRINTF(strbuf, ...) snprintf((char*) (strbuf), sizeof(strbuf), __VA_ARGS__)
 #endif
 
-// NanoS, S+, X and Stax
-void ui_idle_init(void);
+#if defined(HAVE_NBGL)
+typedef const nbgl_obj_t* (*keyboard_callback_t)(unsigned int event, unsigned int value);
+#else
+typedef const bagl_element_t* (*keyboard_callback_t)(unsigned int event, unsigned int value);
+#endif
+
+void bolos_ux_hslider3_init(unsigned int total_count);
+void bolos_ux_hslider3_set_current(unsigned int current);
+void bolos_ux_hslider3_next(void);
+void bolos_ux_hslider3_previous(void);
+
+// all screens
+void screen_onboarding_3_restore_init(void);
+void screen_onboarding_4_restore_word_init(unsigned int action);
+
+#endif  // OS_IO_SEPROXYHAL

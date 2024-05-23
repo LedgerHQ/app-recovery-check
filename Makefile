@@ -18,6 +18,7 @@
 ifeq ($(BOLOS_SDK),)
 $(error Environment variable BOLOS_SDK is not set)
 endif
+
 include $(BOLOS_SDK)/Makefile.defines
 
 all: default
@@ -25,87 +26,105 @@ all: default
 # Main app configuration
 
 APPNAME = "Recovery Check"
-APPVERSION = 1.0.7
-APP_LOAD_PARAMS = --appFlags 0x210 $(COMMON_LOAD_PARAMS) --apdu --curve secp256k1 --path ""
+APPVERSION_M = 1
+APPVERSION_N = 2
+APPVERSION_P = 3
+APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
-ifeq ($(TARGET_NAME),TARGET_NANOS)
-	ICONNAME=nanos_app_recovery_check.gif
+APP_LOAD_PARAMS = --appFlags 0x10 $(COMMON_LOAD_PARAMS) --curve secp256k1 --path ""
+
+ifeq ($(TARGET_NAME), TARGET_NANOS)
+    ICONNAME=icons/nanos_app_recovery_check.gif
+else ifeq ($(TARGET_NAME), TARGET_STAX)
+    ICONNAME=icons/stax_recovery_check_32px.gif
 else
-	ICONNAME=nanox_app_recovery_check.gif
+    ICONNAME=icons/nanox_app_recovery_check.gif
 endif
 
 # Build configuration
 
 DEFINES += APPVERSION=\"$(APPVERSION)\"
+DEFINES += LEDGER_MAJOR_VERSION=$(APPVERSION_M)
+DEFINES += LEDGER_MINOR_VERSION=$(APPVERSION_N)
+DEFINES += LEDGER_PATCH_VERSION=$(APPVERSION_P)
+DEFINES += OS_IO_SEPROXYHAL
+DEFINES += HAVE_WEBUSB WEBUSB_URL_SIZE_B=0 WEBUSB_URL=""
 
-DEFINES += OS_IO_SEPROXYHAL IO_SEPROXYHAL_BUFFER_SIZE_B=128
-DEFINES += HAVE_BAGL HAVE_SPRINTF
 DEFINES += BOLOS_APP_ICON_SIZE_B=\(9+32\)
 #DEFINES += HAVE_ELECTRUM
 DEFINES += IO_USB_MAX_ENDPOINTS=4 IO_HID_EP_LENGTH=64
+DEFINES += HAVE_SPRINTF
 
-DEFINES	      += HAVE_UX_FLOW
-
-ifneq ($(TARGET_NAME),TARGET_NANOS)
-DEFINES       += HAVE_GLO096 HAVE_BOLOS_UX
-DEFINES       += HAVE_BAGL BAGL_WIDTH=128 BAGL_HEIGHT=64
-DEFINES       += HAVE_BAGL_ELLIPSIS # long label truncation feature
-DEFINES       += HAVE_BAGL_FONT_OPEN_SANS_REGULAR_11PX
-DEFINES       += HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX
-DEFINES       += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
-DEFINES       += HAVE_KEYBOARD_UX
+ifneq ($(TARGET_NAME), TARGET_STAX)
+    $(info Using BAGL)
+    DEFINES += HAVE_BAGL HAVE_UX_FLOW
+else
+    $(info Using NBGL)
+    DEFINES += NBGL_KEYBOARD
 endif
 
-
-# Enabling debug PRINTF
-DEBUG = 0
-ifneq ($(DEBUG),0)
-
-        DEFINES +=   HAVE_BOLOS_NOT_SHUFFLED_RESTORE
-
-        ifeq ($(TARGET_NAME),TARGET_NANOS)
-                DEFINES   += HAVE_PRINTF PRINTF=screen_printf
-        else
-                DEFINES   += HAVE_PRINTF PRINTF=mcu_usb_printf
-        endif
+ifeq ($(TARGET_NAME), TARGET_NANOS)
+    DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
 else
-        DEFINES   += PRINTF\(...\)=
+    DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
+    ifneq ($(TARGET_NAME), TARGET_STAX)
+        DEFINES += HAVE_GLO096
+        DEFINES += BAGL_WIDTH=128 BAGL_HEIGHT=64
+        DEFINES += HAVE_BAGL_ELLIPSIS # long label truncation feature
+        DEFINES += HAVE_BAGL_FONT_OPEN_SANS_REGULAR_11PX
+        DEFINES += HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX
+        DEFINES += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
+        DEFINES += HAVE_KEYBOARD_UX
+    endif
+endif
+
+DEBUG = 0
+
+ifneq ($(DEBUG), 0)
+    $(info DEBUG enabled)
+    DEFINES += HAVE_IO_USB HAVE_USB_APDU
+    SDK_SOURCE_PATH  += lib_stusb lib_stusb_impl
+    DEFINES += HAVE_PRINTF
+    ifeq ($(TARGET_NAME), TARGET_NANOS)
+        DEFINES += PRINTF=screen_printf
+    else
+        DEFINES += PRINTF=mcu_usb_printf
+    endif
+else
+    DEFINES += PRINTF\(...\)=
 endif
 
 ##############
 # Compiler #
 ##############
 ifneq ($(BOLOS_ENV),)
-$(info BOLOS_ENV=$(BOLOS_ENV))
-CLANGPATH := $(BOLOS_ENV)/clang-arm-fropi/bin/
-GCCPATH := $(BOLOS_ENV)/gcc-arm-none-eabi-5_3-2016q1/bin/
+    $(info BOLOS_ENV=$(BOLOS_ENV))
+    CLANGPATH := $(BOLOS_ENV)/clang-arm-fropi/bin/
+    GCCPATH := $(BOLOS_ENV)/gcc-arm-none-eabi-5_3-2016q1/bin/
 else
-$(info BOLOS_ENV is not set: falling back to CLANGPATH and GCCPATH)
+    $(info BOLOS_ENV is not set: falling back to CLANGPATH and GCCPATH)
 endif
 ifeq ($(CLANGPATH),)
-$(info CLANGPATH is not set: clang will be used from PATH)
+    $(info CLANGPATH is not set: clang will be used from PATH)
 endif
 ifeq ($(GCCPATH),)
-$(info GCCPATH is not set: arm-none-eabi-* will be used from PATH)
+    $(info GCCPATH is not set: arm-none-eabi-* will be used from PATH)
 endif
 
 CC := $(CLANGPATH)clang
-CFLAGS += -O3 -Os
-
+CFLAGS += -Wshadow -Wformat
 AS := $(GCCPATH)arm-none-eabi-gcc
-AFLAGS +=
-
 LD := $(GCCPATH)arm-none-eabi-gcc
-LDFLAGS += -O3 -Os
 LDLIBS += -lm -lgcc -lc
 
-# import rules to compile glyphs(/pone)
 include $(BOLOS_SDK)/Makefile.glyphs
 
-APP_SOURCE_PATH += src src_ux_common
+APP_SOURCE_PATH += src
 
-ifneq ($(TARGET_NAME),TARGET_NANOS)
-SDK_SOURCE_PATH  += lib_ux
+ifneq ($(TARGET_NAME), TARGET_NANOS)
+    ifneq ($(TARGET_NAME), TARGET_STAX)
+        SDK_SOURCE_PATH  += lib_ux
+    endif
 endif
 
 # Main rules

@@ -16,13 +16,28 @@
 
 #pragma once
 
-#include <os.h>
+#define BIP39_WORDLIST_LENGTH         11068
+#define BIP39_WORDLIST_OFFSETS_LENGTH 2049
+#define BIP39_MNEMONIC_LENGTH         8
 
-#if defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#ifdef HAVE_ELECTRUM
 
-#include "nano/ux_nano.h"
+#define ELECTRUM_SEED_VERSION_LENGTH  12
+#define ELECTRUM_MNEMONIC_LENGTH      8
+#define ELECTRUM_SEED_PREFIX_STANDARD 0x01
+#define ELECTRUM_PBKDF2_ROUNDS        2048
 
 #endif
 
-// NanoS, S+, X and Stax
-void ui_idle_init(void);
+#define BIP39_PBKDF2_ROUNDS 2048
+
+extern unsigned char const WIDE BIP39_WORDLIST[BIP39_WORDLIST_LENGTH];
+extern unsigned short const WIDE BIP39_WORDLIST_OFFSETS[BIP39_WORDLIST_OFFSETS_LENGTH];
+extern unsigned char const WIDE BIP39_MNEMONIC[BIP39_MNEMONIC_LENGTH];
+
+#ifdef HAVE_ELECTRUM
+
+extern unsigned char const WIDE ELECTRUM_SEED_VERSION[ELECTRUM_SEED_VERSION_LENGTH];
+extern unsigned char const WIDE ELECTRUM_MNEMONIC[ELECTRUM_MNEMONIC_LENGTH];
+
+#endif
