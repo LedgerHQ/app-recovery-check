@@ -53,23 +53,6 @@ static void on_quit(void) {
 }
 
 /*
- * About menu
- */
-static const char *const infoTypes[] = {"Version", "Recovery Check"};
-static const char *const infoContents[] = {APPVERSION, "(c) 2018-2024 Ledger"};
-
-static bool on_infos(uint8_t page, nbgl_pageContent_t *content) {
-    if (page == 0) {
-        content->type = INFOS_LIST;
-        content->infosList.nbInfos = 2;
-        content->infosList.infoTypes = infoTypes;
-        content->infosList.infoContents = infoContents;
-        return true;
-    }
-    return false;
-}
-
-/*
  * Choose mnemonic size page
  */
 enum {
@@ -272,29 +255,38 @@ static void display_keyboard_page() {
 }
 
 /*
- * Home page & dispatcher
+ * Home page, infos & dispatcher
  */
 
-static void display_settings_page() {
-    nbgl_useCaseSettings("Recovery Check infos", 0, 1, false, display_home_page, on_infos, NULL);
-}
+static const char *const infoTypes[] = {"Version", "Recovery Check"};
+static const char *const infoContents[] = {APPVERSION, "(c) 2018-2024 Ledger"};
+
+static const nbgl_contentInfoList_t infoList = {
+    .nbInfos = 2,
+    .infoTypes = infoTypes,
+    .infoContents = infoContents,
+};
 
 static void display_home_page() {
     reset_globals();
-    nbgl_useCaseHomeExt("Recovery Check",
-                        &C_stax_recovery_check_64px,
+
+    nbgl_homeAction_t action = {.text = "Start check", .callback = PIC(passphrase_length_page)};
+
+    nbgl_useCaseHomeAndSettings(
+        APPNAME,
+        &C_stax_recovery_check_64px,
 #if defined(TARGET_STAX)
-                        "This app lets you enter a Secret Recovery Phrase and test if it matches "
-                        "the one present on this Ledger Stax",
+        "This app lets you enter a Secret Recovery Phrase and test if it matches "
+        "the one present on this Ledger Stax",
 #elif defined(TARGET_FLEX)
-                        "Enter a Recovery Phrase and test if it matches "
-                        "the one present on this Ledger Flex",
+        "Enter a Recovery Phrase and test if it matches "
+        "the one present on this Ledger Flex",
 #endif
-                        false,
-                        "Start check",
-                        passphrase_length_page,
-                        display_settings_page,
-                        on_quit);
+        INIT_HOME_PAGE,
+        NULL,
+        &infoList,
+        &action,
+        on_quit);
 }
 
 #if defined(TARGET_STAX)
