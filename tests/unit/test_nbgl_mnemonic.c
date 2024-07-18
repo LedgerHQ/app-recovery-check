@@ -4,7 +4,7 @@
 #include <string.h>
 #include <cmocka.h>
 
-#include "stax/mnemonic.h"
+#include "nbgl/mnemonic.h"
 
 
 static int setup(void **state __attribute__((unused))) {

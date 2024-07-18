@@ -36,15 +36,15 @@ endif()
 
 add_compile_definitions(WIDE=)
 add_compile_definitions(TEST)
-add_compile_definitions(TARGET_STAX)
+add_compile_definitions(SCREEN_SIZE_WALLET)
 add_compile_definitions(OS_IO_SEPROXYHAL)
 
 include_directories(../../src ./mocks/)
 
-add_executable(test_stax_mnemonic test_stax_mnemonic.c)
+add_executable(test_nbgl_mnemonic test_nbgl_mnemonic.c)
 
-add_library(stax SHARED ../../src/ux_common/onboarding_seed_rom_variables.c ../../src/stax/mnemonic.c)
+add_library(nbgl SHARED ../../src/ux_common/onboarding_seed_rom_variables.c ../../src/nbgl/mnemonic.c)
 
-target_link_libraries(test_stax_mnemonic PUBLIC cmocka gcov stax)
+target_link_libraries(test_nbgl_mnemonic PUBLIC cmocka gcov nbgl)
 
-add_test(test_stax_mnemonic test_stax_mnemonic)
+add_test(test_nbgl_mnemonic test_nbgl_mnemonic)
