@@ -93,7 +93,8 @@ static void passphrase_length_callback(nbgl_obj_t *obj, nbgl_touchType_t eventTy
 static void passphrase_length_page(void) {
     nbgl_obj_t **screenChildren;
 
-    // 3 buttons + icon + text + subText
+    // From top to bottom:
+    // <return back arrow> + <icon> + <text> + <3 buttons>
     nbgl_screenSet(&screenChildren, 6, NULL, (nbgl_touchCallback_t) &passphrase_length_callback);
 
     screenChildren[ICON_INDEX] = (nbgl_obj_t *) passphrase_length_set_icon();

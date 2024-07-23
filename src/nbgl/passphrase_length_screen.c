@@ -14,8 +14,13 @@ nbgl_image_t *passphrase_length_set_icon() {
     image->foregroundColor = BLACK;
     image->buffer = &C_stax_recovery_check_64px;
     image->obj.area.bpp = NBGL_BPP_1;
-    image->obj.alignmentMarginX = ICON_X;
-    image->obj.alignmentMarginY = ICON_Y;
+#if defined(TARGET_STAX)
+    uint8_t divide = 1;
+#elif defined(TARGET_FLEX)
+    uint8_t divide = 2;
+#endif
+    image->obj.alignmentMarginX = ICON_X / divide;
+    image->obj.alignmentMarginY = ICON_Y / divide;
     image->obj.alignment = TOP_MIDDLE;
     image->obj.alignTo = NULL;
     return image;
