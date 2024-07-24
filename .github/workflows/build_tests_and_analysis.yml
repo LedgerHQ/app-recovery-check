@@ -33,7 +33,7 @@ jobs:
       - name: Install cmocka
         run: |
           sudo apt update
-          sudo apt install libcmocka-dev lcov
+          sudo apt install libcmocka-dev lcov libsodium-dev
       - name: Compile the tests
         run: |
           cd tests/unit/

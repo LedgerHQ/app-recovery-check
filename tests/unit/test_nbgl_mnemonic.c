@@ -87,8 +87,28 @@ static void test_check_mnemonic_nok(void **state __attribute__((unused))) {
     assert_false(check_mnemonic());
 }
 
+static void test_check_mnemonic_nok2(void **state __attribute__((unused))) {
+    // only 12 words of the mnemonic -> fail
+    const char* const mnemonic[] = {
+        "glory", "promote", "mansion", "idle", "axis", "finger", "extra", "february", "uncover", "one", "trip", "resource"
+    };
+    int i = 0;
+    size_t mnemonic_size = (sizeof(mnemonic) / sizeof(char*));
+    set_mnemonic_final_size(mnemonic_size);
+
+    for (i = 0; i < mnemonic_size; i++) {
+        assert_int_equal(add_word_in_mnemonic(mnemonic[i], strlen(mnemonic[i])), i + 1);
+    }
+
+    assert_false(check_mnemonic());
+}
+
 static void test_check_mnemonic_ok(void **state __attribute__((unused))) {
-    const char* const mnemonic[] = {"list", "of", "random", "words", "which", "actually", "are", "the", "mnemonic"};
+    // Default Speculos mnemonic
+    const char* const mnemonic[] = {
+        "glory", "promote", "mansion", "idle", "axis", "finger", "extra", "february", "uncover", "one", "trip", "resource",
+        "lawn", "turtle", "enact", "monster", "seven", "myth", "punch", "hobby", "comfort", "wild", "raise", "skin"
+    };
     int i = 0;
     size_t mnemonic_size = (sizeof(mnemonic) / sizeof(char*));
     set_mnemonic_final_size(mnemonic_size);
@@ -110,6 +130,7 @@ int main() {
         cmocka_unit_test_setup_teardown(test_remove_word_from_mnemonic, setup, NULL),
         cmocka_unit_test_setup_teardown(test_is_mnemonic_complete, setup, NULL),
         cmocka_unit_test_setup_teardown(test_check_mnemonic_nok, setup, NULL),
+        cmocka_unit_test_setup_teardown(test_check_mnemonic_nok2, setup, NULL),
         cmocka_unit_test_setup_teardown(test_check_mnemonic_ok, setup, NULL),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);

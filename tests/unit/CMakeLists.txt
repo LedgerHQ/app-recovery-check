@@ -28,6 +28,9 @@ set(GCC_COVERAGE_LINK_FLAGS "--coverage -lgcov")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
+# adding cmake module directory
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 # guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build \
@@ -39,12 +42,17 @@ add_compile_definitions(TEST)
 add_compile_definitions(SCREEN_SIZE_WALLET)
 add_compile_definitions(OS_IO_SEPROXYHAL)
 
-include_directories(../../src ./mocks/)
+find_package(Sodium REQUIRED)
+
+include_directories(../../src ./mocks/ libsodium/)
 
 add_executable(test_nbgl_mnemonic test_nbgl_mnemonic.c)
 
-add_library(nbgl SHARED ../../src/ux_common/onboarding_seed_rom_variables.c ../../src/nbgl/mnemonic.c)
+add_library(nbgl SHARED
+  ../../src/ux_common/onboarding_seed_rom_variables.c
+  ../../src/ux_common/onboarding_seed_bip39.c
+  ../../src/nbgl/mnemonic.c)
 
-target_link_libraries(test_nbgl_mnemonic PUBLIC cmocka gcov nbgl)
+target_link_libraries(test_nbgl_mnemonic PUBLIC cmocka gcov nbgl sodium)
 
 add_test(test_nbgl_mnemonic test_nbgl_mnemonic)

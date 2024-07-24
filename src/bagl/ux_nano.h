@@ -16,9 +16,21 @@
 
 #pragma once
 
+#include <ux.h>
 #include "ux_common/common.h"
 
-#if (defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2))
+#if defined(HAVE_BAGL)
+
+typedef const bagl_element_t* (*keyboard_callback_t)(unsigned int event, unsigned int value);
+
+void bolos_ux_hslider3_init(unsigned int total_count);
+void bolos_ux_hslider3_set_current(unsigned int current);
+void bolos_ux_hslider3_next(void);
+void bolos_ux_hslider3_previous(void);
+
+// all screens
+void screen_onboarding_3_restore_init(void);
+void screen_onboarding_4_restore_word_init(unsigned int action);
 
 // bolos ux context (not mandatory if redesigning a bolos ux)
 typedef struct bolos_ux_context {
@@ -81,4 +93,4 @@ void compare_recovery_phrase(void);
 extern const ux_flow_step_t ux_ob_goto_dashboard_step;
 #endif  // defined(TARGET_NANOS)
 
-#endif  // (TARGET_NANOS || TARGET_NANOX || TARGET_NANOS2)
+#endif  // defined(HAVE_BAGL)
