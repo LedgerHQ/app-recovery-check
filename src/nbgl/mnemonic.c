@@ -1,10 +1,8 @@
 #include <os.h>
 #include <string.h>
-#include <lcx_hmac.h>
-#include <lcx_rng.h>
 
 #include "./mnemonic.h"
-#include "../mnemonic_common/common_bip39.h"
+#include "../mnemonic_common/bip39.h"
 
 #if defined(SCREEN_SIZE_WALLET)
 

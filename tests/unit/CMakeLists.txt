@@ -48,11 +48,12 @@ include_directories(../../src ./mocks/ libsodium/)
 
 add_executable(test_nbgl_mnemonic test_nbgl_mnemonic.c)
 
-add_library(nbgl SHARED
-  ../../src/ux_common/onboarding_seed_rom_variables.c
-  ../../src/ux_common/onboarding_seed_bip39.c
-  ../../src/nbgl/mnemonic.c)
+add_library(libs SHARED
+  ../../src/mnemonic_common/seed_rom_variables.c
+  ../../src/mnemonic_common/seed_bip39.c
+  ../../src/nbgl/mnemonic.c
+  ./mocks/os.c)
 
-target_link_libraries(test_nbgl_mnemonic PUBLIC cmocka gcov nbgl sodium)
+target_link_libraries(test_nbgl_mnemonic PUBLIC cmocka gcov libs sodium)
 
 add_test(test_nbgl_mnemonic test_nbgl_mnemonic)

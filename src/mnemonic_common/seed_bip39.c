@@ -3,8 +3,8 @@
 #include <os.h>
 #include <cx.h>
 
-#include "onboarding_seed_rom_variables.h"
-#include "common.h"
+#include "bip39.h"
+#include "seed_rom_variables.h"
 
 #define ALPHABET_LENGTH 27
 #define KBD_LETTERS     "qwertyuiopasdfghjklzxcvbnm"

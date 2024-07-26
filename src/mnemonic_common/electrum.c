@@ -16,8 +16,6 @@
 
 #ifdef HAVE_ELECTRUM
 
-#include "common.h"
-
 int cx_math_shiftr_11(unsigned char *r, unsigned int len) {
     unsigned int j, b11;
     b11 = r[len - 1] | ((r[len - 2] & 7) << 8);

@@ -18,6 +18,7 @@
 #include <lcx_rng.h>
 #include <ledger_assert.h>
 
+#include "common.h"
 #include "ux_nano.h"
 #include "../constants.h"
 #include "../ui.h"

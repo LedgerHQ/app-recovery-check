@@ -18,6 +18,7 @@
 #include <lcx_hmac.h>
 #include <ledger_assert.h>
 
+#include "common.h"
 #include "constants.h"
 #include "glyphs.h"
 #include "ui.h"

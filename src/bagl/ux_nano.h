@@ -17,7 +17,6 @@
 #pragma once
 
 #include <ux.h>
-#include "mnemonic_common/common.h"
 
 #if defined(HAVE_BAGL)
 
@@ -83,7 +82,7 @@ void screen_common_keyboard_init(unsigned int stack_slot,
                                  unsigned int nb_elements,
                                  keyboard_callback_t callback);
 
-#include "mnemonic_common/common_bip39.h"
+#include "mnemonic_common/bip39.h"
 
 #if defined(TARGET_NANOS)
 extern const bagl_element_t screen_onboarding_word_list_elements[9];
