@@ -35,7 +35,7 @@ enum {
        // displayed and using the common string buffer as string parameter
 #define KEYBOARD_RENDER_WORD \
     3  // callback is called with a -1 when requesting complete word, or the char index else,
-       // returnin 0 implies no char is to be displayed
+       // returning 0 implies no char is to be displayed
 
 #define RESTORE_WORD_ACTION_REENTER_WORD 0
 #define RESTORE_WORD_ACTION_FIRST_WORD   1

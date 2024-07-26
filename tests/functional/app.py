@@ -1,19 +1,24 @@
-from ragger.firmware.stax.layouts import CenteredFooter, _Layout, LetterOnlyKeyboard, \
+from ragger.firmware import Firmware
+from ragger.firmware.touch.layouts import CenteredFooter, Element, LetterOnlyKeyboard, \
     NavigationHeader, Suggestions
-from ragger.firmware.stax.use_cases import UseCaseHomeExt, UseCaseSettings
-from ragger.firmware.stax.screen import MetaScreen
+from ragger.firmware.touch.use_cases import UseCaseHomeExt, UseCaseSettings
+from ragger.firmware.touch.screen import MetaScreen
 
 
-class CustomChoiceList(_Layout):
+class CustomChoiceList(Element):
 
-    def choose(self, index: int):
+    def choose(self, index: int, firmware: Firmware):
         assert 1 <= index <= 6, "Choice index must be in [1, 6]"
-        x, y = (200, 430)
-        diff = 80
+        if firmware == Firmware.STAX:
+            x, y = (200, 430)
+            diff = 80
+        if firmware == Firmware.FLEX:
+            x, y = (240, 330)
+            diff = 100
         self.client.finger_touch(x, y + (index - 1)*diff)
 
 
-class StaxScreen(metaclass=MetaScreen):
+class TouchScreen(metaclass=MetaScreen):
     # choosing the length a the passphrase. 3 choices
     layout_choice_list = CustomChoiceList
     # entering words

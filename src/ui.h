@@ -18,11 +18,11 @@
 
 #include <os.h>
 
-#if defined(TARGET_NANOS) || defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(HAVE_BAGL)
 
-#include "nano/ux_nano.h"
+#include "bagl/ux_nano.h"
 
 #endif
 
-// NanoS, S+, X and Stax
+// All devices
 void ui_idle_init(void);
