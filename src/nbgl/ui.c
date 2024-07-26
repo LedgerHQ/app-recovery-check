@@ -14,8 +14,8 @@
 #include <nbgl_page.h>
 #include <nbgl_layout.h>
 
-#include "../ux_common/common_bip39.h"
 #include "../ui.h"
+#include "../mnemonic_common/common_bip39.h"
 #include "./mnemonic.h"
 #include "./passphrase_length_screen.h"
 

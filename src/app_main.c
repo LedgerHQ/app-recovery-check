@@ -77,7 +77,7 @@ unsigned char io_event(unsigned char channel __attribute__((unused))) {
                 UX_REDISPLAY();
             } else {
                 if (G_bolos_ux_context.processing == 1) {
-                    UX_DISPLAYED_EVENT(compare_recovery_phrase(););
+                    UX_DISPLAYED_EVENT(compare_recovery_phrase_and_display_result(););
                 } else {
                     UX_DISPLAYED_EVENT();
                 }

@@ -1,8 +1,10 @@
 #include <os.h>
 #include <string.h>
+#include <lcx_hmac.h>
+#include <lcx_rng.h>
 
-#include "../ux_common/common_bip39.h"
 #include "./mnemonic.h"
+#include "../mnemonic_common/common_bip39.h"
 
 #if defined(SCREEN_SIZE_WALLET)
 
@@ -45,7 +47,7 @@ size_t get_current_word_number() {
 }
 
 void reset_mnemonic() {
-    memset(&mnemonic, 0, sizeof(mnemonic));
+    explicit_bzero(&mnemonic, sizeof(mnemonic));
     mnemonic.current_word_index = (size_t) -1;
 }
 
@@ -90,10 +92,15 @@ bool check_mnemonic() {
     PRINTF("Checking the following mnemonic: '%s' (size %ld)\n",
            &mnemonic.buffer[0],
            mnemonic.length);
-    const bool result =
-        bolos_ux_mnemonic_check((unsigned char*) &mnemonic.buffer[0], mnemonic.length);
-    // clearing the mnemonic ASAP
+
+    if (bolos_ux_mnemonic_check((unsigned char*) &mnemonic.buffer[0], mnemonic.length) == false) {
+        reset_mnemonic();
+        return false;
+    }
+
+    const bool result = compare_recovery_phrase((uint8_t*) mnemonic.buffer, mnemonic.length);
     reset_mnemonic();
+
     return result;
 }
 

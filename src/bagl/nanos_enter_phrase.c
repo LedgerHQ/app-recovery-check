@@ -213,49 +213,17 @@ const bagl_element_t* screen_onboarding_4_restore_word_keyboard_callback(unsigne
     return &G_ux.tmp_element;
 }
 
-void compare_recovery_phrase(void) {
+void compare_recovery_phrase_and_display_result(void) {
     G_bolos_ux_context.processing = 0;
 
     io_seproxyhal_general_status();
 
-    // convert mnemonic to hex-seed
-    uint8_t buffer[64];
-
-    bolos_ux_mnemonic_to_seed((unsigned char*) G_bolos_ux_context.words_buffer,
-                              G_bolos_ux_context.words_buffer_length,
-                              buffer);
-    PRINTF("Input seed:\n %.*H\n", 64, buffer);
-
-    // get rootkey from hex-seed
-    cx_hmac_sha512_t ctx;
-    const char key[] = "Bitcoin seed";
-
-    LEDGER_ASSERT(cx_hmac_sha512_init_no_throw(&ctx, (const uint8_t*) key, strlen(key)) == CX_OK,
-                  "HMAC init failed");
-    LEDGER_ASSERT(cx_hmac_no_throw((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64) == CX_OK,
-                  "HMAC failed");
-    PRINTF("Root key from input:\n%.*H\n", 64, buffer);
-
-    // get rootkey from device's seed
-    uint8_t buffer_device[64];
-
-    // os_derive_bip32* do not accept NULL path, even with a size of 0, so we provide an empty path
-    const unsigned int empty_path = 0;
-    if (os_derive_bip32_no_throw(CX_CURVE_256K1,
-                                 &empty_path,
-                                 0,
-                                 buffer_device,
-                                 buffer_device + 32) != CX_OK) {
-        PRINTF("An error occurred while comparing the recovery phrase\n");
-        return;
-    }
-    PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
-
-    // compare both rootkey
-    if (os_secure_memcmp(buffer, buffer_device, 64)) {
-        ux_flow_init(0, flow_final_nomatch, NULL);
-    } else {
+    const bool result = compare_recovery_phrase((uint8_t*) G_bolos_ux_context.words_buffer,
+                                                G_bolos_ux_context.words_buffer_length);
+    if (result) {
         ux_flow_init(0, flow_final_match, NULL);
+    } else {
+        ux_flow_init(0, flow_final_nomatch, NULL);
     }
 }
 
