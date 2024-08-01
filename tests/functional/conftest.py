@@ -4,7 +4,7 @@ from ragger.backend import BackendInterface
 from ragger.conftest import configuration
 from ragger.firmware import Firmware
 
-from .navigator import StaxNavigator
+from .navigator import TouchNavigator
 
 
 ###########################
@@ -30,6 +30,6 @@ def functional_test_directory() -> Path:
 
 
 @fixture
-def navigator(backend: BackendInterface, firmware: Firmware) -> StaxNavigator:
-    navigator = StaxNavigator(backend, firmware)
+def navigator(backend: BackendInterface, firmware: Firmware, golden_run: bool) -> TouchNavigator:
+    navigator = TouchNavigator(backend, firmware, golden_run)
     yield navigator

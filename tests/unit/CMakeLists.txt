@@ -28,6 +28,9 @@ set(GCC_COVERAGE_LINK_FLAGS "--coverage -lgcov")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
+# adding cmake module directory
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 # guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
   message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build \
@@ -36,15 +39,21 @@ endif()
 
 add_compile_definitions(WIDE=)
 add_compile_definitions(TEST)
-add_compile_definitions(TARGET_STAX)
+add_compile_definitions(SCREEN_SIZE_WALLET)
 add_compile_definitions(OS_IO_SEPROXYHAL)
 
-include_directories(../../src ./mocks/)
+find_package(Sodium REQUIRED)
 
-add_executable(test_stax_mnemonic test_stax_mnemonic.c)
+include_directories(../../src ./mocks/ libsodium/)
 
-add_library(stax SHARED ../../src/ux_common/onboarding_seed_rom_variables.c ../../src/stax/mnemonic.c)
+add_executable(test_nbgl_mnemonic test_nbgl_mnemonic.c)
 
-target_link_libraries(test_stax_mnemonic PUBLIC cmocka gcov stax)
+add_library(libs SHARED
+  ../../src/mnemonic_common/seed_rom_variables.c
+  ../../src/mnemonic_common/seed_bip39.c
+  ../../src/nbgl/mnemonic.c
+  ./mocks/os.c)
 
-add_test(test_stax_mnemonic test_stax_mnemonic)
+target_link_libraries(test_nbgl_mnemonic PUBLIC cmocka gcov libs sodium)
+
+add_test(test_nbgl_mnemonic test_nbgl_mnemonic)
