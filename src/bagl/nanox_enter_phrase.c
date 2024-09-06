@@ -204,13 +204,13 @@ void screen_onboarding_4_restore_word_display_auto_complete(void) {
         0,
 #ifdef HAVE_BOLOS_NOT_SHUFFLED_RESTORE
         0, /*always restart from the first element in the list*/
-#else  // HAVE_BOLOS_NOT_SHUFFLED_RESTORE
+#else      // HAVE_BOLOS_NOT_SHUFFLED_RESTORE
         (strlen(G_ux.string_buffer + 16)
              ? 0
              : cx_rng_u8() % auto_complete_count), /* start from a random element in the list for
                                                       the word start letter, else keep the order */
-#endif  // HAVE_BOLOS_NOT_SHUFFLED_RESTORE
-        // recompute alphabet and set the number of elements in the keyboard
+#endif     // HAVE_BOLOS_NOT_SHUFFLED_RESTORE
+           // recompute alphabet and set the number of elements in the keyboard
         auto_complete_count +
             (strlen(G_ux.string_buffer + 16)
                  ? 1
@@ -532,7 +532,7 @@ void screen_onboarding_4_restore_word_init(unsigned int firstWord) {
         ARRAYLEN(screen_onboarding_4_restore_word_intro_elements);
     G_ux.stack[0].element_arrays_count = 1;
     ux_stack_display(0);
-#else  // RESTORE_INTRO_WORD
+#else   // RESTORE_INTRO_WORD
     screen_onboarding_4_restore_word_display_auto_complete();
 #endif  // RESTORE_INTRO_WORD
 }

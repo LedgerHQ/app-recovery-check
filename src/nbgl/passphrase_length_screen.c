@@ -54,7 +54,6 @@ void passphrase_length_configure_buttons(nbgl_button_t **buttons, const size_t s
         button->radius = BUTTON_RADIUS;
         button->fontId = SMALL_BOLD_1BPP_FONT;
         button->icon = NULL;
-        button->localized = true;
         button->obj.alignmentMarginX = 0;
         button->obj.alignmentMarginY = (button->obj.area.height + 8) * i + BORDER_MARGIN;
         button->obj.alignment = BOTTOM_MIDDLE;
