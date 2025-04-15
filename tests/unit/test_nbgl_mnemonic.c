@@ -6,7 +6,6 @@
 
 #include "nbgl/mnemonic.h"
 
-
 static int setup(void **state __attribute__((unused))) {
     // resets the whole buffer with initial values
     reset_mnemonic();
@@ -28,7 +27,7 @@ static void test_mnemonic_final_size(void **state __attribute__((unused))) {
 }
 
 static void test_add_word_in_mnemonic(void **state __attribute__((unused))) {
-    const char* word = "hello";
+    const char *word = "hello";
     assert_int_equal(get_current_word_number(), 0);
     assert_string_equal(get_mnemonic(), "");
 
@@ -42,7 +41,7 @@ static void test_remove_word_from_mnemonic_none(void **state __attribute__((unus
 }
 
 static void test_remove_word_from_mnemonic(void **state __attribute__((unused))) {
-    const char* word = "list";
+    const char *word = "list";
     assert_int_equal(get_current_word_number(), 0);
     assert_string_equal(get_mnemonic(), "");
 
@@ -59,7 +58,7 @@ static void test_is_mnemonic_complete(void **state __attribute__((unused))) {
     set_mnemonic_final_size(2);
     assert_false(is_mnemonic_complete());
 
-    const char* word = "list";
+    const char *word = "list";
     assert_int_equal(add_word_in_mnemonic(word, 4), 1);
     assert_false(is_mnemonic_complete());
 
@@ -89,11 +88,20 @@ static void test_check_mnemonic_nok(void **state __attribute__((unused))) {
 
 static void test_check_mnemonic_nok2(void **state __attribute__((unused))) {
     // only 12 words of the mnemonic -> fail
-    const char* const mnemonic[] = {
-        "glory", "promote", "mansion", "idle", "axis", "finger", "extra", "february", "uncover", "one", "trip", "resource"
-    };
+    const char *const mnemonic[] = {"glory",
+                                    "promote",
+                                    "mansion",
+                                    "idle",
+                                    "axis",
+                                    "finger",
+                                    "extra",
+                                    "february",
+                                    "uncover",
+                                    "one",
+                                    "trip",
+                                    "resource"};
     int i = 0;
-    size_t mnemonic_size = (sizeof(mnemonic) / sizeof(char*));
+    size_t mnemonic_size = (sizeof(mnemonic) / sizeof(char *));
     set_mnemonic_final_size(mnemonic_size);
 
     for (i = 0; i < mnemonic_size; i++) {
@@ -105,12 +113,12 @@ static void test_check_mnemonic_nok2(void **state __attribute__((unused))) {
 
 static void test_check_mnemonic_ok(void **state __attribute__((unused))) {
     // Default Speculos mnemonic
-    const char* const mnemonic[] = {
-        "glory", "promote", "mansion", "idle", "axis", "finger", "extra", "february", "uncover", "one", "trip", "resource",
-        "lawn", "turtle", "enact", "monster", "seven", "myth", "punch", "hobby", "comfort", "wild", "raise", "skin"
-    };
+    const char *const mnemonic[] = {"glory", "promote",  "mansion", "idle",    "axis",  "finger",
+                                    "extra", "february", "uncover", "one",     "trip",  "resource",
+                                    "lawn",  "turtle",   "enact",   "monster", "seven", "myth",
+                                    "punch", "hobby",    "comfort", "wild",    "raise", "skin"};
     int i = 0;
-    size_t mnemonic_size = (sizeof(mnemonic) / sizeof(char*));
+    size_t mnemonic_size = (sizeof(mnemonic) / sizeof(char *));
     set_mnemonic_final_size(mnemonic_size);
 
     for (i = 0; i < mnemonic_size; i++) {
@@ -121,7 +129,6 @@ static void test_check_mnemonic_ok(void **state __attribute__((unused))) {
     //       `compare_recovery_phrase`), this final 'True' check could not be done yet.
     // assert_true(check_mnemonic());
 }
-
 
 int main() {
     const struct CMUnitTest tests[] = {
