@@ -1,7 +1,9 @@
-from pathlib import Path
 from pytest import fixture, skip
+from typing import Generator, Any
+
+from ledgered.devices import Device
+
 from ragger.backend import BackendInterface
-from ragger.firmware import Firmware
 
 from .navigator import TouchNavigator
 
@@ -22,12 +24,12 @@ pytest_plugins = ("ragger.conftest.base_conftest", )
 
 
 @fixture
-def navigator(backend: BackendInterface, firmware: Firmware, golden_run: bool) -> TouchNavigator:
-    navigator = TouchNavigator(backend, firmware, golden_run)
+def navigator(backend: BackendInterface, device: Device, golden_run: bool) -> Generator[Any, Any, Any]:
+    navigator = TouchNavigator(backend, device, golden_run)
     yield navigator
 
 # Tests are not supported on Nano devices
 @fixture(scope="session")
-def skip_tests_for_unsupported_devices(firmware: Firmware):
-    if firmware.is_nano:
-        skip(f"Device {firmware.name} is not supported")
+def skip_tests_for_unsupported_devices(device: Device):
+    if device.is_nano:
+        skip(f"Device {device.name} is not supported")
