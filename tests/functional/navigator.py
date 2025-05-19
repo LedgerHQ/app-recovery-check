@@ -1,5 +1,9 @@
 from enum import auto, Enum
 from functools import partial
+
+from ledgered.devices import Device
+
+from ragger.backend import BackendInterface
 from ragger.navigator import NavInsID
 from ragger.navigator.navigator import Navigator
 from time import sleep
@@ -32,8 +36,8 @@ class CustomNavInsID(Enum):
 
 class TouchNavigator(Navigator):
 
-    def __init__(self, backend, firmware, golden_run=False):
-        self.screen = TouchScreen(backend, firmware)
+    def __init__(self, backend: BackendInterface, device: Device, golden_run: bool = False):
+        self.screen = TouchScreen(backend, device)
 
         callbacks = {
             # has to be defined for Ragger Navigator internals
@@ -44,16 +48,16 @@ class TouchNavigator(Navigator):
             CustomNavInsID.HOME_TO_QUIT: self.screen.home.quit,
             CustomNavInsID.HOME_TO_CHECK: self.screen.home.action,
             CustomNavInsID.SETTINGS_TO_HOME: self.screen.settings.single_page_exit,
-            CustomNavInsID.LENGTH_CHOOSE_24: partial(self.screen.choice_list.choose, 1, firmware),
-            CustomNavInsID.LENGTH_CHOOSE_18: partial(self.screen.choice_list.choose, 2, firmware),
-            CustomNavInsID.LENGTH_CHOOSE_12: partial(self.screen.choice_list.choose, 3, firmware),
+            CustomNavInsID.LENGTH_CHOOSE_24: partial(self.screen.choice_list.choose, 1, device),
+            CustomNavInsID.LENGTH_CHOOSE_18: partial(self.screen.choice_list.choose, 2, device),
+            CustomNavInsID.LENGTH_CHOOSE_12: partial(self.screen.choice_list.choose, 3, device),
             CustomNavInsID.LENGTH_TO_PREVIOUS: self.screen.navigation.tap,
             CustomNavInsID.KEYBOARD_TO_PREVIOUS: self.screen.navigation.tap,
             CustomNavInsID.KEYBOARD_WRITE: self._write,
             CustomNavInsID.KEYBOARD_SELECT_SUGGESTION: self.screen.suggestions.choose,
             CustomNavInsID.RESULT_TO_HOME: self.screen.dismiss.tap
         }
-        super().__init__(backend, firmware, callbacks, golden_run=golden_run)
+        super().__init__(backend, device, callbacks, golden_run=golden_run)
 
     def _write(self, characters: str):
         # keyboard write is not an exact science on Ragger for now. The instruction together with

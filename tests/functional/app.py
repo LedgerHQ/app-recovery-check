@@ -1,4 +1,5 @@
-from ragger.firmware import Firmware
+from ledgered.devices import Device, DeviceType
+
 from ragger.firmware.touch.layouts import CenteredFooter, Element, LetterOnlyKeyboard, \
     NavigationHeader, Suggestions
 from ragger.firmware.touch.use_cases import UseCaseHomeExt, UseCaseSettings
@@ -7,12 +8,12 @@ from ragger.firmware.touch.screen import MetaScreen
 
 class CustomChoiceList(Element):
 
-    def choose(self, index: int, firmware: Firmware):
+    def choose(self, index: int, device: Device):
         assert 1 <= index <= 6, "Choice index must be in [1, 6]"
-        if firmware == Firmware.STAX:
+        if device.type == DeviceType.STAX:
             x, y = (200, 430)
             diff = 80
-        if firmware == Firmware.FLEX:
+        if device.type == DeviceType.FLEX:
             x, y = (240, 330)
             diff = 100
         self.client.finger_touch(x, y + (index - 1)*diff)
