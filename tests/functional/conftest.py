@@ -1,5 +1,5 @@
-from pytest import fixture, skip
 from typing import Generator, Any
+from pytest import fixture, skip
 
 from ledgered.devices import Device
 
@@ -25,8 +25,8 @@ pytest_plugins = ("ragger.conftest.base_conftest", )
 
 @fixture
 def navigator(backend: BackendInterface, device: Device, golden_run: bool) -> Generator[Any, Any, Any]:
-    navigator = TouchNavigator(backend, device, golden_run)
-    yield navigator
+    touchNav = TouchNavigator(backend, device, golden_run)
+    yield touchNav
 
 # Tests are not supported on Nano devices
 @fixture(scope="session")

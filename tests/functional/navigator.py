@@ -1,12 +1,12 @@
 from enum import auto, Enum
 from functools import partial
+from time import sleep
 
 from ledgered.devices import Device
 
 from ragger.backend import BackendInterface
 from ragger.navigator import NavInsID
 from ragger.navigator.navigator import Navigator
-from time import sleep
 
 from .app import TouchScreen
 
@@ -48,9 +48,9 @@ class TouchNavigator(Navigator):
             CustomNavInsID.HOME_TO_QUIT: self.screen.home.quit,
             CustomNavInsID.HOME_TO_CHECK: self.screen.home.action,
             CustomNavInsID.SETTINGS_TO_HOME: self.screen.settings.single_page_exit,
-            CustomNavInsID.LENGTH_CHOOSE_24: partial(self.screen.choice_list.choose, 1, device),
+            CustomNavInsID.LENGTH_CHOOSE_12: partial(self.screen.choice_list.choose, 1, device),
             CustomNavInsID.LENGTH_CHOOSE_18: partial(self.screen.choice_list.choose, 2, device),
-            CustomNavInsID.LENGTH_CHOOSE_12: partial(self.screen.choice_list.choose, 3, device),
+            CustomNavInsID.LENGTH_CHOOSE_24: partial(self.screen.choice_list.choose, 3, device),
             CustomNavInsID.LENGTH_TO_PREVIOUS: self.screen.navigation.tap,
             CustomNavInsID.KEYBOARD_TO_PREVIOUS: self.screen.navigation.tap,
             CustomNavInsID.KEYBOARD_WRITE: self._write,

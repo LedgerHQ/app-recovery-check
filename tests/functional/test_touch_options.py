@@ -6,11 +6,6 @@ from .navigator import CustomNavInsID, TouchNavigator
 from .utils import format_instructions
 
 
-SPECULOS_MNEMONIC = "glory promote mansion idle axis finger extra " \
-    "february uncover one trip resource lawn turtle enact monster " \
-    "seven myth punch hobby comfort wild raise skin"
-
-
 def test_check_info_then_leave(navigator: TouchNavigator, default_screenshot_path: Path):
     instructions = format_instructions([
         CustomNavInsID.HOME_TO_SETTINGS,

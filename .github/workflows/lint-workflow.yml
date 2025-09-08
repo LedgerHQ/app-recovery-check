@@ -17,4 +17,3 @@ jobs:
       source: './'
       extensions: 'h,c'
       version: 12
-
