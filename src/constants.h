@@ -1,5 +1,5 @@
 /*******************************************************************************
- *   (c) 2016-2022 Ledger SAS
+ *   (c) 2016-2025 Ledger SAS
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 #pragma once
 
 #define ONBOARDING_WORD_COMPLETION_MAX_ITEMS 8
-#define BOLOS_UX_HASH_LENGTH                 4  // as on the blue
 
 #define MAX_WORD_LENGTH 8
 
@@ -36,8 +35,5 @@ enum {
 #define KEYBOARD_RENDER_WORD \
     3  // callback is called with a -1 when requesting complete word, or the char index else,
        // returning 0 implies no char is to be displayed
-
-#define RESTORE_WORD_ACTION_REENTER_WORD 0
-#define RESTORE_WORD_ACTION_FIRST_WORD   1
 
 #define COMMON_KEYBOARD_INDEX_UNCHANGED (-1UL)
