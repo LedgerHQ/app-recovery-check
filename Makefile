@@ -41,6 +41,11 @@ ICON_NANOX = icons/nanox_recovery_check.gif
 ICON_STAX = icons/stax_recovery_check.gif
 ICON_FLEX = icons/flex_recovery_check.gif
 
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_NANOS2))
+    # Nano Home Screen icon
+    ICON_HOME_NANO = glyphs/home_recovery_check_14px.gif
+endif
+
 # Application allowed derivation curves.
 CURVE_APP_LOAD_PARAMS = secp256k1
 
@@ -68,7 +73,7 @@ HAVE_APPLICATION_FLAG_DERIVE_MASTER = 1
 ########################################
 #ENABLE_BLUETOOTH = 1
 #ENABLE_NFC = 1
-#ENABLE_NBGL_FOR_NANO_DEVICES = 1
+ENABLE_NBGL_FOR_NANO_DEVICES = 1
 
 ########################################
 #         NBGL custom features         #

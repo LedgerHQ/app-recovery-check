@@ -5,8 +5,6 @@
 #include "glyphs.h"
 #include "main_std_app.h"
 
-#if defined(HAVE_NBGL)
-
 #include "nbgl_use_case.h"
 #include "ui.h"
 #include "bip39.h"
@@ -19,6 +17,7 @@ static nbgl_layout_t *layout = 0;
 static int keyboardIndex = 0;
 static char headerText[HEADER_SIZE] = {0};
 static char textToEnter[MAX_WORD_LENGTH + 1] = {0};
+#ifdef SCREEN_SIZE_WALLET
 // the biggest word of BIP39 list is 8 char (9 with trailing '\0'), and
 // the max number of showed suggestions is NB_MAX_SUGGESTION_BUTTONS
 static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] = {0};
@@ -28,6 +27,9 @@ static nbgl_layoutKeyboardContent_t keyboardContent = {0};
 
 // Suggestion button texts
 static const char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
+#else
+static int textIndex = 0;
+#endif
 
 // Buttons tokens
 enum {
@@ -38,18 +40,18 @@ enum {
 };
 
 // Mnemonic size
-enum {
-    BUTTON_12_INDEX,
-    BUTTON_18_INDEX,
-    BUTTON_24_INDEX,
-    NB_BUTTONS
-};
-static const char* const passphraseLength[NB_BUTTONS] = {"12 words", "18 words", "24 words"};
+enum { BUTTON_12_INDEX, BUTTON_18_INDEX, BUTTON_24_INDEX, NB_BUTTONS };
+static const char *const passphraseLength[NB_BUTTONS] = {"12 words", "18 words", "24 words"};
 
 // Result page
 static const char *possible_results[2] = {
+#ifdef SCREEN_SIZE_WALLET
     "The Recovery Phrase you have entered doesn't match the one present on this device!",
     "The Recovery Phrase you have entered matches the one present on this device."
+#else
+    "Invalid Recovery Phrase!",
+    "Successful Recovery Phrase."
+#endif
 };
 static const nbgl_icon_details_t *icons[2] = {&WARNING_ICON, &ICON_SUCCESS};
 
@@ -73,7 +75,6 @@ static nbgl_homeAction_t action = {0};
 /*
  * Utils
  */
-static const char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
 
 /**
  * @brief Reset the current contexts
@@ -81,7 +82,9 @@ static const char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
  */
 static void reset_globals(void) {
     reset_mnemonic();
+#ifdef SCREEN_SIZE_WALLET
     memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
+#endif
 }
 
 /**
@@ -139,12 +142,17 @@ static bool passphrase_choice_callback(const uint8_t page, nbgl_pageContent_t *c
  *
  */
 static void passphrase_length_page(void) {
-    nbgl_useCaseNavigableContent("How long is your Recovery Phrase?",
-                                 0,
-                                 1,
-                                 display_home_page,
-                                 passphrase_choice_callback,
-                                 passphrase_callback);
+    nbgl_useCaseNavigableContent(
+#ifdef SCREEN_SIZE_WALLET
+        "How long is your Recovery Phrase?",
+#else
+        "Seed Length?",
+#endif
+        0,
+        1,
+        display_home_page,
+        passphrase_choice_callback,
+        passphrase_callback);
 }
 
 /**
@@ -165,11 +173,16 @@ static void keyboard_dispatcher(const int token, uint8_t index) {
         }
     } else if (token >= FIRST_SUGGESTION_TOKEN) {
         nbgl_layoutRelease(layout);
+#ifdef SCREEN_SIZE_WALLET
         PRINTF("Selected word is '%s' (size '%d')\n",
                buttonTexts[token - FIRST_SUGGESTION_TOKEN],
                strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
         add_word_in_mnemonic(buttonTexts[token - FIRST_SUGGESTION_TOKEN],
                              strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
+#else
+        PRINTF("Selected word is '%s'\n", textToEnter);
+        add_word_in_mnemonic(textToEnter, strlen(textToEnter));
+#endif
         if (is_mnemonic_complete()) {
             display_result_page(check_mnemonic());
         } else {
@@ -190,15 +203,24 @@ static void key_press_callback(const char touchedKey) {
     size_t textLen = strlen(textToEnter);
     if (touchedKey == BACKSPACE_KEY) {
         if (textLen == 0) {
+#ifdef SCREEN_SIZE_NANO
+            keyboard_dispatcher(BACK_BUTTON_TOKEN, 0);
+#endif
             return;
         }
         textToEnter[--textLen] = '\0';
+#ifdef SCREEN_SIZE_NANO
+    } else if (touchedKey == VALIDATE_KEY) {
+        keyboard_dispatcher(FIRST_SUGGESTION_TOKEN, 0);
+        return;
+#endif
     } else {
         textToEnter[textLen] = touchedKey;
         textToEnter[++textLen] = '\0';
     }
     PRINTF("Current text is: '%s' (size '%d')\n", textToEnter, textLen);
 
+#ifdef SCREEN_SIZE_WALLET
     // Update the screen (written word, suggestions, ...)
     keyboardContent.number = get_current_word_number() + 1;
 
@@ -220,6 +242,11 @@ static void key_press_callback(const char touchedKey) {
     }
     nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask, false, LOWER_CASE);
     nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_ON);
+#else
+    nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask);
+    nbgl_layoutUpdateEnteredText(layout, textIndex, textToEnter);
+    nbgl_refresh();
+#endif
 }
 
 /**
@@ -231,6 +258,8 @@ static void display_keyboard_page(void) {
     nbgl_layoutKbd_t kbdInfo = {
         .callback = &key_press_callback,
     };
+
+#ifdef SCREEN_SIZE_WALLET
     nbgl_layoutHeader_t headerDesc = {
         .type = HEADER_BACK_AND_TEXT,
         .backAndText.token = BACK_BUTTON_TOKEN,
@@ -238,7 +267,7 @@ static void display_keyboard_page(void) {
         .backAndText.tuneId = TUNE_TAP_CASUAL,
 #endif
     };
-    suggestionButtons = (nbgl_layoutSuggestionButtons_t) {
+    suggestionButtons = (nbgl_layoutSuggestionButtons_t){
         .buttons = PIC(buttonTexts),
         .firstButtonToken = FIRST_SUGGESTION_TOKEN,
     };
@@ -281,6 +310,46 @@ static void display_keyboard_page(void) {
     }
 
     nbgl_layoutAddKeyboardContent(layout, &keyboardContent);
+
+#else  // SCREEN_SIZE_WALLET
+
+    nbgl_layoutCenteredInfo_t centeredInfo = {.text1 = headerText, .onTop = true};
+    nbgl_layoutNavigation_t navInfo = {.direction = HORIZONTAL_NAV,
+                                       .indication = LEFT_ARROW | RIGHT_ARROW};
+    kbdInfo.mode = MODE_LOWER_LETTERS;
+    textToEnter[0] = '\0';
+
+    snprintf(headerText,
+             HEADER_SIZE,
+             "Enter word n. %d/%d ",
+             get_current_word_number() + 1,
+             get_mnemonic_final_size());
+
+    // Create page layout
+    layout = nbgl_layoutGet(&layoutDescription);
+
+    // add description
+    nbgl_layoutAddCenteredInfo(layout, &centeredInfo);
+
+    // Add keyboard
+    keyboardIndex = nbgl_layoutAddKeyboard(layout, &kbdInfo);
+    if (keyboardIndex < 0) {
+        // Error
+        nbgl_layoutRelease(layout);
+        return;
+    }
+
+    // add empty entered text
+    textIndex = nbgl_layoutAddEnteredText(layout, "", true);
+    if (textIndex < 0) {
+        // Error
+        nbgl_layoutRelease(layout);
+        return;
+    }
+    nbgl_layoutAddNavigation(layout, &navInfo);
+
+#endif  // SCREEN_SIZE_WALLET
+
     nbgl_layoutDraw(layout);
     nbgl_refresh();
 }
@@ -295,16 +364,19 @@ static void display_home_page(void) {
     action.callback = (nbgl_callback_t) passphrase_length_page;
     action.text = "Start check";
 
-    nbgl_useCaseHomeAndSettings(
-        APPNAME,
-        &ICON_APP_HOME,
-        "Enter a Recovery Phrase and test if it matches "
-        "the one present on this device",
-        INIT_HOME_PAGE,
-        NULL,
-        &infoList,
-        &action,
-        app_exit);
+    nbgl_useCaseHomeAndSettings(APPNAME,
+                                &ICON_APP_HOME,
+#ifdef SCREEN_SIZE_WALLET
+                                "Enter a Recovery Phrase and test if it matches "
+                                "the one present on this device",
+#else
+                                "Check a Recovery Phrase",
+#endif
+                                INIT_HOME_PAGE,
+                                NULL,
+                                &infoList,
+                                &action,
+                                app_exit);
 }
 
 /**
@@ -316,10 +388,7 @@ static void display_home_page(void) {
 static void display_result_page(const bool result) {
     reset_globals();
 
-    nbgl_useCaseAction(icons[result],
-                       possible_results[result],
-                       "Close",
-                       display_home_page);
+    nbgl_useCaseAction(icons[result], possible_results[result], "Close", display_home_page);
 }
 
 /*
@@ -333,5 +402,3 @@ static void display_result_page(const bool result) {
 void ui_idle_init(void) {
     display_home_page();
 }
-
-#endif
