@@ -3,7 +3,7 @@
 
 #if defined(SCREEN_SIZE_WALLET)
 
-#include <nbgl_obj.h>
+#include "nbgl_obj.h"
 
 #define UPPER_MARGIN 4
 #define ICON_X       0

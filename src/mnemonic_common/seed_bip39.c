@@ -1,7 +1,7 @@
 /* @BANNER@ */
 
-#include <os.h>
-#include <cx.h>
+#include "os.h"
+#include "cx.h"
 
 #include "bip39.h"
 #include "seed_rom_variables.h"

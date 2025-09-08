@@ -1,8 +1,8 @@
 #include <os.h>
 #include <string.h>
 
-#include "./mnemonic.h"
-#include "../mnemonic_common/bip39.h"
+#include "mnemonic.h"
+#include "bip39.h"
 
 #if defined(SCREEN_SIZE_WALLET)
 
@@ -17,9 +17,9 @@ typedef struct buffer {
     size_t word_lengths[MNEMONIC_SIZE_24];
     // expected number of word in the final mnemonic (12 or 18 or 24)
     size_t final_size;
-} buffer_t;
+} mnemonic_buffer_t;
 
-static buffer_t mnemonic = {0};
+static mnemonic_buffer_t mnemonic = {0};
 
 size_t mnemonic_shrink(const size_t size) {
     if (size == 0 || size > mnemonic.length) {

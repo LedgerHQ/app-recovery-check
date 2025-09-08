@@ -16,12 +16,9 @@
 
 #pragma once
 
-#include <os.h>
-
-#if defined(HAVE_BAGL)
-
-#include "bagl/ux_nano.h"
-
+#if defined(TARGET_STAX) || defined(TARGET_FLEX)
+#define ICON_APP_HOME C_stax_recovery_check_64px
+#define ICON_SUCCESS  VALIDATE_ICON
 #endif
 
 // All devices

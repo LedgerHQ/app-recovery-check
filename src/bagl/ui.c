@@ -6,10 +6,6 @@
 #include "constants.h"
 #include "glyphs.h"
 
-enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
-
-enum UI_STATE uiState;
-
 //////////////////////////////////////////////////////////////////////
 
 const char* const number_of_words_getter_values[] = {
@@ -84,8 +80,6 @@ UX_STEP_VALID(ux_idle_flow_4_step,
 UX_FLOW(ux_idle_flow, &ux_idle_flow_1_step, &ux_idle_flow_3_step, &ux_idle_flow_4_step);
 
 void ui_idle_init(void) {
-    uiState = UI_IDLE;
-
     // reserve a display stack slot if none yet
     if (G_ux.stack_count == 0) {
         ux_stack_push();

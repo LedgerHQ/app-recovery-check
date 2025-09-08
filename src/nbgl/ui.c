@@ -6,18 +6,11 @@
 
 #if defined(HAVE_NBGL)
 
-#include <nbgl_use_case.h>
-#include <nbgl_layout.h>
-#include <nbgl_fonts.h>
-#include <nbgl_front.h>
-#include <nbgl_debug.h>
-#include <nbgl_page.h>
-#include <nbgl_layout.h>
-
-#include "../ui.h"
-#include "../mnemonic_common/bip39.h"
-#include "./mnemonic.h"
-#include "./passphrase_length_screen.h"
+#include "nbgl_use_case.h"
+#include "ui.h"
+#include "bip39.h"
+#include "mnemonic.h"
+#include "passphrase_length_screen.h"
 
 #define HEADER_SIZE 50
 
@@ -26,9 +19,8 @@ static nbgl_page_t *pageContext;
 static char headerText[HEADER_SIZE] = {0};
 static nbgl_layout_t *layout = 0;
 
-static void display_keyboard_page(void);
-static void display_home_page(void);
-static void display_result_page(const bool result);
+// Suggestion button texts
+static const char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
 
 enum {
     BACK_BUTTON_TOKEN = FIRST_USER_TOKEN,
@@ -37,6 +29,39 @@ enum {
     START_RECOVER_TOKEN,
     RESULT_TOKEN,
 };
+
+// Mnemonic size
+enum {
+    BUTTON_12_INDEX,
+    BUTTON_18_INDEX,
+    BUTTON_24_INDEX,
+    NB_BUTTONS
+};
+static const char* const passphraseLength[NB_BUTTONS] = {"12 words", "18 words", "24 words"};
+
+// Result page
+static const char *possible_results[2] = {
+    "The Recovery Phrase you have entered doesn't match the one present on this device!",
+    "The Recovery Phrase you have entered matches the one present on this device."
+};
+static const nbgl_icon_details_t *icons[2] = {&WARNING_ICON, &ICON_SUCCESS};
+
+static void display_keyboard_page(void);
+static void display_home_page(void);
+static void display_result_page(const bool result);
+
+// Home page, infos & dispatcher
+#define NB_INFOS 2
+static const char *const infoTypes[NB_INFOS] = {"Version", "Recovery Check"};
+static const char *const infoContents[NB_INFOS] = {APPVERSION, "(c) 2018-2025 Ledger"};
+
+static const nbgl_contentInfoList_t infoList = {
+    .nbInfos = NB_INFOS,
+    .infoTypes = infoTypes,
+    .infoContents = infoContents,
+};
+
+static nbgl_homeAction_t action = {0};
 
 /*
  * Utils
@@ -205,32 +230,58 @@ static void key_press_callback(const char touchedKey) {
         mask = bolos_ux_bip39_get_keyboard_mask((unsigned char *) &(textToEnter[0]),
                                                 strlen(textToEnter));
     }
-    nbgl_layoutDraw(layout);
     nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask, false, LOWER_CASE);
     nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_ON);
 }
 
-static void display_keyboard_page() {
-    nbgl_layoutDescription_t layoutDescription = {.modal = false,
-                                                  .onActionCallback = &keyboard_dispatcher};
-    nbgl_layoutKbd_t kbdInfo = {.lettersOnly = true,   // use only letters
-                                .mode = MODE_LETTERS,  // start in letters mode
-                                .keyMask = 0,          // no inactive key
-                                .callback = &key_press_callback};
+/**
+ * @brief Display the passwords creation page
+ *
+ */
+static void display_keyboard_page(void) {
+    nbgl_layoutDescription_t layoutDescription = {0};
+    nbgl_layoutKbd_t kbdInfo = {
+        .callback = &key_press_callback,
+    };
+    nbgl_layoutHeader_t headerDesc = {
+        .type = HEADER_BACK_AND_TEXT,
+        .backAndText.token = BACK_BUTTON_TOKEN,
+#ifdef HAVE_PIEZO_SOUND
+        .backAndText.tuneId = TUNE_TAP_CASUAL,
+#endif
+    };
+    suggestionButtons = (nbgl_layoutSuggestionButtons_t) {
+        .buttons = PIC(buttonTexts),
+        .firstButtonToken = FIRST_SUGGESTION_TOKEN,
+    };
+    keyboardContent = (nbgl_layoutKeyboardContent_t){
+        .type = KEYBOARD_WITH_SUGGESTIONS,
+        .title = PIC(headerText),
+        .text = PIC(textToEnter),
+        .numbered = true,
+        .number = get_current_word_number() + 1,
+        .textToken = KBD_TEXT_TOKEN,
+        .suggestionButtons = suggestionButtons,
+#ifdef HAVE_PIEZO_SOUND
+        .tuneId = TUNE_TAP_CASUAL,
+#endif
+    };
+    layoutDescription.onActionCallback = &keyboard_dispatcher;
+    kbdInfo.mode = MODE_LETTERS;
+    kbdInfo.lettersOnly = true;
     textToEnter[0] = '\0';
     memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
-    layout = nbgl_layoutGet(&layoutDescription);
+
     snprintf(headerText,
              HEADER_SIZE,
-             "Enter word n. %d/%d from your\nRecovery Sheet",
+             "Enter word n. %d/%d from your Recovery Sheet",
              get_current_word_number() + 1,
              get_mnemonic_final_size());
 
-    nbgl_layoutHeader_t headerDesc = {.type = HEADER_BACK_AND_TEXT,
-                                      .separationLine = false,
-                                      .backAndText.token = BACK_BUTTON_TOKEN,
-                                      .backAndText.tuneId = TUNE_TAP_CASUAL,
-                                      .backAndText.text = NULL};
+    // Create page layout
+    layout = nbgl_layoutGet(&layoutDescription);
+
+    // Add header
     nbgl_layoutAddHeader(layout, &headerDesc);
 
     keyboardIndex = nbgl_layoutAddKeyboard(layout, &kbdInfo);
@@ -255,33 +306,21 @@ static void display_keyboard_page() {
     nbgl_layoutDraw(layout);
 }
 
-/*
- * Home page, infos & dispatcher
+/**
+ * @brief Display the App Home page
+ *
  */
-
-static const char *const infoTypes[] = {"Version", "Recovery Check"};
-static const char *const infoContents[] = {APPVERSION, "(c) 2018-2024 Ledger"};
-
-static const nbgl_contentInfoList_t infoList = {
-    .nbInfos = 2,
-    .infoTypes = infoTypes,
-    .infoContents = infoContents,
-};
-
-static void display_home_page() {
+static void display_home_page(void) {
     reset_globals();
 
-    nbgl_homeAction_t action = {.text = "Start check", .callback = PIC(passphrase_length_page)};
+    action.callback = (nbgl_callback_t) passphrase_length_page;
+    action.text = "Start check";
 
     nbgl_useCaseHomeAndSettings(
         APPNAME,
-        &C_stax_recovery_check_64px,
-#if defined(TARGET_STAX)
-        "This app lets you enter a Secret Recovery Phrase and test if it matches "
-        "the one present on this Ledger Stax",
-#elif defined(TARGET_FLEX)
+        &ICON_APP_HOME,
         "Enter a Recovery Phrase and test if it matches "
-        "the one present on this Ledger Flex",
+        "the one present on this device",
 #endif
         INIT_HOME_PAGE,
         NULL,
