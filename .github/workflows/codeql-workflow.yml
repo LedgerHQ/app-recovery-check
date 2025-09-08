@@ -17,17 +17,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - SDK: "$NANOS_SDK"
-            name: nanos
-          - SDK: "$NANOX_SDK"
-            name: nanox
-          - SDK: "$NANOSP_SDK"
-            name: nanos2
-          - SDK: "$STAX_SDK"
-            name: stax
-        #'cpp' covers C and C++
-        language: [ 'cpp' ]
+        sdk: ["$NANOX_SDK", "$NANOSP_SDK", "$STAX_SDK", "$FLEX_SDK"]
+        # 'cpp' covers C and C++
+        language: ['cpp']
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder-legacy:latest
@@ -45,7 +37,7 @@ jobs:
       # CodeQL will create the database during the compilation
       - name: Build
         run: |
-          make BOLOS_SDK=${{ matrix.SDK }}
+          make BOLOS_SDK=${{ matrix.sdk }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3

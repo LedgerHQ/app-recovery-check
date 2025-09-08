@@ -68,4 +68,4 @@ size_t add_word_in_mnemonic(const char* const buffer, const size_t size);
 char* get_mnemonic();
 #endif
 
-#endif  // TARGET_NANOS
+#endif  // SCREEN_SIZE_WALLET

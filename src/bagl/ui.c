@@ -10,64 +10,6 @@ enum UI_STATE { UI_IDLE, UI_TEXT, UI_APPROVAL };
 
 enum UI_STATE uiState;
 
-#if defined(TARGET_NANOS)
-
-UX_STEP_CB(restore_3_1_1, bb, G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_24;
-           screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
-           ,
-           {
-               "Recovery phrase",
-               "with 24 words",
-           });
-
-UX_STEP_CB(restore_3_1_2, bb, G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_18;
-           screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
-           ,
-           {
-               "Recovery phrase",
-               "with 18 words",
-           });
-
-UX_STEP_CB(restore_3_1_3, bb, G_bolos_ux_context.onboarding_kind = MNEMONIC_SIZE_12;
-           screen_onboarding_4_restore_word_init(RESTORE_WORD_ACTION_FIRST_WORD);
-           ,
-           {
-               "Recovery phrase",
-               "with 12 words",
-           });
-
-UX_FLOW(restore_3_1, &restore_3_1_1, &restore_3_1_2, &restore_3_1_3);
-
-void screen_onboarding_3_restore_init(void) {
-    ux_flow_init(0, restore_3_1, NULL);
-}
-
-UX_STEP_VALID(ux_idle_flow_1_step, pbb, screen_onboarding_3_restore_init();,
-                                                                           {
-                                                                               &C_badge,
-                                                                               "Check your",
-                                                                               "recovery phrase",
-                                                                           });
-
-UX_STEP_NOCB(ux_idle_flow_3_step,
-             bn,
-             {
-                 "Version",
-                 APPVERSION,
-             });
-
-UX_STEP_VALID(ux_idle_flow_4_step,
-              pb,
-              os_sched_exit(-1),
-              {
-                  &C_icon_dashboard_x,
-                  "Quit",
-              });
-
-UX_FLOW(ux_idle_flow, &ux_idle_flow_1_step, &ux_idle_flow_3_step, &ux_idle_flow_4_step);
-
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-
 //////////////////////////////////////////////////////////////////////
 
 const char* const number_of_words_getter_values[] = {
@@ -140,8 +82,6 @@ UX_STEP_VALID(ux_idle_flow_4_step,
                   "Quit",
               });
 UX_FLOW(ux_idle_flow, &ux_idle_flow_1_step, &ux_idle_flow_3_step, &ux_idle_flow_4_step);
-
-#endif
 
 void ui_idle_init(void) {
     uiState = UI_IDLE;

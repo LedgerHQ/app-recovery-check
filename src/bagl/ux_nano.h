@@ -49,15 +49,8 @@ typedef struct bolos_ux_context {
 #define WORDS_BUFFER_MAX_SIZE_B 257
     char words_buffer[WORDS_BUFFER_MAX_SIZE_B];
 
-#if defined(TARGET_NANOS)
-    // after an int to make sure it's aligned
-    char string_buffer[MAX(
-        64,
-        sizeof(bagl_icon_details_t) + BOLOS_APP_ICON_SIZE_B - 1)];  // to store the seed wholly
-#else
     // label line for common PIN and common keyboard screen (displayed over the entry)
     const char* common_label;
-#endif  // defined(TARGET_NANOS)
 
     // slider management / menu list management
     unsigned int hslider3_before;
@@ -84,12 +77,7 @@ void screen_common_keyboard_init(unsigned int stack_slot,
 
 #include "mnemonic_common/bip39.h"
 
-#if defined(TARGET_NANOS)
-extern const bagl_element_t screen_onboarding_word_list_elements[9];
-void compare_recovery_phrase_and_display_result(void);
-#else
 // to be included into all flow that needs to go back to the dashboard
 extern const ux_flow_step_t ux_ob_goto_dashboard_step;
-#endif  // defined(TARGET_NANOS)
 
 #endif  // defined(HAVE_BAGL)

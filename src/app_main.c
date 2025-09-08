@@ -71,18 +71,7 @@ unsigned char io_event(unsigned char channel __attribute__((unused))) {
             break;
 #endif
         case SEPROXYHAL_TAG_DISPLAY_PROCESSED_EVENT:
-#if defined(TARGET_NANOS)
-            if ((uiState == UI_TEXT) &&
-                (os_seph_features() & SEPROXYHAL_TAG_SESSION_START_EVENT_FEATURE_SCREEN_BIG)) {
-                UX_REDISPLAY();
-            } else {
-                if (G_bolos_ux_context.processing == 1) {
-                    UX_DISPLAYED_EVENT(compare_recovery_phrase_and_display_result(););
-                } else {
-                    UX_DISPLAYED_EVENT();
-                }
-            }
-#elif defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
             UX_DISPLAYED_EVENT({});
 #elif defined(HAVE_NBGL)
             UX_DEFAULT_EVENT();
