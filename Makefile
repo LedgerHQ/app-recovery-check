@@ -40,6 +40,7 @@ ICON_NANOSP = icons/nanox_recovery_check.gif
 ICON_NANOX = icons/nanox_recovery_check.gif
 ICON_STAX = icons/stax_recovery_check.gif
 ICON_FLEX = icons/flex_recovery_check.gif
+ICON_APEX_P = icons/apex_recovery_check.png
 
 ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_NANOS2))
     # Nano Home Screen icon
