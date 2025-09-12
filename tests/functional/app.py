@@ -9,14 +9,20 @@ from ragger.firmware.touch.screen import MetaScreen
 class CustomChoiceList(Element):
 
     def choose(self, index: int, device: Device):
-        assert 1 <= index <= 6, "Choice index must be in [1, 6]"
+        assert 1 <= index <= 3, "Choice index must be in [1, 3]"
         if device.type == DeviceType.STAX:
-            x, y = (200, 430)
-            diff = 80
-        if device.type == DeviceType.FLEX:
-            x, y = (240, 330)
+            x, y = (200, 130)
             diff = 100
-        self.client.finger_touch(x, y + (index - 1)*diff)
+        elif device.type == DeviceType.FLEX:
+            x, y = (240, 140)
+            diff = 90
+        elif device.type == DeviceType.APEX_P:
+            x, y = (240, 90)
+            diff = 70
+        else:
+            assert False, f"Device {device.name} not supported"
+
+        self.client.finger_touch(x, y + (index - 1) * diff)
 
 
 class TouchScreen(metaclass=MetaScreen):

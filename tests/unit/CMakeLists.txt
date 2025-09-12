@@ -44,7 +44,12 @@ add_compile_definitions(OS_IO_SEPROXYHAL)
 
 find_package(Sodium REQUIRED)
 
-include_directories(../../src ./mocks/ libsodium/)
+include_directories(
+  ../../src
+  ../../src/mnemonic_common/
+  ./mocks/
+  libsodium/
+)
 
 add_executable(test_nbgl_mnemonic test_nbgl_mnemonic.c)
 

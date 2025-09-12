@@ -1,0 +1,31 @@
+/*******************************************************************************
+ *   (c) 2016-2025 Ledger SAS
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ********************************************************************************/
+
+#pragma once
+
+#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
+#define ICON_APP_HOME C_home_recovery_check_14px
+#define ICON_SUCCESS  C_icon_validate_14
+#elif defined(TARGET_STAX) || defined(TARGET_FLEX)
+#define ICON_APP_HOME C_stax_recovery_check_64px
+#define ICON_SUCCESS  VALIDATE_ICON
+#elif defined(TARGET_APEX)
+#define ICON_APP_HOME C_apex_recovery_check_48px
+#define ICON_SUCCESS  VALIDATE_ICON
+#endif
+
+// All devices
+void ui_idle_init(void);

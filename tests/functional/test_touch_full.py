@@ -1,13 +1,11 @@
 from pathlib import Path
 
 from ragger.navigator import NavIns
+from ragger.bip.seed import SPECULOS_MNEMONIC
 
 from .navigator import CustomNavInsID, TouchNavigator
 from .utils import format_instructions
 
-
-SPECULOS_MNEMONIC = "glory promote mansion idle axis finger extra february uncover one trip resource " \
-    "lawn turtle enact monster seven myth punch hobby comfort wild raise skin"
 
 PLAUSIBLE_MNEMONIC= "feature trigger apart fold answer lend enrich blind foam deny match ecology " \
     "reform again snow stadium vibrant brain hungry already sadness verify team speed"

@@ -18,58 +18,88 @@
 ifeq ($(BOLOS_SDK),)
 $(error Environment variable BOLOS_SDK is not set)
 endif
-include $(BOLOS_SDK)/Makefile.defines
+include $(BOLOS_SDK)/Makefile.target
 
-all: default
-
+########################################
+#        Mandatory configuration       #
+########################################
+# Application name
 APPNAME = "Recovery Check"
+
+# Application version
 APPVERSION_M = 1
 APPVERSION_N = 4
-APPVERSION_P = 1
+APPVERSION_P = 2
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
-VARIANT_PARAM = NONE
-VARIANT_VALUES = recovery_check
+# Application source files
+APP_SOURCE_PATH += src
 
-CURVE_APP_LOAD_PARAMS = secp256k1
-PATH_APP_LOAD_PARAMS = ""
-HAVE_APPLICATION_FLAG_DERIVE_MASTER = 1
-
-ICON_NANOS = icons/nanos_recovery_check.gif
+# Application icons following guidelines:
 ICON_NANOSP = icons/nanox_recovery_check.gif
 ICON_NANOX = icons/nanox_recovery_check.gif
 ICON_STAX = icons/stax_recovery_check.gif
 ICON_FLEX = icons/flex_recovery_check.gif
+ICON_APEX_P = icons/apex_recovery_check.png
 
-DEFINES += OS_IO_SEPROXYHAL
-DEFINES += HAVE_WEBUSB WEBUSB_URL_SIZE_B=0 WEBUSB_URL=""
-DEFINES += BOLOS_APP_ICON_SIZE_B=\(9+32\)
-#DEFINES += HAVE_ELECTRUM
-DEFINES += IO_USB_MAX_ENDPOINTS=4 IO_HID_EP_LENGTH=64
-DEFINES += HAVE_SPRINTF
-
-ifneq ($(TARGET_NAME), $(filter $(TARGET_NAME), TARGET_STAX TARGET_FLEX))
-    $(info Using BAGL)
-    DEFINES += HAVE_BAGL
-    ifneq ($(TARGET_NAME), TARGET_NANOS)
-        DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
-        DEFINES += HAVE_GLO096
-        DEFINES += BAGL_WIDTH=128 BAGL_HEIGHT=64
-        DEFINES += HAVE_BAGL_ELLIPSIS # long label truncation feature
-        DEFINES += HAVE_BAGL_FONT_OPEN_SANS_REGULAR_11PX
-        DEFINES += HAVE_BAGL_FONT_OPEN_SANS_EXTRABOLD_11PX
-        DEFINES += HAVE_BAGL_FONT_OPEN_SANS_LIGHT_16PX
-    else
-        DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=128
-    endif
-else
-    $(info Using NBGL)
-    DEFINES += IO_SEPROXYHAL_BUFFER_SIZE_B=300
-    DEFINES += NBGL_KEYBOARD
+ifeq ($(TARGET_NAME),$(filter $(TARGET_NAME),TARGET_NANOX TARGET_NANOS2))
+    # Nano Home Screen icon
+    ICON_HOME_NANO = glyphs/home_recovery_check_14px.gif
 endif
 
-DEBUG = 0
+# Application allowed derivation curves.
+CURVE_APP_LOAD_PARAMS = secp256k1
 
-APP_SOURCE_PATH += src
+# Application allowed derivation paths.
+PATH_APP_LOAD_PARAMS = ""
+
+# Setting to allow building variant applications
+VARIANT_PARAM = NONE
+VARIANT_VALUES = recovery_check
+
+# Enabling DEBUG flag will enable PRINTF and disable optimizations
+#DEBUG = 1
+
+########################################
+#     Application custom permissions   #
+########################################
+# See SDK `include/appflags.h` for the purpose of each permission
+HAVE_APPLICATION_FLAG_DERIVE_MASTER = 1
+#HAVE_APPLICATION_FLAG_GLOBAL_PIN = 1
+#HAVE_APPLICATION_FLAG_BOLOS_SETTINGS = 1
+#HAVE_APPLICATION_FLAG_LIBRARY = 1
+
+########################################
+# Application communication interfaces #
+########################################
+#ENABLE_BLUETOOTH = 1
+#ENABLE_NFC = 1
+ENABLE_NBGL_FOR_NANO_DEVICES = 1
+
+########################################
+#         NBGL custom features         #
+########################################
+#ENABLE_NBGL_QRCODE = 1
+ENABLE_NBGL_KEYBOARD = 1
+#ENABLE_NBGL_KEYPAD = 1
+
+########################################
+#          Features disablers          #
+########################################
+# These advanced settings allow to disable some feature that are by
+# default enabled in the SDK `Makefile.standard_app`.
+#DISABLE_STANDARD_APP_FILES = 1
+#DISABLE_DEFAULT_IO_SEPROXY_BUFFER_SIZE = 1 # To allow custom size declaration
+#DISABLE_STANDARD_APP_DEFINES = 1 # Will set all the following disablers
+#DISABLE_STANDARD_SNPRINTF = 1
+#DISABLE_STANDARD_USB = 1
+#DISABLE_STANDARD_WEBUSB = 1
+#DISABLE_DEBUG_LEDGER_ASSERT = 1
+#DISABLE_DEBUG_THROW = 1
+
+########################################
+#        Main app configuration        #
+########################################
+#DEFINES += HAVE_ELECTRUM
 
 include $(BOLOS_SDK)/Makefile.standard_app

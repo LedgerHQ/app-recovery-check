@@ -1,5 +1,6 @@
-from ragger.navigator import NavIns
 from typing import Iterable, Union
+
+from ragger.navigator import NavIns
 
 from .navigator import CustomNavInsID
 
