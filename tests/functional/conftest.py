@@ -1,8 +1,9 @@
-from pathlib import Path
-from pytest import fixture
+from typing import Generator, Any
+from pytest import fixture, skip
+
+from ledgered.devices import Device
+
 from ragger.backend import BackendInterface
-from ragger.conftest import configuration
-from ragger.firmware import Firmware
 
 from .navigator import TouchNavigator
 
@@ -21,15 +22,14 @@ from .navigator import TouchNavigator
 # Pull all features from the base ragger conftest using the overridden configuration
 pytest_plugins = ("ragger.conftest.base_conftest", )
 
-FUNCTIONAL_TESTS_DIR = Path("tests/functional/").resolve()
-
-
-@fixture(scope="session")
-def functional_test_directory() -> Path:
-    yield FUNCTIONAL_TESTS_DIR
-
 
 @fixture
-def navigator(backend: BackendInterface, firmware: Firmware, golden_run: bool) -> TouchNavigator:
-    navigator = TouchNavigator(backend, firmware, golden_run)
-    yield navigator
+def navigator(backend: BackendInterface, device: Device, golden_run: bool) -> Generator[Any, Any, Any]:
+    touchNav = TouchNavigator(backend, device, golden_run)
+    yield touchNav
+
+# Tests are not supported on Nano devices
+@fixture(scope="session")
+def skip_tests_for_unsupported_devices(device: Device):
+    if device.is_nano:
+        skip(f"Device {device.name} is not supported")

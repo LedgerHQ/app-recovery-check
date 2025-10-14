@@ -1,27 +1,24 @@
+from pathlib import Path
+
 from ragger.navigator import NavIns
 
 from .navigator import CustomNavInsID, TouchNavigator
 from .utils import format_instructions
 
 
-SPECULOS_MNEMONIC = "glory promote mansion idle axis finger extra " \
-    "february uncover one trip resource lawn turtle enact monster " \
-    "seven myth punch hobby comfort wild raise skin"
-
-
-def test_check_info_then_leave(navigator: TouchNavigator, functional_test_directory: str):
+def test_check_info_then_leave(navigator: TouchNavigator, default_screenshot_path: Path):
     instructions = format_instructions([
         CustomNavInsID.HOME_TO_SETTINGS,
         CustomNavInsID.SETTINGS_TO_HOME
     ])
-    navigator.navigate_and_compare(functional_test_directory,
+    navigator.navigate_and_compare(default_screenshot_path,
                                    "check_info_then_leave",
                                    instructions,
                                    screen_change_before_first_instruction=False,
                                    screen_change_after_last_instruction=True)
 
 
-def test_check_all_passphrase_lengths(navigator: TouchNavigator, functional_test_directory: str):
+def test_check_all_passphrase_lengths(navigator: TouchNavigator, default_screenshot_path: Path):
     instructions = format_instructions([
         CustomNavInsID.HOME_TO_CHECK,
         CustomNavInsID.LENGTH_CHOOSE_24,
@@ -31,14 +28,14 @@ def test_check_all_passphrase_lengths(navigator: TouchNavigator, functional_test
         CustomNavInsID.LENGTH_CHOOSE_12,
         CustomNavInsID.LENGTH_TO_PREVIOUS
     ])
-    navigator.navigate_and_compare(functional_test_directory,
+    navigator.navigate_and_compare(default_screenshot_path,
                                    "check_all_passphrase_lengths",
                                    instructions,
                                    screen_change_before_first_instruction=False,
                                    screen_change_after_last_instruction=True)
 
 
-def test_check_previous_word(navigator: TouchNavigator, functional_test_directory: str):
+def test_check_previous_word(navigator: TouchNavigator, default_screenshot_path: Path):
     instructions = format_instructions([
         CustomNavInsID.HOME_TO_CHECK,
         CustomNavInsID.LENGTH_CHOOSE_24,
@@ -51,7 +48,7 @@ def test_check_previous_word(navigator: TouchNavigator, functional_test_director
         CustomNavInsID.KEYBOARD_TO_PREVIOUS,
         CustomNavInsID.LENGTH_TO_PREVIOUS
     ])
-    navigator.navigate_and_compare(functional_test_directory,
+    navigator.navigate_and_compare(default_screenshot_path,
                                    "check_previous_word",
                                    instructions,
                                    screen_change_before_first_instruction=False,

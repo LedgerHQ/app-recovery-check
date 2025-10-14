@@ -1,17 +1,17 @@
+from pathlib import Path
+
 from ragger.navigator import NavIns
+from ragger.bip.seed import SPECULOS_MNEMONIC
 
 from .navigator import CustomNavInsID, TouchNavigator
 from .utils import format_instructions
 
 
-SPECULOS_MNEMONIC = "glory promote mansion idle axis finger extra february uncover one trip resource " \
-    "lawn turtle enact monster seven myth punch hobby comfort wild raise skin"
-
 PLAUSIBLE_MNEMONIC= "feature trigger apart fold answer lend enrich blind foam deny match ecology " \
     "reform again snow stadium vibrant brain hungry already sadness verify team speed"
 
 
-def test_nominal_full_passphrase_check_ok(navigator: TouchNavigator, functional_test_directory: str):
+def test_nominal_full_passphrase_check_ok(navigator: TouchNavigator, default_screenshot_path: Path):
     # instructions to go the the keyboard
     instructions = [
         CustomNavInsID.HOME_TO_CHECK,
@@ -36,13 +36,13 @@ def test_nominal_full_passphrase_check_ok(navigator: TouchNavigator, functional_
         CustomNavInsID.RESULT_TO_HOME,
     ])
 
-    navigator.navigate_and_compare(functional_test_directory,
+    navigator.navigate_and_compare(default_screenshot_path,
                                    "nominal_full_passphrase_check_ok",
                                    instructions,
                                    screen_change_before_first_instruction=True,
                                    screen_change_after_last_instruction=False)
 
-def test_nominal_full_passphrase_check_plausible_but_wrong(navigator: TouchNavigator, functional_test_directory: str):
+def test_nominal_full_passphrase_check_plausible_but_wrong(navigator: TouchNavigator, default_screenshot_path: Path):
     # instructions to go the the keyboard
     instructions = [
         CustomNavInsID.HOME_TO_CHECK,
@@ -67,14 +67,14 @@ def test_nominal_full_passphrase_check_plausible_but_wrong(navigator: TouchNavig
         CustomNavInsID.RESULT_TO_HOME,
     ])
 
-    navigator.navigate_and_compare(functional_test_directory,
+    navigator.navigate_and_compare(default_screenshot_path,
                                    "nominal_full_passphrase_check_incorrect",
                                    instructions,
                                    screen_change_before_first_instruction=True,
                                    screen_change_after_last_instruction=False)
 
 
-def test_nominal_full_passphrase_check_error_wrong_passphrase(navigator: TouchNavigator, functional_test_directory: str):
+def test_nominal_full_passphrase_check_error_wrong_passphrase(navigator: TouchNavigator, default_screenshot_path: Path):
     # instructions to go the the keyboard
     instructions = [
         CustomNavInsID.HOME_TO_CHECK,
@@ -100,7 +100,7 @@ def test_nominal_full_passphrase_check_error_wrong_passphrase(navigator: TouchNa
         CustomNavInsID.RESULT_TO_HOME,
     ])
 
-    navigator.navigate_and_compare(functional_test_directory,
+    navigator.navigate_and_compare(default_screenshot_path,
                                    "nominal_full_passphrase_check_incorrect",
                                    instructions,
                                    screen_change_before_first_instruction=True,
