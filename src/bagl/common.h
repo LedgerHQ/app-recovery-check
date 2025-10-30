@@ -16,19 +16,7 @@
 
 #pragma once
 
-#if defined(TARGET_NANOX) || defined(TARGET_NANOS2)
-#define ICON_APP_HOME C_home_recovery_check_14px
-#define ICON_SUCCESS  C_icon_validate_14
-#define ICON_FAIL     C_icon_crossmark
-#elif defined(TARGET_STAX) || defined(TARGET_FLEX)
-#define ICON_APP_HOME C_stax_recovery_check_64px
-#define ICON_SUCCESS  CHECK_CIRCLE_ICON
-#define ICON_FAIL     DENIED_CIRCLE_ICON
-#elif defined(TARGET_APEX)
-#define ICON_APP_HOME C_apex_recovery_check_48px
-#define ICON_SUCCESS  CHECK_CIRCLE_ICON
-#define ICON_FAIL     DENIED_CIRCLE_ICON
+#ifndef SPRINTF
+// avoid typing the size each time
+#define SPRINTF(strbuf, ...) snprintf((char*) (strbuf), sizeof(strbuf), __VA_ARGS__)
 #endif
-
-// All devices
-void ui_idle_init(void);
