@@ -15,16 +15,11 @@
 #define HEADER_SIZE 50
 
 // Keyboard UI variables
-static nbgl_layout_t *layout = 0;
-static int keyboardIndex = 0;
 static char headerText[HEADER_SIZE] = {0};
 static char textToEnter[MAX_WORD_LENGTH + 1] = {0};
 // the biggest word of BIP39 list is 8 char (9 with trailing '\0'), and
 // the max number of showed suggestions is NB_MAX_SUGGESTION_BUTTONS
 static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] = {0};
-
-static nbgl_layoutSuggestionButtons_t suggestionButtons = {0};
-static nbgl_layoutKeyboardContent_t keyboardContent = {0};
 
 // Suggestion button texts
 static const char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
@@ -55,7 +50,6 @@ static const nbgl_icon_details_t *icons[2] = {&ICON_FAIL, &ICON_SUCCESS};
 static void display_keyboard_page(void);
 static void display_home_page(void);
 static void display_result_page(const bool result);
-static void key_press_callback(const char touchedKey);
 
 // Home page, infos & dispatcher
 #define NB_INFOS 2
@@ -106,7 +100,6 @@ static void passphrase_callback(int token, uint8_t index) {
         default:
             break;
     }
-    nbgl_layoutRelease(layout);
     display_keyboard_page();
 }
 
@@ -153,38 +146,17 @@ static void passphrase_length_page(void) {
 static void keyboard_dispatcher(const int token, uint8_t index) {
     UNUSED(index);
 
-    switch (token) {
-        case BACK_BUTTON_TOKEN:
-            nbgl_layoutRelease(layout);
-            if (remove_word_from_mnemonic()) {
-                display_keyboard_page();
-            } else {
-                passphrase_length_page();
-            }
-            break;
-
-        case KBD_TEXT_TOKEN:
-            // Simulate a word of a single letter 'a' and trigger the backspace action
-            textToEnter[0] = 'a';
-            textToEnter[1] = '\0';
-            key_press_callback(BACKSPACE_KEY);
-            break;
-
-        default:
-            if (token >= FIRST_SUGGESTION_TOKEN) {
-                nbgl_layoutRelease(layout);
-                PRINTF("Selected word is '%s' (size '%d')\n",
-                       buttonTexts[token - FIRST_SUGGESTION_TOKEN],
-                       strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
-                add_word_in_mnemonic(buttonTexts[token - FIRST_SUGGESTION_TOKEN],
-                                     strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
-                if (is_mnemonic_complete()) {
-                    display_result_page(check_mnemonic());
-                } else {
-                    display_keyboard_page();
-                }
-            }
-            break;
+    if (token >= FIRST_SUGGESTION_TOKEN) {
+        PRINTF("Selected word is '%s' (size '%d')\n",
+               buttonTexts[token - FIRST_SUGGESTION_TOKEN],
+               strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
+        add_word_in_mnemonic(buttonTexts[token - FIRST_SUGGESTION_TOKEN],
+                             strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
+        if (is_mnemonic_complete()) {
+            display_result_page(check_mnemonic());
+        } else {
+            display_keyboard_page();
+        }
     }
 }
 
@@ -194,46 +166,38 @@ static void keyboard_dispatcher(const int token, uint8_t index) {
  * @param[in] touchedKey key pressed
  *
  */
-static void key_press_callback(const char touchedKey) {
-    uint32_t mask = 0;
+static void update_buttons_callback(nbgl_layoutKeyboardContent_t *content, uint32_t *mask) {
     size_t textLen = strlen(textToEnter);
-
-    switch (touchedKey) {
-        case BACKSPACE_KEY:
-            if (textLen == 0) {
-                return;
-            }
-            textToEnter[--textLen] = '\0';
-            break;
-        default:
-            textToEnter[textLen] = touchedKey;
-            textToEnter[++textLen] = '\0';
-            break;
-    }
-
-    PRINTF("Current text is: '%s' (size '%d')\n", textToEnter, textLen);
-
     // Update the screen (written word, suggestions, ...)
-    keyboardContent.number = get_current_word_number() + 1;
+    content->number = get_current_word_number() + 1;
 
     if (textLen < 2) {
         // Suggestions only when the word contains 2+ letters
-        keyboardContent.suggestionButtons.nbUsedButtons = 0;
+        content->suggestionButtons.nbUsedButtons = 0;
     } else {
         const size_t nbMatchingWords =
             bolos_ux_bip39_fill_with_candidates((unsigned char *) &(textToEnter[0]),
                                                 strlen(textToEnter),
                                                 wordCandidates,
                                                 buttonTexts);
-        keyboardContent.suggestionButtons.nbUsedButtons = nbMatchingWords;
+        content->suggestionButtons.nbUsedButtons = nbMatchingWords;
     }
-    nbgl_layoutUpdateKeyboardContent(layout, &keyboardContent);
     if (textLen > 0) {
-        mask = bolos_ux_bip39_get_keyboard_mask((unsigned char *) &(textToEnter[0]),
-                                                strlen(textToEnter));
+        *mask = bolos_ux_bip39_get_keyboard_mask((unsigned char *) &(textToEnter[0]),
+                                                 strlen(textToEnter));
     }
-    nbgl_layoutUpdateKeyboard(layout, keyboardIndex, mask, false, LOWER_CASE);
-    nbgl_refreshSpecialWithPostRefresh(BLACK_AND_WHITE_REFRESH, POST_REFRESH_FORCE_POWER_ON);
+}
+
+/**
+ * @brief Keyboard control callback
+ *
+ */
+static void keyboard_close(void) {
+    if (remove_word_from_mnemonic()) {
+        display_keyboard_page();
+    } else {
+        passphrase_length_page();
+    }
 }
 
 /**
@@ -241,62 +205,33 @@ static void key_press_callback(const char touchedKey) {
  *
  */
 static void display_keyboard_page(void) {
-    nbgl_layoutDescription_t layoutDescription = {0};
-    nbgl_layoutKbd_t kbdInfo = {
-        .callback = &key_press_callback,
-    };
-    nbgl_layoutHeader_t headerDesc = {
-        .type = HEADER_BACK_AND_TEXT,
-        .backAndText.token = BACK_BUTTON_TOKEN,
-#ifdef HAVE_PIEZO_SOUND
-        .backAndText.tuneId = TUNE_TAP_CASUAL,
-#endif
-    };
-    suggestionButtons = (nbgl_layoutSuggestionButtons_t){
-        .buttons = PIC(buttonTexts),
+    nbgl_kbdSuggestParams_t suggestParams = {
+        .buttons = buttonTexts,
         .firstButtonToken = FIRST_SUGGESTION_TOKEN,
+        .onButtonCallback = &keyboard_dispatcher,
+        .updateButtonsCallback = &update_buttons_callback,
     };
-    keyboardContent = (nbgl_layoutKeyboardContent_t){
+    nbgl_keyboardParams_t keyboardParams = {
         .type = KEYBOARD_WITH_SUGGESTIONS,
-        .title = PIC(headerText),
-        .text = PIC(textToEnter),
+        .title = headerText,
+        .entryBuffer = textToEnter,
+        .entryMaxLen = sizeof(textToEnter),
         .numbered = true,
         .number = get_current_word_number() + 1,
-        .textToken = KBD_TEXT_TOKEN,
-        .suggestionButtons = suggestionButtons,
-#ifdef HAVE_PIEZO_SOUND
-        .tuneId = TUNE_TAP_CASUAL,
-#endif
+        .lettersOnly = true,
+        .mode = MODE_LETTERS,
+        .casing = LOWER_CASE,
+        .suggestionParams = suggestParams,
     };
-    layoutDescription.onActionCallback = &keyboard_dispatcher;
-    kbdInfo.mode = MODE_LETTERS;
-    kbdInfo.lettersOnly = true;
+
     textToEnter[0] = '\0';
     memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
-
     snprintf(headerText,
              HEADER_SIZE,
              "Enter word no. %d from your Recovery Sheet",
              get_current_word_number() + 1);
 
-    // Create page layout
-    layout = nbgl_layoutGet(&layoutDescription);
-
-    // Add header
-    nbgl_layoutAddHeader(layout, &headerDesc);
-
-    // Add keyboard
-    keyboardIndex = nbgl_layoutAddKeyboard(layout, &kbdInfo);
-    if (keyboardIndex < 0) {
-        // Error
-        nbgl_layoutRelease(layout);
-        return;
-    }
-
-    nbgl_layoutAddKeyboardContent(layout, &keyboardContent);
-
-    nbgl_layoutDraw(layout);
-    nbgl_refresh();
+    nbgl_useCaseKeyboard(&keyboardParams, &keyboard_close);
 }
 
 /**
