@@ -5,8 +5,6 @@
 #include "glyphs.h"
 #include "main_std_app.h"
 
-#if defined(HAVE_NBGL)
-
 #include "nbgl_use_case.h"
 #include "ui.h"
 #include "bip39.h"
@@ -17,12 +15,16 @@
 // Keyboard UI variables
 static char headerText[HEADER_SIZE] = {0};
 static char textToEnter[MAX_WORD_LENGTH + 1] = {0};
+#ifdef SCREEN_SIZE_WALLET
 // the biggest word of BIP39 list is 8 char (9 with trailing '\0'), and
 // the max number of showed suggestions is NB_MAX_SUGGESTION_BUTTONS
 static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] = {0};
 
 // Suggestion button texts
 static const char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
+#else
+static int textIndex = 0;
+#endif
 
 // Buttons tokens
 enum {
@@ -43,8 +45,14 @@ static const uint8_t passphraseTokens[NB_BUTTONS] = {BUTTON_12_TOKEN,
 
 // Result page
 static const char *possible_results[2] = {
+#ifdef SCREEN_SIZE_WALLET
     "The Phrase you have entered doesn't match the one present on this Ledger device.",
-    "The Phrase you have entered matches the one present on this Ledger device."};
+    "The Phrase you have entered matches the one present on this Ledger device."
+#else
+    "Invalid Recovery Phrase!",
+    "Successful Recovery Phrase."
+#endif
+};
 static const nbgl_icon_details_t *icons[2] = {&ICON_FAIL, &ICON_SUCCESS};
 
 static void display_keyboard_page(void);
@@ -74,7 +82,9 @@ static nbgl_homeAction_t action = {0};
  */
 static void reset_globals(void) {
     reset_mnemonic();
+#ifdef SCREEN_SIZE_WALLET
     memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
+#endif
 }
 
 /**
@@ -128,12 +138,17 @@ static bool passphrase_choice_callback(const uint8_t page, nbgl_pageContent_t *c
  *
  */
 static void passphrase_length_page(void) {
-    nbgl_useCaseNavigableContent("How long is your Recovery Phrase?",
-                                 0,
-                                 1,
-                                 display_home_page,
-                                 passphrase_choice_callback,
-                                 passphrase_callback);
+    nbgl_useCaseNavigableContent(
+#ifdef SCREEN_SIZE_WALLET
+        "How long is your Recovery Phrase?",
+#else
+        "Phrase Length?",
+#endif
+        0,
+        1,
+        display_home_page,
+        passphrase_choice_callback,
+        passphrase_callback);
 }
 
 /**
@@ -246,8 +261,12 @@ static void display_home_page(void) {
 
     nbgl_useCaseHomeAndSettings(APPNAME,
                                 &ICON_APP_HOME,
+#ifdef SCREEN_SIZE_WALLET
                                 "Enter a Secret Recovery Phrase and test if it matches "
                                 "the one present on this device",
+#else
+                                "Check your Recovery Phrase",
+#endif
                                 INIT_HOME_PAGE,
                                 NULL,
                                 &infoList,
@@ -278,5 +297,3 @@ static void display_result_page(const bool result) {
 void ui_idle_init(void) {
     display_home_page();
 }
-
-#endif  // HAVE_NBGL

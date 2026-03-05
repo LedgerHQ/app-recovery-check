@@ -9,6 +9,10 @@
 #if defined(TEST)
 #define NB_MAX_SUGGESTION_BUTTONS 4
 #define MIN(x, y)                 ((x) < (y) ? (x) : (y))
+#else
+#ifdef SCREEN_SIZE_WALLET
+#include "nbgl_layout.h"
+#endif
 #endif
 
 #define ALPHABET_LENGTH 27
@@ -252,8 +256,7 @@ bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
     return result;
 }
 
-#if defined(HAVE_NBGL)
-#include <nbgl_layout.h>
+#ifdef SCREEN_SIZE_WALLET
 
 size_t bolos_ux_bip39_fill_with_candidates(const unsigned char* startingChars,
                                            const size_t startingCharsLength,
@@ -301,4 +304,4 @@ uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char* prefix,
     }
     return (-1 ^ existing_mask);
 }
-#endif  // HAVE_NBGL
+#endif  // SCREEN_SIZE_WALLET
