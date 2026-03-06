@@ -10,14 +10,16 @@
 #define NB_MAX_SUGGESTION_BUTTONS 4
 #define MIN(x, y)                 ((x) < (y) ? (x) : (y))
 #else
-#ifdef SCREEN_SIZE_WALLET
-#include "nbgl_layout.h"
-#endif
+#include "nbgl_use_case.h"
 #endif
 
 #define ALPHABET_LENGTH 27
-#define KBD_LETTERS     "qwertyuiopasdfghjklzxcvbnm"
-
+#ifdef SCREEN_SIZE_WALLET
+#define KBD_LETTERS "qwertyuiopasdfghjklzxcvbnm"
+#else
+// Keyboard layout: alphabetical order for NBGL Nano (not QWERTY)
+#define KBD_LETTERS "abcdefghijklmnopqrstuvwxyz"
+#endif
 // separated function to lower the stack usage when jumping into pbkdf algorithm
 unsigned int bolos_ux_mnemonic_to_seed_hash_length128(unsigned char* mnemonic,
                                                       unsigned int mnemonicLength) {
@@ -256,8 +258,6 @@ bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
     return result;
 }
 
-#ifdef SCREEN_SIZE_WALLET
-
 size_t bolos_ux_bip39_fill_with_candidates(const unsigned char* startingChars,
                                            const size_t startingCharsLength,
                                            char wordCandidatesBuffer[],
@@ -288,7 +288,12 @@ size_t bolos_ux_bip39_fill_with_candidates(const unsigned char* startingChars,
 
 uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char* prefix,
                                           const unsigned int prefixLength) {
-    uint32_t existing_mask = 1 << 28;  // Starting with the 'return' keypad activated
+    uint32_t existing_mask = 0;
+#ifdef SCREEN_SIZE_WALLET
+    existing_mask = 1 << 28;  // Starting with the 'return' keypad activated
+#else
+    existing_mask = 1 << 26;  // Starting with the 'backspace' keypad activated
+#endif
     unsigned char next_letters[ALPHABET_LENGTH] = {0};
     PRINTF("Looking for letter candidates following '%s'\n", prefix);
     const size_t nb_letters =
@@ -304,4 +309,3 @@ uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char* prefix,
     }
     return (-1 ^ existing_mask);
 }
-#endif  // SCREEN_SIZE_WALLET

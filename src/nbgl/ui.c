@@ -15,16 +15,12 @@
 // Keyboard UI variables
 static char headerText[HEADER_SIZE] = {0};
 static char textToEnter[MAX_WORD_LENGTH + 1] = {0};
-#ifdef SCREEN_SIZE_WALLET
 // the biggest word of BIP39 list is 8 char (9 with trailing '\0'), and
 // the max number of showed suggestions is NB_MAX_SUGGESTION_BUTTONS
 static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] = {0};
 
 // Suggestion button texts
 static const char *buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
-#else
-static int textIndex = 0;
-#endif
 
 // Buttons tokens
 enum {
@@ -82,9 +78,7 @@ static nbgl_homeAction_t action = {0};
  */
 static void reset_globals(void) {
     reset_mnemonic();
-#ifdef SCREEN_SIZE_WALLET
     memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
-#endif
 }
 
 /**
@@ -160,13 +154,18 @@ static void passphrase_length_page(void) {
  */
 static void keyboard_dispatcher(const int token, uint8_t index) {
     UNUSED(index);
+    int buttonIndex = 0;
 
     if (token >= FIRST_SUGGESTION_TOKEN) {
+        buttonIndex = token - FIRST_SUGGESTION_TOKEN;
+#ifdef SCREEN_SIZE_NANO
+        // On Nano, the token is not enough to differentiate the suggestions, we also need the index
+        buttonIndex += index;
+#endif
         PRINTF("Selected word is '%s' (size '%d')\n",
-               buttonTexts[token - FIRST_SUGGESTION_TOKEN],
-               strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
-        add_word_in_mnemonic(buttonTexts[token - FIRST_SUGGESTION_TOKEN],
-                             strlen(buttonTexts[token - FIRST_SUGGESTION_TOKEN]));
+               buttonTexts[buttonIndex],
+               strlen(buttonTexts[buttonIndex]));
+        add_word_in_mnemonic(buttonTexts[buttonIndex], strlen(buttonTexts[buttonIndex]));
         if (is_mnemonic_complete()) {
             display_result_page(check_mnemonic());
         } else {
@@ -231,20 +230,27 @@ static void display_keyboard_page(void) {
         .title = headerText,
         .entryBuffer = textToEnter,
         .entryMaxLen = sizeof(textToEnter),
+#ifdef SCREEN_SIZE_WALLET
         .numbered = true,
         .number = get_current_word_number() + 1,
-        .lettersOnly = true,
         .mode = MODE_LETTERS,
         .casing = LOWER_CASE,
+#else
+        .mode = MODE_LOWER_LETTERS,
+#endif
+        .lettersOnly = true,
         .suggestionParams = suggestParams,
     };
-
-    textToEnter[0] = '\0';
-    memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
+#ifdef SCREEN_SIZE_WALLET
     snprintf(headerText,
              HEADER_SIZE,
              "Enter word no. %d from your Recovery Sheet",
              get_current_word_number() + 1);
+#else
+    snprintf(headerText, HEADER_SIZE, "Enter word #%d", get_current_word_number() + 1);
+#endif
+    textToEnter[0] = '\0';
+    memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
 
     nbgl_useCaseKeyboard(&keyboardParams, &keyboard_close);
 }
@@ -257,7 +263,7 @@ static void display_home_page(void) {
     reset_globals();
 
     action.callback = (nbgl_callback_t) passphrase_length_page;
-    action.text = "Start check";
+    action.text = "Select the number of words written on your Recovery Sheet";
 
     nbgl_useCaseHomeAndSettings(APPNAME,
                                 &ICON_APP_HOME,

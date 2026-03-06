@@ -24,14 +24,12 @@ unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(const unsigned c
                                                                 unsigned char *next_letters_buffer);
 bool compare_recovery_phrase(uint8_t *buffer, size_t buffer_size);
 
-#ifdef SCREEN_SIZE_WALLET
 size_t bolos_ux_bip39_fill_with_candidates(const unsigned char *startingChars,
                                            const size_t startingCharsLength,
                                            char wordCandidatesBuffer[],
                                            const char *wordIndexorBuffer[]);
 uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char *prefix,
                                           const unsigned int prefixLength);
-#endif  // SCREEN_SIZE_WALLET
 
 #ifdef HAVE_ELECTRUM
 
