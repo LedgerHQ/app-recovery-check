@@ -264,6 +264,7 @@ static void display_keyboard_page(void) {
         .number = get_current_word_number() + 1,
         .textToken = KBD_TEXT_TOKEN,
         .suggestionButtons = suggestionButtons,
+        .obfuscated = true,
 #ifdef HAVE_PIEZO_SOUND
         .tuneId = TUNE_TAP_CASUAL,
 #endif
