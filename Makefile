@@ -60,6 +60,12 @@ VARIANT_VALUES = recovery_check
 # Enabling DEBUG flag will enable PRINTF and disable optimizations
 #DEBUG = 1
 
+KEYBOARD_NOT_SHUFFLED ?= 0
+ifneq ($(KEYBOARD_NOT_SHUFFLED), 0)
+    $(info KEYBOARD_NOT_SHUFFLED ENABLED)
+    DEFINES += KEYBOARD_NOT_SHUFFLED
+endif
+
 ########################################
 #     Application custom permissions   #
 ########################################
