@@ -2,8 +2,9 @@ from pathlib import Path
 
 from ragger.navigator import NavIns
 from ragger.bip.seed import SPECULOS_MNEMONIC
+from ragger.navigator.navigator import Navigator
 
-from .navigator import CustomNavInsID, TouchNavigator
+from .navigator import CustomNavInsID
 from .utils import format_instructions
 
 
@@ -11,7 +12,7 @@ PLAUSIBLE_MNEMONIC= "feature trigger apart fold answer lend enrich blind foam de
     "reform again snow stadium vibrant brain hungry already sadness verify team speed"
 
 
-def test_nominal_full_passphrase_check_ok(navigator: TouchNavigator, default_screenshot_path: Path):
+def test_nominal_full_passphrase_check_ok(navigator: Navigator, default_screenshot_path: Path):
     # instructions to go the the keyboard
     instructions = [
         CustomNavInsID.HOME_TO_CHECK,
@@ -42,7 +43,7 @@ def test_nominal_full_passphrase_check_ok(navigator: TouchNavigator, default_scr
                                    screen_change_before_first_instruction=True,
                                    screen_change_after_last_instruction=False)
 
-def test_nominal_full_passphrase_check_plausible_but_wrong(navigator: TouchNavigator, default_screenshot_path: Path):
+def test_nominal_full_passphrase_check_plausible_but_wrong(navigator: Navigator, default_screenshot_path: Path):
     # instructions to go the the keyboard
     instructions = [
         CustomNavInsID.HOME_TO_CHECK,
@@ -74,7 +75,7 @@ def test_nominal_full_passphrase_check_plausible_but_wrong(navigator: TouchNavig
                                    screen_change_after_last_instruction=False)
 
 
-def test_nominal_full_passphrase_check_error_wrong_passphrase(navigator: TouchNavigator, default_screenshot_path: Path):
+def test_nominal_full_passphrase_check_error_wrong_passphrase(navigator: Navigator, default_screenshot_path: Path):
     # instructions to go the the keyboard
     instructions = [
         CustomNavInsID.HOME_TO_CHECK,
