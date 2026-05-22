@@ -56,9 +56,9 @@ static void display_home_page(void);
 static void display_result_page(const bool result);
 
 // Home page, infos & dispatcher
-#define NB_INFOS 2
-static const char *const infoTypes[NB_INFOS] = {"Version", "Recovery Check"};
-static const char *const infoContents[NB_INFOS] = {APPVERSION, "(c) 2018-2025 Ledger"};
+#define NB_INFOS 3
+static const char *const infoTypes[NB_INFOS] = {"Version", "Developer", "Copyright"};
+static const char *const infoContents[NB_INFOS] = {APPVERSION, "Ledger", "Ledger (c) 2026"};
 
 static const nbgl_contentInfoList_t infoList = {
     .nbInfos = NB_INFOS,
