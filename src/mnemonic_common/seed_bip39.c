@@ -223,7 +223,6 @@ bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
     uint8_t buffer[64];
 
     bolos_ux_mnemonic_to_seed(mnemonic, mnemonic_length, buffer);
-    PRINTF("Input seed:\n %.*H\n", 64, buffer);
 
     // get rootkey from hex-seed
     cx_hmac_sha512_t ctx;
@@ -233,7 +232,6 @@ bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
                   "HMAC init failed");
     LEDGER_ASSERT(cx_hmac_no_throw((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64) == CX_OK,
                   "HMAC failed");
-    PRINTF("Root key from input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
     uint8_t buffer_device[64];
@@ -248,7 +246,6 @@ bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
         PRINTF("An error occurred while comparing the recovery phrase\n");
         return 0;
     }
-    PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
     // compare both rootkey
     const bool result = os_secure_memcmp(buffer, buffer_device, 64) ? false : true;
