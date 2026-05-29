@@ -3,6 +3,9 @@ bin/
 debug/
 build/
 
+# Nano NBGL reversed icon for Home Screen
+glyphs/home_recovery_check_14px.gif
+
 # Unit tests and code coverage
 tests/unit/coverage/
 tests/unit/coverage.info

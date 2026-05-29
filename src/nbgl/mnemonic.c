@@ -4,8 +4,6 @@
 #include "mnemonic.h"
 #include "bip39.h"
 
-#if defined(SCREEN_SIZE_WALLET)
-
 typedef struct buffer {
     // the mnemonic passphrase, built over time
     char buffer[MAX_MNEMONIC_LENGTH];
@@ -106,6 +104,4 @@ bool check_mnemonic() {
 char* get_mnemonic() {
     return mnemonic.buffer;
 }
-#endif
-
 #endif

@@ -19,8 +19,6 @@
 #include <stdbool.h>
 #include "constants.h"
 
-#if defined(SCREEN_SIZE_WALLET)
-
 #define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH + 1))
 
 /*
@@ -67,5 +65,3 @@ size_t add_word_in_mnemonic(const char* const buffer, const size_t size);
 #if defined(TEST)
 char* get_mnemonic();
 #endif
-
-#endif  // SCREEN_SIZE_WALLET
