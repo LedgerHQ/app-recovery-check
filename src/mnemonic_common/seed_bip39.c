@@ -9,11 +9,17 @@
 #if defined(TEST)
 #define NB_MAX_SUGGESTION_BUTTONS 4
 #define MIN(x, y)                 ((x) < (y) ? (x) : (y))
+#else
+#include "nbgl_use_case.h"
 #endif
 
 #define ALPHABET_LENGTH 27
-#define KBD_LETTERS     "qwertyuiopasdfghjklzxcvbnm"
-
+#ifdef SCREEN_SIZE_WALLET
+#define KBD_LETTERS "qwertyuiopasdfghjklzxcvbnm"
+#else
+// Keyboard layout: alphabetical order for NBGL Nano (not QWERTY)
+#define KBD_LETTERS "abcdefghijklmnopqrstuvwxyz"
+#endif
 // separated function to lower the stack usage when jumping into pbkdf algorithm
 unsigned int bolos_ux_mnemonic_to_seed_hash_length128(unsigned char* mnemonic,
                                                       unsigned int mnemonicLength) {
@@ -217,7 +223,6 @@ bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
     uint8_t buffer[64];
 
     bolos_ux_mnemonic_to_seed(mnemonic, mnemonic_length, buffer);
-    PRINTF("Input seed:\n %.*H\n", 64, buffer);
 
     // get rootkey from hex-seed
     cx_hmac_sha512_t ctx;
@@ -227,7 +232,6 @@ bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
                   "HMAC init failed");
     LEDGER_ASSERT(cx_hmac_no_throw((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64) == CX_OK,
                   "HMAC failed");
-    PRINTF("Root key from input:\n%.*H\n", 64, buffer);
 
     // get rootkey from device's seed
     uint8_t buffer_device[64];
@@ -242,7 +246,6 @@ bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
         PRINTF("An error occurred while comparing the recovery phrase\n");
         return 0;
     }
-    PRINTF("Root key from device: \n%.*H\n", 64, buffer_device);
 
     // compare both rootkey
     const bool result = os_secure_memcmp(buffer, buffer_device, 64) ? false : true;
@@ -251,9 +254,6 @@ bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
 
     return result;
 }
-
-#if defined(HAVE_NBGL)
-#include <nbgl_layout.h>
 
 size_t bolos_ux_bip39_fill_with_candidates(const unsigned char* startingChars,
                                            const size_t startingCharsLength,
@@ -285,7 +285,12 @@ size_t bolos_ux_bip39_fill_with_candidates(const unsigned char* startingChars,
 
 uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char* prefix,
                                           const unsigned int prefixLength) {
-    uint32_t existing_mask = 1 << 28;  // Starting with the 'return' keypad activated
+    uint32_t existing_mask = 0;
+#ifdef SCREEN_SIZE_WALLET
+    existing_mask = 1 << 28;  // Starting with the 'return' keypad activated
+#else
+    existing_mask = 1 << 26;  // Starting with the 'backspace' keypad activated
+#endif
     unsigned char next_letters[ALPHABET_LENGTH] = {0};
     PRINTF("Looking for letter candidates following '%s'\n", prefix);
     const size_t nb_letters =
@@ -301,4 +306,3 @@ uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char* prefix,
     }
     return (-1 ^ existing_mask);
 }
-#endif  // HAVE_NBGL
