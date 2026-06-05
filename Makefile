@@ -65,6 +65,11 @@ ifneq ($(KEYBOARD_NOT_SHUFFLED), 0)
     $(info KEYBOARD_NOT_SHUFFLED ENABLED)
     DEFINES += KEYBOARD_NOT_SHUFFLED
 endif
+SCREEN_NOT_OBFUSCATED ?= 0
+ifneq ($(SCREEN_NOT_OBFUSCATED), 0)
+    $(info SCREEN_NOT_OBFUSCATED ENABLED)
+    DEFINES += SCREEN_NOT_OBFUSCATED
+endif
 
 ########################################
 #     Application custom permissions   #
