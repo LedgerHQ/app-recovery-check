@@ -29,7 +29,7 @@ APPNAME = "Recovery Check"
 # Application version
 APPVERSION_M = 1
 APPVERSION_N = 5
-APPVERSION_P = 0
+APPVERSION_P = 1
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 # Application source files
@@ -64,6 +64,11 @@ KEYBOARD_NOT_SHUFFLED ?= 0
 ifneq ($(KEYBOARD_NOT_SHUFFLED), 0)
     $(info KEYBOARD_NOT_SHUFFLED ENABLED)
     DEFINES += KEYBOARD_NOT_SHUFFLED
+endif
+SCREEN_NOT_OBFUSCATED ?= 0
+ifneq ($(SCREEN_NOT_OBFUSCATED), 0)
+    $(info SCREEN_NOT_OBFUSCATED ENABLED)
+    DEFINES += SCREEN_NOT_OBFUSCATED
 endif
 
 ########################################
