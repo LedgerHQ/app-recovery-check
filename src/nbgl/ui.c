@@ -235,6 +235,9 @@ static void display_keyboard_page(void) {
         .number = get_current_word_number() + 1,
         .mode = MODE_LETTERS,
         .casing = LOWER_CASE,
+#ifndef SCREEN_NOT_OBFUSCATED
+        .obfuscated = true,
+#endif
 #else
         .mode = MODE_LOWER_LETTERS,
 #endif
