@@ -24,10 +24,14 @@ unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(const unsigned c
                                                                 unsigned char *next_letters_buffer);
 bool compare_recovery_phrase(uint8_t *buffer, size_t buffer_size);
 
+// Fills the suggestion buffers with up to NB_MAX_SUGGESTION_BUTTONS words matching the given
+// prefix and returns that (capped) number. When not NULL, *nbCandidates is set to the total number
+// of matching words (uncapped), which the Nano keyboard uses to decide when the whole list fits.
 size_t bolos_ux_bip39_fill_with_candidates(const unsigned char *startingChars,
                                            const size_t startingCharsLength,
                                            char wordCandidatesBuffer[],
-                                           const char *wordIndexorBuffer[]);
+                                           const char *wordIndexorBuffer[],
+                                           size_t *nbCandidates);
 uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char *prefix,
                                           const unsigned int prefixLength);
 

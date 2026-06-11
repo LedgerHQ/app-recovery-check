@@ -188,13 +188,17 @@ static void update_buttons_callback(nbgl_layoutKeyboardContent_t *content, uint3
     if (textLen < 2) {
         // Suggestions only when the word contains 2+ letters
         content->suggestionButtons.nbUsedButtons = 0;
+        content->suggestionButtons.nbCandidates = 0;
     } else {
+        size_t nbCandidates = 0;
         const size_t nbMatchingWords =
             bolos_ux_bip39_fill_with_candidates((unsigned char *) &(textToEnter[0]),
                                                 strlen(textToEnter),
                                                 wordCandidates,
-                                                buttonTexts);
+                                                buttonTexts,
+                                                &nbCandidates);
         content->suggestionButtons.nbUsedButtons = nbMatchingWords;
+        content->suggestionButtons.nbCandidates = nbCandidates;
     }
     if (textLen > 0) {
         *mask = bolos_ux_bip39_get_keyboard_mask((unsigned char *) &(textToEnter[0]),
@@ -219,6 +223,7 @@ static void keyboard_close(void) {
  *
  */
 static void display_keyboard_page(void) {
+    PRINTF("Starting entry of word #%d\n", get_current_word_number() + 1);
     nbgl_kbdSuggestParams_t suggestParams = {
         .buttons = buttonTexts,
         .firstButtonToken = FIRST_SUGGESTION_TOKEN,

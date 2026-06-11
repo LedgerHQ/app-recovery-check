@@ -258,13 +258,18 @@ bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
 size_t bolos_ux_bip39_fill_with_candidates(const unsigned char* startingChars,
                                            const size_t startingCharsLength,
                                            char wordCandidatesBuffer[],
-                                           const char* wordIndexorBuffer[]) {
+                                           const char* wordIndexorBuffer[],
+                                           size_t* nbCandidates) {
     PRINTF("Calculating nb of words starting with '%s' (size is '%d')\n",
            startingChars,
            startingCharsLength);
-    const size_t nbMatchingWords =
-        MIN(bolos_ux_bip39_get_word_count_starting_with(startingChars, startingCharsLength),
-            NB_MAX_SUGGESTION_BUTTONS);
+    const size_t nbBip39Words =
+        bolos_ux_bip39_get_word_count_starting_with(startingChars, startingCharsLength);
+    if (nbCandidates != NULL) {
+        // report the real (uncapped) count so the Nano keyboard knows when the full list fits
+        *nbCandidates = nbBip39Words;
+    }
+    const size_t nbMatchingWords = MIN(nbBip39Words, NB_MAX_SUGGESTION_BUTTONS);
     PRINTF("'%d' words start with '%s'\n", nbMatchingWords, startingChars);
     if (nbMatchingWords == 0) {
         return 0;
