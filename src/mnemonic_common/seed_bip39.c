@@ -1,14 +1,13 @@
 /* @BANNER@ */
 
-#include "os.h"
-#include "cx.h"
-
 #include "bip39.h"
+#include "cx.h"
+#include "os.h"
 #include "seed_rom_variables.h"
 
 #if defined(TEST)
 #define NB_MAX_SUGGESTION_BUTTONS 4
-#define MIN(x, y)                 ((x) < (y) ? (x) : (y))
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
 #else
 #include "nbgl_use_case.h"
 #endif
@@ -21,8 +20,8 @@
 #define KBD_LETTERS "abcdefghijklmnopqrstuvwxyz"
 #endif
 // separated function to lower the stack usage when jumping into pbkdf algorithm
-unsigned int bolos_ux_mnemonic_to_seed_hash_length128(unsigned char* mnemonic,
-                                                      unsigned int mnemonicLength) {
+unsigned int bolos_ux_mnemonic_to_seed_hash_length128(
+    unsigned char* mnemonic, unsigned int mnemonicLength) {
     if (mnemonicLength > 128) {
         cx_hash_sha512(mnemonic, mnemonicLength, mnemonic, 64);
         // new mnemonic length
@@ -35,21 +34,18 @@ void bolos_ux_mnemonic_to_seed(unsigned char* mnemonic,
                                unsigned int mnemonicLength,
                                unsigned char* seed) {
     unsigned char passphrase[BIP39_MNEMONIC_LENGTH + 4];
-    mnemonicLength = bolos_ux_mnemonic_to_seed_hash_length128(mnemonic, mnemonicLength);
+    mnemonicLength =
+        bolos_ux_mnemonic_to_seed_hash_length128(mnemonic, mnemonicLength);
 
     memcpy(passphrase, BIP39_MNEMONIC, BIP39_MNEMONIC_LENGTH);
-    cx_pbkdf2_sha512(mnemonic,
-                     mnemonicLength,
-                     passphrase,
-                     BIP39_MNEMONIC_LENGTH,
-                     BIP39_PBKDF2_ROUNDS,
-                     seed,
-                     64);
+    cx_pbkdf2_sha512(mnemonic, mnemonicLength, passphrase,
+                     BIP39_MNEMONIC_LENGTH, BIP39_PBKDF2_ROUNDS, seed, 64);
 
     // what happen to the second block for a very short seed ?
 }
 
-bool bolos_ux_mnemonic_check(unsigned char* mnemonic, unsigned int mnemonicLength) {
+bool bolos_ux_mnemonic_check(unsigned char* mnemonic,
+                             unsigned int mnemonicLength) {
     unsigned int i, n = 0;
     unsigned int bi;
     unsigned char bits[32 + 1];
@@ -89,7 +85,8 @@ bool bolos_ux_mnemonic_check(unsigned char* mnemonic, unsigned int mnemonicLengt
             if ((memcmp(current_word,
                         BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[k],
                         current_word_size) == 0) &&
-                ((unsigned int) (BIP39_WORDLIST_OFFSETS[k + 1] - BIP39_WORDLIST_OFFSETS[k]) ==
+                ((unsigned int)(BIP39_WORDLIST_OFFSETS[k + 1] -
+                                BIP39_WORDLIST_OFFSETS[k]) ==
                  current_word_size)) {
                 for (ki = 0; ki < 11; ki++) {
                     if (k & (1 << (10 - ki))) {
@@ -100,7 +97,7 @@ bool bolos_ux_mnemonic_check(unsigned char* mnemonic, unsigned int mnemonicLengt
                 break;
             }
         }
-        if (k == (unsigned int) (BIP39_WORDLIST_OFFSETS_LENGTH - 1)) {
+        if (k == (unsigned int)(BIP39_WORDLIST_OFFSETS_LENGTH - 1)) {
             return false;
         }
     }
@@ -128,10 +125,13 @@ bool bolos_ux_mnemonic_check(unsigned char* mnemonic, unsigned int mnemonicLengt
     return true;
 }
 
-unsigned int bolos_ux_bip39_idx_strcpy(const unsigned int index, unsigned char* buffer) {
+unsigned int bolos_ux_bip39_idx_strcpy(const unsigned int index,
+                                       unsigned char* buffer) {
     if (index < BIP39_WORDLIST_OFFSETS_LENGTH - 1 && buffer) {
-        size_t wordLength = BIP39_WORDLIST_OFFSETS[index + 1] - BIP39_WORDLIST_OFFSETS[index];
-        memcpy(buffer, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[index], wordLength);
+        size_t wordLength =
+            BIP39_WORDLIST_OFFSETS[index + 1] - BIP39_WORDLIST_OFFSETS[index];
+        memcpy(buffer, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[index],
+               wordLength);
         buffer[wordLength] = 0;  // EOS
         return wordLength;
     }
@@ -140,13 +140,15 @@ unsigned int bolos_ux_bip39_idx_strcpy(const unsigned int index, unsigned char* 
     return 0;
 }
 
-unsigned int bolos_ux_bip39_get_word_idx_starting_with(const unsigned char* prefix,
-                                                       const unsigned int prefixLength) {
+unsigned int bolos_ux_bip39_get_word_idx_starting_with(
+    const unsigned char* prefix, const unsigned int prefixLength) {
     unsigned int i;
     for (i = 0; i < BIP39_WORDLIST_OFFSETS_LENGTH - 1; i++) {
         unsigned int j = 0;
-        while (j < (unsigned int) (BIP39_WORDLIST_OFFSETS[i + 1] - BIP39_WORDLIST_OFFSETS[i]) &&
-               j < prefixLength && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j] == prefix[j]) {
+        while (j < (unsigned int)(BIP39_WORDLIST_OFFSETS[i + 1] -
+                                  BIP39_WORDLIST_OFFSETS[i]) &&
+               j < prefixLength &&
+               BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j] == prefix[j]) {
             j++;
         }
         if (j == prefixLength) {
@@ -157,20 +159,23 @@ unsigned int bolos_ux_bip39_get_word_idx_starting_with(const unsigned char* pref
     return BIP39_WORDLIST_OFFSETS_LENGTH;
 }
 
-unsigned int bolos_ux_bip39_get_word_count_starting_with(const unsigned char* prefix,
-                                                         const unsigned int prefixLength) {
+unsigned int bolos_ux_bip39_get_word_count_starting_with(
+    const unsigned char* prefix, const unsigned int prefixLength) {
     unsigned int i;
     unsigned int count = 0;
     for (i = 0; i < BIP39_WORDLIST_OFFSETS_LENGTH - 1; i++) {
         unsigned int j = 0;
-        while (j < (unsigned int) (BIP39_WORDLIST_OFFSETS[i + 1] - BIP39_WORDLIST_OFFSETS[i]) &&
-               j < prefixLength && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j] == prefix[j]) {
+        while (j < (unsigned int)(BIP39_WORDLIST_OFFSETS[i + 1] -
+                                  BIP39_WORDLIST_OFFSETS[i]) &&
+               j < prefixLength &&
+               BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j] == prefix[j]) {
             j++;
         }
         if (j == prefixLength) {
             count++;
         } else if (count > 0) {
-            // don't seek till the end, abort when the prefix is not matched anymore
+            // don't seek till the end, abort when the prefix is not matched
+            // anymore
             break;
         }
     }
@@ -179,23 +184,27 @@ unsigned int bolos_ux_bip39_get_word_count_starting_with(const unsigned char* pr
 }
 
 // allocate at most 26 letters for next possibilities
-// algorithm considers the bip39 words are alphabetically ordered in the wordlist
+// algorithm considers the bip39 words are alphabetically ordered in the
+// wordlist
 unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(
-    const unsigned char* prefix,
-    const unsigned int prefixLength,
+    const unsigned char* prefix, const unsigned int prefixLength,
     unsigned char* next_letters_buffer) {
     unsigned int i;
     unsigned int letter_count = 0;
     for (i = 0; i < BIP39_WORDLIST_OFFSETS_LENGTH - 1; i++) {
         unsigned int j = 0;
-        while (j < (unsigned int) (BIP39_WORDLIST_OFFSETS[i + 1] - BIP39_WORDLIST_OFFSETS[i]) &&
-               j < prefixLength && BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j] == prefix[j]) {
+        while (j < (unsigned int)(BIP39_WORDLIST_OFFSETS[i + 1] -
+                                  BIP39_WORDLIST_OFFSETS[i]) &&
+               j < prefixLength &&
+               BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j] == prefix[j]) {
             j++;
         }
         if (j == prefixLength) {
-            if (j < (unsigned int) (BIP39_WORDLIST_OFFSETS[i + 1] - BIP39_WORDLIST_OFFSETS[i])) {
+            if (j < (unsigned int)(BIP39_WORDLIST_OFFSETS[i + 1] -
+                                   BIP39_WORDLIST_OFFSETS[i])) {
                 // j is inc during previous loop, don't touch it
-                unsigned char next_letter = BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j];
+                unsigned char next_letter =
+                    BIP39_WORDLIST[BIP39_WORDLIST_OFFSETS[i] + j];
                 // add the first next_letter inconditionnally
                 if (letter_count == 0) {
                     next_letters_buffer[0] = next_letter;
@@ -228,27 +237,28 @@ bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
     cx_hmac_sha512_t ctx;
     const char key[] = "Bitcoin seed";
 
-    LEDGER_ASSERT(cx_hmac_sha512_init_no_throw(&ctx, (const uint8_t*) key, strlen(key)) == CX_OK,
+    LEDGER_ASSERT(cx_hmac_sha512_init_no_throw(&ctx, (const uint8_t*)key,
+                                               strlen(key)) == CX_OK,
                   "HMAC init failed");
-    LEDGER_ASSERT(cx_hmac_no_throw((cx_hmac_t*) &ctx, CX_LAST, buffer, 64, buffer, 64) == CX_OK,
+    LEDGER_ASSERT(cx_hmac_no_throw((cx_hmac_t*)&ctx, CX_LAST, buffer, 64,
+                                   buffer, 64) == CX_OK,
                   "HMAC failed");
 
     // get rootkey from device's seed
     uint8_t buffer_device[64];
 
-    // os_derive_bip32* do not accept NULL path, even with a size of 0, so we provide an empty path
+    // os_derive_bip32* do not accept NULL path, even with a size of 0, so we
+    // provide an empty path
     const unsigned int empty_path = 0;
-    if (os_derive_bip32_no_throw(CX_CURVE_256K1,
-                                 &empty_path,
-                                 0,
-                                 buffer_device,
+    if (os_derive_bip32_no_throw(CX_CURVE_256K1, &empty_path, 0, buffer_device,
                                  buffer_device + 32) != CX_OK) {
         PRINTF("An error occurred while comparing the recovery phrase\n");
         return 0;
     }
 
     // compare both rootkey
-    const bool result = os_secure_memcmp(buffer, buffer_device, 64) ? false : true;
+    const bool result =
+        os_secure_memcmp(buffer, buffer_device, 64) ? false : true;
     explicit_bzero(buffer_device, 64);
     explicit_bzero(buffer, 64);
 
@@ -260,30 +270,32 @@ size_t bolos_ux_bip39_fill_with_candidates(const unsigned char* startingChars,
                                            char wordCandidatesBuffer[],
                                            const char* wordIndexorBuffer[],
                                            size_t* nbCandidates) {
-    PRINTF("Calculating nb of words starting with '%s' (size is '%d')\n",
-           startingChars,
-           startingCharsLength);
-    const size_t nbBip39Words =
-        bolos_ux_bip39_get_word_count_starting_with(startingChars, startingCharsLength);
+    PRINTF("Calculating nb of words starting with '%s' (size is '%ld')\n",
+           startingChars, startingCharsLength);
+    const size_t nbBip39Words = bolos_ux_bip39_get_word_count_starting_with(
+        startingChars, startingCharsLength);
     if (nbCandidates != NULL) {
-        // report the real (uncapped) count so the Nano keyboard knows when the full list fits
+        // report the real (uncapped) count so the Nano keyboard knows when the
+        // full list fits
         *nbCandidates = nbBip39Words;
     }
     const size_t nbMatchingWords = MIN(nbBip39Words, NB_MAX_SUGGESTION_BUTTONS);
-    PRINTF("'%d' words start with '%s'\n", nbMatchingWords, startingChars);
+    PRINTF("'%ld' words start with '%s'\n", nbMatchingWords, startingChars);
     if (nbMatchingWords == 0) {
         return 0;
     }
-    size_t matchingWordIndex =
-        bolos_ux_bip39_get_word_idx_starting_with(startingChars, startingCharsLength);
+    size_t matchingWordIndex = bolos_ux_bip39_get_word_idx_starting_with(
+        startingChars, startingCharsLength);
     size_t offset = 0;
     for (size_t i = 0; i < nbMatchingWords; i++) {
-        unsigned char* const wordDest = (unsigned char*) (&wordCandidatesBuffer[0] + offset);
-        const size_t wordSize = bolos_ux_bip39_idx_strcpy(matchingWordIndex, wordDest);
+        unsigned char* const wordDest =
+            (unsigned char*)(&wordCandidatesBuffer[0] + offset);
+        const size_t wordSize =
+            bolos_ux_bip39_idx_strcpy(matchingWordIndex, wordDest);
         matchingWordIndex++;
         *(wordDest + wordSize) = '\0';
         offset += wordSize + 1;  // + trailing '\0' size
-        wordIndexorBuffer[i] = (char*) wordDest;
+        wordIndexorBuffer[i] = (char*)wordDest;
     }
     return nbMatchingWords;
 }
@@ -299,7 +311,8 @@ uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char* prefix,
     unsigned char next_letters[ALPHABET_LENGTH] = {0};
     PRINTF("Looking for letter candidates following '%s'\n", prefix);
     const size_t nb_letters =
-        bolos_ux_bip39_get_word_next_letters_starting_with(prefix, prefixLength, next_letters);
+        bolos_ux_bip39_get_word_next_letters_starting_with(prefix, prefixLength,
+                                                           next_letters);
     next_letters[nb_letters] = '\0';
     PRINTF("Next letters are in: %s\n", next_letters);
     for (int i = 0; i < ALPHABET_LENGTH; i++) {

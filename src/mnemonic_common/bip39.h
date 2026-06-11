@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 // BIP39 helpers
 #include "seed_rom_variables.h"

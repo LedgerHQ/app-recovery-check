@@ -8,7 +8,7 @@
 #define CX_OK      0
 #define cx_curve_t int
 
-#define LEDGER_ASSERT(a, b) (a)
+#define LEDGER_ASSERT(a, b) ((void) (a))
 
 int os_secure_memcmp(const void *s1, const void *s2, size_t n);
 
