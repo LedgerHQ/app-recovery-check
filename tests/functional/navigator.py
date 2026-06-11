@@ -38,13 +38,15 @@ def _available_letters(prefix: str) -> str:
 def _triggers_suggestion_mode(prefix: str) -> bool:
     """Return True if the given prefix causes the nano firmware to switch to suggestion mode.
 
-    The firmware calls displaySuggestionSelection() when the number of matching BIP39 words
-    is strictly between 0 and NB_MAX_SUGGESTION_BUTTONS (i.e. 1–7 on nano).
+    The firmware calls displaySuggestionSelection() as soon as the whole candidate list fits,
+    i.e. when the number of matching BIP39 words is between 1 and NB_MAX_SUGGESTION_BUTTONS
+    (1-8 on nano). The upper bound is inclusive so that a fully-typed word which is also the
+    prefix of other words (e.g. "can", or "tu" → 8 words) can still be selected.
     """
     if len(prefix) < 2:
         return False
     matches = sum(1 for w in _BIP39_WORDS if w.startswith(prefix))
-    return 0 < matches < _NB_MAX_SUGGESTION_BUTTONS_NANO
+    return 0 < matches <= _NB_MAX_SUGGESTION_BUTTONS_NANO
 
 
 class CustomNavInsID(Enum):
