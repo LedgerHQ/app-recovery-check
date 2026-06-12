@@ -17,6 +17,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stddef.h>
 #include "constants.h"
 
 #define MAX_MNEMONIC_LENGTH (MNEMONIC_SIZE_24 * (MAX_WORD_LENGTH + 1))
@@ -60,8 +61,8 @@ bool remove_word_from_mnemonic(void);
 /*
  * Adds a word in the passphrase, returns how many words are stored in the mnemonic
  */
-size_t add_word_in_mnemonic(const char* const buffer, const size_t size);
+size_t add_word_in_mnemonic(const char *const buffer, const size_t size);
 
 #if defined(TEST)
-char* get_mnemonic();
+char *get_mnemonic();
 #endif

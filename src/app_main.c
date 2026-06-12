@@ -13,8 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
-#include "ui.h"
 #include "io.h"
+#include "ui.h"
 
 void app_main(void) {
     ui_idle_init();
