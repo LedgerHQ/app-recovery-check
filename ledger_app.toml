@@ -9,3 +9,4 @@ pytest_directory = "./tests/functional"
 
 [use_cases]
 use_test = "KEYBOARD_NOT_SHUFFLED=1 SCREEN_NOT_OBFUSCATED=1"
+dbg_use_test = "DEBUG=1 KEYBOARD_NOT_SHUFFLED=1 SCREEN_NOT_OBFUSCATED=1"

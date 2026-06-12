@@ -13,7 +13,8 @@ jobs:
   job_unit_test:
     name: C unit testing
     uses: LedgerHQ/ledger-app-workflows/.github/workflows/reusable_unit_tests.yml@v1
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+      codecov_token: ${{ secrets.CODECOV_TOKEN }}
     with:
-      test_directory: tests/unit
       additional_packages: libsodium-dev
-    secrets: inherit

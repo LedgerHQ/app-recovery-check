@@ -16,7 +16,7 @@
 
 #ifdef HAVE_ELECTRUM
 
-int cx_math_shiftr_11(unsigned char *r, unsigned int len) {
+int cx_math_shiftr_11(unsigned char* r, unsigned int len) {
     unsigned int j, b11;
     b11 = r[len - 1] | ((r[len - 2] & 7) << 8);
 
@@ -29,8 +29,8 @@ int cx_math_shiftr_11(unsigned char *r, unsigned int len) {
     return b11;
 }
 
-static unsigned int bolos_ux_electrum_mnemonic_encode(const uint8_t *seed17,
-                                                      uint8_t *out,
+static unsigned int bolos_ux_electrum_mnemonic_encode(const uint8_t* seed17,
+                                                      uint8_t* out,
                                                       size_t outLength) {
     unsigned char tmp[17];
     unsigned int i;
@@ -39,11 +39,13 @@ static unsigned int bolos_ux_electrum_mnemonic_encode(const uint8_t *seed17,
     for (i = 0; i < 12; i++) {
         unsigned char wordLength;
         unsigned int idx = cx_math_shiftr_11(tmp, sizeof(tmp));
-        wordLength = BIP39_WORDLIST_OFFSETS[idx + 1] - BIP39_WORDLIST_OFFSETS[idx];
+        wordLength =
+            BIP39_WORDLIST_OFFSETS[idx + 1] - BIP39_WORDLIST_OFFSETS[idx];
         if ((offset + wordLength) > outLength) {
             THROW(INVALID_PARAMETER);
         }
-        memcpy(out + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx], wordLength);
+        memcpy(out + offset, BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[idx],
+               wordLength);
         offset += wordLength;
         if (i < 11) {
             if (offset > outLength) {
@@ -56,7 +58,7 @@ static unsigned int bolos_ux_electrum_mnemonic_encode(const uint8_t *seed17,
 }
 
 unsigned int bolos_ux_electrum_new_mnemonic(unsigned int version,
-                                            unsigned char *out,
+                                            unsigned char* out,
                                             unsigned int outLength) {
     unsigned char seed[17];
     unsigned int nonce;
@@ -86,15 +88,11 @@ unsigned int bolos_ux_electrum_new_mnemonic(unsigned int version,
 }
 
 unsigned int bolos_ux_electrum_mnemonic_check(unsigned int version,
-                                              unsigned char *mnemonic,
+                                              unsigned char* mnemonic,
                                               unsigned int mnemonicLength) {
     unsigned char tmp[64];
-    cx_hmac_sha512(ELECTRUM_SEED_VERSION,
-                   ELECTRUM_SEED_VERSION_LENGTH,
-                   mnemonic,
-                   mnemonicLength,
-                   tmp,
-                   64);
+    cx_hmac_sha512(ELECTRUM_SEED_VERSION, ELECTRUM_SEED_VERSION_LENGTH,
+                   mnemonic, mnemonicLength, tmp, 64);
     return (tmp[0] == version);
 }
 
