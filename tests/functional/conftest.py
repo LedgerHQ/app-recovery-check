@@ -20,11 +20,13 @@ from .navigator import NanoNavigator, TouchNavigator
 #########################
 
 # Pull all features from the base ragger conftest using the overridden configuration
-pytest_plugins = ("ragger.conftest.base_conftest", )
+pytest_plugins = ("ragger.conftest.base_conftest",)
 
 
 @fixture
-def navigator(backend: BackendInterface, device: Device, golden_run: bool) -> Generator[Any, Any, Any]:
+def navigator(
+    backend: BackendInterface, device: Device, golden_run: bool
+) -> Generator[Any, Any, Any]:
     if device.is_nano:
         yield NanoNavigator(backend, device, golden_run)
     else:
