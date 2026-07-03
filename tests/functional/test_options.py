@@ -1,17 +1,15 @@
 from pathlib import Path
 
+from ledgered.devices import Device
 from ragger.navigator import NavIns
 from ragger.navigator.navigator import Navigator
-from ledgered.devices import Device
 
 from .navigator import CustomNavInsID
 from .utils import format_instructions
 
 
 def test_check_info_then_leave(navigator: Navigator, default_screenshot_path: Path):
-    instructions = format_instructions(
-        [CustomNavInsID.HOME_TO_SETTINGS, CustomNavInsID.SETTINGS_TO_HOME]
-    )
+    instructions = format_instructions([CustomNavInsID.HOME_TO_SETTINGS, CustomNavInsID.SETTINGS_TO_HOME])
     navigator.navigate_and_compare(
         default_screenshot_path,
         "check_info_then_leave",
@@ -21,9 +19,7 @@ def test_check_info_then_leave(navigator: Navigator, default_screenshot_path: Pa
     )
 
 
-def test_check_all_passphrase_lengths(
-    navigator: Navigator, default_screenshot_path: Path, device: Device
-):
+def test_check_all_passphrase_lengths(navigator: Navigator, default_screenshot_path: Path, device: Device):
     # Touch: all three bars are directly tappable; LENGTH_CHOOSE_* performs a single tap.
     # Nano: the length page always resets to bar 0 on entry, so we navigate bar by bar
     # with LENGTH_NEXT to capture each bar in a dedicated snapshot before confirming.

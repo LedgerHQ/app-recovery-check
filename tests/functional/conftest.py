@@ -1,12 +1,11 @@
-from typing import Generator, Any
-from pytest import fixture
+from collections.abc import Generator
+from typing import Any
 
 from ledgered.devices import Device
-
+from pytest import fixture
 from ragger.backend import BackendInterface
 
 from .navigator import NanoNavigator, TouchNavigator
-
 
 ###########################
 ### CONFIGURATION START ###
@@ -24,9 +23,7 @@ pytest_plugins = ("ragger.conftest.base_conftest",)
 
 
 @fixture
-def navigator(
-    backend: BackendInterface, device: Device, golden_run: bool
-) -> Generator[Any, Any, Any]:
+def navigator(backend: BackendInterface, device: Device, golden_run: bool) -> Generator[Any, Any, Any]:
     if device.is_nano:
         yield NanoNavigator(backend, device, golden_run)
     else:

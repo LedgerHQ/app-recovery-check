@@ -1,10 +1,9 @@
-from enum import auto, Enum
+from enum import Enum, auto
 from functools import partial
 from time import sleep
 
 from ledgered.devices import Device
 from mnemonic import Mnemonic
-
 from ragger.backend import BackendInterface
 from ragger.navigator import NavInsID
 from ragger.navigator.navigator import Navigator
@@ -30,13 +29,7 @@ def _available_letters(prefix: str) -> str:
     """
     if not prefix:
         return _FULL_ALPHABET
-    letters = sorted(
-        {
-            w[len(prefix)]
-            for w in _BIP39_WORDS
-            if w.startswith(prefix) and len(w) > len(prefix)
-        }
-    )
+    letters = sorted({w[len(prefix)] for w in _BIP39_WORDS if w.startswith(prefix) and len(w) > len(prefix)})
     return "".join(letters)
 
 
@@ -81,9 +74,7 @@ class CustomNavInsID(Enum):
 
 
 class TouchNavigator(Navigator):
-    def __init__(
-        self, backend: BackendInterface, device: Device, golden_run: bool = False
-    ):
+    def __init__(self, backend: BackendInterface, device: Device, golden_run: bool = False):
         self.screen = TouchScreen(backend, device)
 
         callbacks = {
@@ -95,15 +86,9 @@ class TouchNavigator(Navigator):
             CustomNavInsID.HOME_TO_QUIT: self.screen.home.quit,
             CustomNavInsID.HOME_TO_CHECK: self.screen.home.action,
             CustomNavInsID.SETTINGS_TO_HOME: self.screen.settings.single_page_exit,
-            CustomNavInsID.LENGTH_CHOOSE_12: partial(
-                self.screen.choice_list.choose, 1, device
-            ),
-            CustomNavInsID.LENGTH_CHOOSE_18: partial(
-                self.screen.choice_list.choose, 2, device
-            ),
-            CustomNavInsID.LENGTH_CHOOSE_24: partial(
-                self.screen.choice_list.choose, 3, device
-            ),
+            CustomNavInsID.LENGTH_CHOOSE_12: partial(self.screen.choice_list.choose, 1, device),
+            CustomNavInsID.LENGTH_CHOOSE_18: partial(self.screen.choice_list.choose, 2, device),
+            CustomNavInsID.LENGTH_CHOOSE_24: partial(self.screen.choice_list.choose, 3, device),
             CustomNavInsID.LENGTH_TO_PREVIOUS: self.screen.navigation.tap,
             CustomNavInsID.KEYBOARD_TO_PREVIOUS: self.screen.navigation.tap,
             CustomNavInsID.KEYBOARD_WRITE: self._write,
@@ -123,13 +108,9 @@ class TouchNavigator(Navigator):
 
 
 class NanoNavigator(Navigator):
-    def __init__(
-        self, backend: BackendInterface, device: Device, golden_run: bool = False
-    ):
+    def __init__(self, backend: BackendInterface, device: Device, golden_run: bool = False):
         self._backend = backend
-        self._suggestion_prefix: str | None = (
-            None  # prefix at which suggestion mode triggered
-        )
+        self._suggestion_prefix: str | None = None  # prefix at which suggestion mode triggered
         self._intended_chars: str | None = None  # characters passed to _write
         self._on_length_page = False  # True when the length-selection page is active
         self._word_count = 0  # words confirmed so far in the current keyboard session
@@ -301,9 +282,7 @@ class NanoNavigator(Navigator):
         # The caller may always pass args=(1,) and the correct word will still be selected.
         real_index = index
         if self._suggestion_prefix is not None and self._intended_chars is not None:
-            suggestions = [
-                w for w in _BIP39_WORDS if w.startswith(self._suggestion_prefix)
-            ]
+            suggestions = [w for w in _BIP39_WORDS if w.startswith(self._suggestion_prefix)]
             targets = [w for w in suggestions if w.startswith(self._intended_chars)]
             if len(targets) == 1:
                 real_index = suggestions.index(targets[0]) + 1  # 1-based
