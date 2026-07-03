@@ -1,12 +1,11 @@
 from pathlib import Path
 
-from ragger.navigator import NavIns
 from ragger.bip.seed import SPECULOS_MNEMONIC
+from ragger.navigator import NavIns
 from ragger.navigator.navigator import Navigator
 
 from .navigator import CustomNavInsID
 from .utils import format_instructions
-
 
 PLAUSIBLE_MNEMONIC = (
     "feature trigger apart fold answer lend enrich blind foam deny match ecology "
@@ -14,9 +13,7 @@ PLAUSIBLE_MNEMONIC = (
 )
 
 
-def test_nominal_full_passphrase_check_ok(
-    navigator: Navigator, default_screenshot_path: Path
-):
+def test_nominal_full_passphrase_check_ok(navigator: Navigator, default_screenshot_path: Path):
     # instructions to go the the keyboard
     instructions = [
         CustomNavInsID.HOME_TO_CHECK,
@@ -54,9 +51,7 @@ def test_nominal_full_passphrase_check_ok(
     )
 
 
-def test_nominal_full_passphrase_check_plausible_but_wrong(
-    navigator: Navigator, default_screenshot_path: Path
-):
+def test_nominal_full_passphrase_check_plausible_but_wrong(navigator: Navigator, default_screenshot_path: Path):
     # instructions to go the the keyboard
     instructions = [
         CustomNavInsID.HOME_TO_CHECK,
@@ -94,9 +89,7 @@ def test_nominal_full_passphrase_check_plausible_but_wrong(
     )
 
 
-def test_nominal_full_passphrase_check_error_wrong_passphrase(
-    navigator: Navigator, default_screenshot_path: Path
-):
+def test_nominal_full_passphrase_check_error_wrong_passphrase(navigator: Navigator, default_screenshot_path: Path):
     # instructions to go the the keyboard
     instructions = [
         CustomNavInsID.HOME_TO_CHECK,
