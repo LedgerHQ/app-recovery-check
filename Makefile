@@ -108,9 +108,4 @@ ENABLE_NBGL_KEYBOARD = 1
 #DISABLE_DEBUG_LEDGER_ASSERT = 1
 #DISABLE_DEBUG_THROW = 1
 
-########################################
-#        Main app configuration        #
-########################################
-#DEFINES += HAVE_ELECTRUM
-
 include $(BOLOS_SDK)/Makefile.standard_app

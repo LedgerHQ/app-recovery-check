@@ -35,14 +35,3 @@ size_t bolos_ux_bip39_fill_with_candidates(const unsigned char *startingChars,
                                            size_t *nbCandidates);
 uint32_t bolos_ux_bip39_get_keyboard_mask(const unsigned char *prefix,
                                           const unsigned int prefixLength);
-
-#ifdef HAVE_ELECTRUM
-
-unsigned int bolos_ux_electrum_new_mnemonic(unsigned int version,
-                                            unsigned char *out,
-                                            unsigned int outLength);
-unsigned int bolos_ux_electrum_mnemonic_check(unsigned int version,
-                                              unsigned char *mnemonic,
-                                              unsigned int mnemonicLength);
-
-#endif  // HAVE_ELECTRUM
