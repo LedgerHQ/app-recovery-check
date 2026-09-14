@@ -1,10 +1,9 @@
-from enum import auto, Enum
+from enum import Enum, auto
 from functools import partial
 from time import sleep
 
 from ledgered.devices import Device
 from mnemonic import Mnemonic
-
 from ragger.backend import BackendInterface
 from ragger.navigator import NavInsID
 from ragger.navigator.navigator import Navigator
@@ -30,8 +29,7 @@ def _available_letters(prefix: str) -> str:
     """
     if not prefix:
         return _FULL_ALPHABET
-    letters = sorted({w[len(prefix)] for w in _BIP39_WORDS
-                      if w.startswith(prefix) and len(w) > len(prefix)})
+    letters = sorted({w[len(prefix)] for w in _BIP39_WORDS if w.startswith(prefix) and len(w) > len(prefix)})
     return "".join(letters)
 
 
@@ -76,7 +74,6 @@ class CustomNavInsID(Enum):
 
 
 class TouchNavigator(Navigator):
-
     def __init__(self, backend: BackendInterface, device: Device, golden_run: bool = False):
         self.screen = TouchScreen(backend, device)
 
@@ -96,7 +93,7 @@ class TouchNavigator(Navigator):
             CustomNavInsID.KEYBOARD_TO_PREVIOUS: self.screen.navigation.tap,
             CustomNavInsID.KEYBOARD_WRITE: self._write,
             CustomNavInsID.KEYBOARD_SELECT_SUGGESTION: self.screen.suggestions.choose,
-            CustomNavInsID.RESULT_TO_HOME: self.screen.dismiss.tap
+            CustomNavInsID.RESULT_TO_HOME: self.screen.dismiss.tap,
         }
         super().__init__(backend, device, callbacks, golden_run=golden_run)
 
@@ -111,13 +108,12 @@ class TouchNavigator(Navigator):
 
 
 class NanoNavigator(Navigator):
-
     def __init__(self, backend: BackendInterface, device: Device, golden_run: bool = False):
         self._backend = backend
-        self._suggestion_prefix: str | None = None   # prefix at which suggestion mode triggered
-        self._intended_chars: str | None = None       # characters passed to _write
+        self._suggestion_prefix: str | None = None  # prefix at which suggestion mode triggered
+        self._intended_chars: str | None = None  # characters passed to _write
         self._on_length_page = False  # True when the length-selection page is active
-        self._word_count = 0          # words confirmed so far in the current keyboard session
+        self._word_count = 0  # words confirmed so far in the current keyboard session
 
         callbacks = {
             NavInsID.WAIT: sleep,

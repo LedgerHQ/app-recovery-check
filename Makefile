@@ -29,7 +29,7 @@ APPNAME = "Recovery Check"
 # Application version
 APPVERSION_M = 1
 APPVERSION_N = 5
-APPVERSION_P = 3
+APPVERSION_P = 4
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 # Application source files
@@ -107,10 +107,5 @@ ENABLE_NBGL_KEYBOARD = 1
 #DISABLE_STANDARD_WEBUSB = 1
 #DISABLE_DEBUG_LEDGER_ASSERT = 1
 #DISABLE_DEBUG_THROW = 1
-
-########################################
-#        Main app configuration        #
-########################################
-#DEFINES += HAVE_ELECTRUM
 
 include $(BOLOS_SDK)/Makefile.standard_app

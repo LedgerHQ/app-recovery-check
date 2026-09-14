@@ -1,12 +1,11 @@
-from typing import Generator, Any
-from pytest import fixture
+from collections.abc import Generator
+from typing import Any
 
 from ledgered.devices import Device
-
+from pytest import fixture
 from ragger.backend import BackendInterface
 
 from .navigator import NanoNavigator, TouchNavigator
-
 
 ###########################
 ### CONFIGURATION START ###
@@ -20,7 +19,7 @@ from .navigator import NanoNavigator, TouchNavigator
 #########################
 
 # Pull all features from the base ragger conftest using the overridden configuration
-pytest_plugins = ("ragger.conftest.base_conftest", )
+pytest_plugins = ("ragger.conftest.base_conftest",)
 
 
 @fixture

@@ -1,13 +1,16 @@
 from ledgered.devices import Device, DeviceType
-
-from ragger.firmware.touch.layouts import CenteredFooter, Element, LetterOnlyKeyboard, \
-    NavigationHeader, Suggestions
-from ragger.firmware.touch.use_cases import UseCaseHomeExt, UseCaseSettings
+from ragger.firmware.touch.layouts import (
+    CenteredFooter,
+    Element,
+    LetterOnlyKeyboard,
+    NavigationHeader,
+    Suggestions,
+)
 from ragger.firmware.touch.screen import MetaScreen
+from ragger.firmware.touch.use_cases import UseCaseHomeExt, UseCaseSettings
 
 
 class CustomChoiceList(Element):
-
     def choose(self, index: int, device: Device):
         assert 1 <= index <= 3, "Choice index must be in [1, 3]"
         if device.type == DeviceType.STAX:
@@ -20,7 +23,7 @@ class CustomChoiceList(Element):
             x, y = (240, 90)
             diff = 70
         else:
-            assert False, f"Device {device.name} not supported"
+            raise AssertionError(f"Device {device.name} not supported")
 
         self.client.finger_touch(x, y + (index - 1) * diff)
 

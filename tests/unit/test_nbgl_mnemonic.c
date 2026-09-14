@@ -124,11 +124,34 @@ static void test_check_mnemonic_ok(void** state __attribute__((unused))) {
                          i + 1);
     }
 
-    // TODO: given the complexity of mocks needed in `check_mnemonic` (or more
-    // specifically in
-    //       `compare_recovery_phrase`), this final 'True' check could not be
-    //       done yet.
-    // assert_true(check_mnemonic());
+    // The mocks model a device holding this very mnemonic, so the comparison
+    // against the device root key must succeed.
+    assert_true(check_mnemonic());
+    // a successful check clears the buffer as well
+    assert_int_equal(get_current_word_number(), 0);
+    assert_string_equal(get_mnemonic(), "");
+}
+
+static void test_check_mnemonic_not_device_seed(void** state
+                                                __attribute__((unused))) {
+    // A valid BIP39 mnemonic, but not the one the device holds: the checksum
+    // passes, so the failure can only come from the root key comparison.
+    const char* const mnemonic[] = {
+        "abandon", "abandon", "abandon", "abandon", "abandon", "abandon",
+        "abandon", "abandon", "abandon", "abandon", "abandon", "abandon",
+        "abandon", "abandon", "abandon", "abandon", "abandon", "abandon",
+        "abandon", "abandon", "abandon", "abandon", "abandon", "art"};
+    size_t mnemonic_size = (sizeof(mnemonic) / sizeof(char*));
+    set_mnemonic_final_size(mnemonic_size);
+
+    for (size_t i = 0; i < mnemonic_size; i++) {
+        assert_int_equal(add_word_in_mnemonic(mnemonic[i], strlen(mnemonic[i])),
+                         i + 1);
+    }
+
+    assert_false(check_mnemonic());
+    assert_int_equal(get_current_word_number(), 0);
+    assert_string_equal(get_mnemonic(), "");
 }
 
 int main() {
@@ -144,6 +167,8 @@ int main() {
         cmocka_unit_test_setup_teardown(test_check_mnemonic_nok, setup, NULL),
         cmocka_unit_test_setup_teardown(test_check_mnemonic_nok2, setup, NULL),
         cmocka_unit_test_setup_teardown(test_check_mnemonic_ok, setup, NULL),
+        cmocka_unit_test_setup_teardown(test_check_mnemonic_not_device_seed,
+                                        setup, NULL),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
