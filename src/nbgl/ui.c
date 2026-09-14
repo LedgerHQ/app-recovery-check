@@ -76,12 +76,26 @@ static nbgl_homeAction_t action = {0};
  */
 
 /**
+ * @brief Wipe the keyboard buffers holding recovery phrase material
+ *
+ * textToEnter holds the prefix currently typed by the user and wordCandidates
+ * the matching BIP39 words: both are secret-derived and must be zeroized, not
+ * merely truncated.
+ *
+ */
+static void reset_keyboard_buffers(void) {
+    explicit_bzero(textToEnter, sizeof(textToEnter));
+    explicit_bzero(wordCandidates, sizeof(wordCandidates));
+    memset(buttonTexts, 0, sizeof(buttonTexts));
+}
+
+/**
  * @brief Reset the current contexts
  *
  */
 static void reset_globals(void) {
     reset_mnemonic();
-    memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
+    reset_keyboard_buffers();
 }
 
 /**
@@ -257,8 +271,7 @@ static void display_keyboard_page(void) {
     snprintf(headerText, HEADER_SIZE, "Enter word #%d",
              get_current_word_number() + 1);
 #endif
-    textToEnter[0] = '\0';
-    memset(buttonTexts, 0, sizeof(buttonTexts[0]) * NB_MAX_SUGGESTION_BUTTONS);
+    reset_keyboard_buffers();
 
     nbgl_useCaseKeyboard(&keyboardParams, &keyboard_close);
 }
