@@ -8,6 +8,19 @@
 #define CX_CURVE_256K1 0
 #define CX_LAST        0
 
+// Mirrors include/cx_errors.h from the SDK: CX_CHECK() assigns to a local
+// 'error' and jumps to the 'end' label on failure.
+#define CX_INTERNAL_ERROR 0xFFFFFF85
+typedef uint32_t cx_err_t;
+
+#define CX_CHECK(call) \
+    do {               \
+        error = call;  \
+        if (error) {   \
+            goto end;  \
+        }              \
+    } while (0)
+
 typedef struct cx_hmac_sha512_s {
     uint8_t not_empty;
 } cx_hmac_sha512_t;

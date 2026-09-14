@@ -228,39 +228,39 @@ unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(
 }
 
 bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
-    // convert mnemonic to hex-seed
-    uint8_t buffer[64];
-
-    bolos_ux_mnemonic_to_seed(mnemonic, mnemonic_length, buffer);
-
-    // get rootkey from hex-seed
-    cx_hmac_sha512_t ctx;
+    // Every buffer below holds seed-derived material: no early return is
+    // allowed once they are populated, all exits go through 'end'.
+    uint8_t buffer[64] = {0};
+    uint8_t buffer_device[64] = {0};
+    cx_hmac_sha512_t ctx = {0};
+    bool result = false;
     const char key[] = "Bitcoin seed";
-
-    LEDGER_ASSERT(cx_hmac_sha512_init_no_throw(&ctx, (const uint8_t*)key,
-                                               strlen(key)) == CX_OK,
-                  "HMAC init failed");
-    LEDGER_ASSERT(cx_hmac_no_throw((cx_hmac_t*)&ctx, CX_LAST, buffer, 64,
-                                   buffer, 64) == CX_OK,
-                  "HMAC failed");
-
-    // get rootkey from device's seed
-    uint8_t buffer_device[64];
-
     // os_derive_bip32* do not accept NULL path, even with a size of 0, so we
     // provide an empty path
     const unsigned int empty_path = 0;
-    if (os_derive_bip32_no_throw(CX_CURVE_256K1, &empty_path, 0, buffer_device,
-                                 buffer_device + 32) != CX_OK) {
-        PRINTF("An error occurred while comparing the recovery phrase\n");
-        return 0;
-    }
+    cx_err_t error = CX_INTERNAL_ERROR;
+
+    // convert mnemonic to hex-seed
+    bolos_ux_mnemonic_to_seed(mnemonic, mnemonic_length, buffer);
+
+    // get rootkey from hex-seed
+    CX_CHECK(
+        cx_hmac_sha512_init_no_throw(&ctx, (const uint8_t*)key, strlen(key)));
+
+    CX_CHECK(cx_hmac_no_throw((cx_hmac_t*)&ctx, CX_LAST, buffer, sizeof(buffer),
+                              buffer, sizeof(buffer)));
+
+    // get rootkey from device's seed
+    CX_CHECK(os_derive_bip32_no_throw(CX_CURVE_256K1, &empty_path, 0,
+                                      buffer_device, buffer_device + 32));
 
     // compare both rootkey
-    const bool result =
-        os_secure_memcmp(buffer, buffer_device, 64) ? false : true;
-    explicit_bzero(buffer_device, 64);
-    explicit_bzero(buffer, 64);
+    result = (os_secure_memcmp(buffer, buffer_device, sizeof(buffer)) == 0);
+
+end:
+    explicit_bzero(&ctx, sizeof(ctx));
+    explicit_bzero(buffer_device, sizeof(buffer_device));
+    explicit_bzero(buffer, sizeof(buffer));
 
     return result;
 }
