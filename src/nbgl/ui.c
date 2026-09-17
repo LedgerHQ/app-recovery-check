@@ -203,7 +203,10 @@ static void update_buttons_callback(nbgl_layoutKeyboardContent_t* content,
     content->number = get_current_word_number() + 1;
 
     if (textLen < 2) {
-        // Suggestions only when the word contains 2+ letters
+        // Suggestions only when the word contains 2+ letters: drop the ones
+        // computed for the longer prefix instead of just hiding them
+        explicit_bzero(wordCandidates, sizeof(wordCandidates));
+        memset(buttonTexts, 0, sizeof(buttonTexts));
         content->suggestionButtons.nbUsedButtons = 0;
         content->suggestionButtons.nbCandidates = 0;
     } else {
@@ -225,6 +228,10 @@ static void update_buttons_callback(nbgl_layoutKeyboardContent_t* content,
  *
  */
 static void keyboard_close(void) {
+    // Wipe before any navigation: every exit path must leave the keyboard
+    // buffers clean, including the abort one leading back to the length page
+    reset_keyboard_buffers();
+
     if (remove_word_from_mnemonic()) {
         display_keyboard_page();
     } else {
