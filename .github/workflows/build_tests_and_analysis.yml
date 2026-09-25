@@ -35,6 +35,7 @@ jobs:
     with:
       upload_app_binaries_artifact: test_app_binaries
       flags: "use_test"
+      artifact_retention_days: 1
 
   ragger_tests:
     name: Run ragger tests using the reusable workflow
@@ -43,3 +44,4 @@ jobs:
     with:
       download_app_binaries_artifact: test_app_binaries
       regenerate_snapshots: ${{ inputs.golden_run == 'Open a PR' }}
+      delete_input_artifacts_after_test: true
