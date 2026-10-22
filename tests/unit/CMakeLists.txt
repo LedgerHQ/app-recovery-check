@@ -1,64 +1,74 @@
 cmake_minimum_required(VERSION 3.10)
-
-if(${CMAKE_VERSION} VERSION_LESS 3.10)
-    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-endif()
-
-# project information
 project(unit_tests
-        VERSION 0.1
-	      DESCRIPTION "Unit tests for the Recovery Check application"
-        LANGUAGES C)
-
-
-# guard against bad build-type strings
-if (NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Debug")
-endif()
-
-include(CTest)
-ENABLE_TESTING()
-
-# specify C standard
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED True)
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall -pedantic -g -O0 --coverage")
-
-set(GCC_COVERAGE_LINK_FLAGS "--coverage -lgcov")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
-
-# adding cmake module directory
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
-# guard against in-source builds
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-  message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build \
-                       directory) and run CMake from there. You may need to remove CMakeCache.txt.")
-endif()
-
-add_compile_definitions(WIDE=)
-add_compile_definitions(TEST)
-add_compile_definitions(SCREEN_SIZE_WALLET)
-add_compile_definitions(OS_IO_SEPROXYHAL)
-
-find_package(Sodium REQUIRED)
-
-include_directories(
-  ../../src
-  ../../src/mnemonic_common/
-  ./mocks/
-  libsodium/
+    VERSION 0.1
+    DESCRIPTION "Unit tests for the Recovery Check application"
+    LANGUAGES C
 )
 
-add_executable(test_nbgl_mnemonic test_nbgl_mnemonic.c)
+#######################################################################
+#                        Setup SDK & LedgerUT                         #
+#######################################################################
+if(NOT DEFINED ENV{BOLOS_SDK})
+    message(FATAL_ERROR "BOLOS_SDK environment variable is not set. Please set it to the path of the Ledger Secure SDK.")
+endif()
 
-add_library(libs SHARED
-  ../../src/mnemonic_common/seed_rom_variables.c
-  ../../src/mnemonic_common/seed_bip39.c
-  ../../src/nbgl/mnemonic.c
-  ./mocks/os.c)
+set(SDK_DIR $ENV{BOLOS_SDK})
+set(LEDGER_UT_APP_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../src)
+include(${SDK_DIR}/cmake/LedgerUT.cmake)
 
-target_link_libraries(test_nbgl_mnemonic PUBLIC cmocka gcov libs sodium)
+# libsodium computes the real SHA-512, HMAC and PBKDF2 behind the crypto mocks
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(Sodium REQUIRED)
 
-add_test(test_nbgl_mnemonic test_nbgl_mnemonic)
+#######################################################################
+#             Setup app specific includes & compile defs              #
+#######################################################################
+set(APP_DIR ${LEDGER_UT_APP_SRC_DIR})
+set(FAKES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/fakes)
+
+set(UT_INCLUDE_DIRS
+    ${FAKES_DIR}
+    ${APP_DIR}
+    ${APP_DIR}/mnemonic_common
+    ${APP_DIR}/nbgl
+    ${UT_INCLUDE_DIRS_SDK}
+)
+
+set(UT_COMPILE_DEFS
+    ${UT_COMPILE_DEFS_SDK}
+    APPNAME="Recovery Check"
+    APPVERSION="a.b.c"
+)
+
+#######################################################################
+#                           LedgerUT Setup                            #
+#######################################################################
+ledger_unit_tests_init()
+ledger_unit_tests_find_sources()
+
+# Built only so that every app source has a .gcno file for the coverage baseline
+ledger_unit_tests_build_app_sources_as_lib(
+    SOURCES      ${APP_SOURCES}
+    INCLUDE_DIRS ${UT_INCLUDE_DIRS}
+    COMPILE_DEFS ${UT_COMPILE_DEFS}
+)
+
+#######################################################################
+#                        LedgerUT test suites                         #
+#######################################################################
+ledger_unit_tests_add_test(
+    NAME         test_nbgl_mnemonic
+    SOURCES      ${APP_DIR}/nbgl/mnemonic.c
+                 ${APP_DIR}/mnemonic_common/seed_bip39.c
+                 ${APP_DIR}/mnemonic_common/seed_rom_variables.c
+                 ${FAKES_DIR}/fake_crypto.c
+                 ${FAKES_DIR}/fake_sdk.c
+    MOCK_HEADERS ${SDK_DIR}/lib_cxng/include/lcx_hmac.h
+                 ${SDK_DIR}/lib_cxng/include/lcx_pbkdf2.h
+                 ${SDK_DIR}/lib_cxng/include/lcx_sha256.h
+                 ${SDK_DIR}/include/os_seed.h
+                 ${SDK_DIR}/include/os_utils.h
+    INCLUDE_DIRS ${UT_INCLUDE_DIRS}
+    COMPILE_DEFS ${UT_COMPILE_DEFS}
+)
+target_link_libraries(test_nbgl_mnemonic PRIVATE sodium)
