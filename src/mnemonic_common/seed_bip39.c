@@ -93,12 +93,12 @@ bool bolos_ux_mnemonic_check(unsigned char* mnemonic,
         }
         current_word_size++;
         for (k = 0; k < BIP39_WORDLIST_OFFSETS_LENGTH - 1; k++) {
-            if ((memcmp(current_word,
-                        BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[k],
-                        current_word_size) == 0) &&
-                ((unsigned int)(BIP39_WORDLIST_OFFSETS[k + 1] -
+            if (((unsigned int)(BIP39_WORDLIST_OFFSETS[k + 1] -
                                 BIP39_WORDLIST_OFFSETS[k]) ==
-                 current_word_size)) {
+                 current_word_size) &&
+                (memcmp(current_word,
+                        BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[k],
+                        current_word_size) == 0)) {
                 for (ki = 0; ki < 11; ki++) {
                     if (k & (1 << (10 - ki))) {
                         bits[bi / 8] |= 1 << (7 - (bi % 8));
