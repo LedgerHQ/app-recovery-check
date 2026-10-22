@@ -2,6 +2,7 @@ from ledgered.devices import Device, DeviceType
 from ragger.firmware.touch.layouts import (
     CenteredFooter,
     Element,
+    FullKeyboardLetters,
     LetterOnlyKeyboard,
     NavigationHeader,
     Suggestions,
@@ -28,11 +29,27 @@ class CustomChoiceList(Element):
         self.client.finger_touch(x, y + (index - 1) * diff)
 
 
+class KeyboardConfirmationButton(Element):
+    def tap(self, device: Device):
+        if device.type == DeviceType.STAX:
+            position = (200, 300)
+        elif device.type == DeviceType.FLEX:
+            position = (240, 250)
+        elif device.type == DeviceType.APEX_P:
+            position = (140, 160)
+        else:
+            raise AssertionError(f"Device {device.name} not supported")
+        self.client.finger_touch(*position)
+
+
 class TouchScreen(metaclass=MetaScreen):
     # choosing the length a the passphrase. 3 choices
     layout_choice_list = CustomChoiceList
     # entering words
     layout_keyboard = LetterOnlyKeyboard
+    # entering the BIP39 passphrase, then confirming it
+    layout_full_keyboard = FullKeyboardLetters
+    layout_keyboard_confirm = KeyboardConfirmationButton
     # word suggestions. 4 choices
     layout_suggestions = Suggestions
     # going back to the previous screen

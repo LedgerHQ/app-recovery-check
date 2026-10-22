@@ -20,6 +20,9 @@
 
 #define MAX_WORD_LENGTH 8
 
+// Maximum length of the optional BIP39 passphrase, as accepted by the device
+#define MAX_PASSPHRASE_LENGTH 100
+
 enum {
     MNEMONIC_SIZE_12 = 12,
     MNEMONIC_SIZE_18 = 18,

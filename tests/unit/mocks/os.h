@@ -20,6 +20,13 @@
 // the default Speculos mnemonic. See tests/unit/mocks/os.c.
 extern const unsigned char REFERENCE_ROOT_KEY[BIP32_ROOT_KEY_SIZE];
 
+// Same mnemonic with a BIP39 passphrase, see tests/unit/mocks/os.c.
+extern const char REFERENCE_PASSPHRASE[];
+extern const unsigned char REFERENCE_PASSPHRASE_ROOT_KEY[BIP32_ROOT_KEY_SIZE];
+
+// Selects the master key the device holds (REFERENCE_ROOT_KEY by default).
+void mock_set_device_root_key(const unsigned char *root_key);
+
 #define LEDGER_ASSERT(a, b) ((void) (a))
 
 int os_secure_memcmp(const void *s1, const void *s2, size_t n);

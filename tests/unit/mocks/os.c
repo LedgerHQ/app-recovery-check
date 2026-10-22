@@ -31,6 +31,25 @@ const unsigned char REFERENCE_ROOT_KEY[BIP32_ROOT_KEY_SIZE] = {
     0x7c, 0x37, 0xbb, 0x84, 0x16, 0xa4, 0xff, 0x01, 0xbb, 0x69, 0xda,
     0xe9, 0x96, 0x6d, 0xc8, 0x3b, 0x5e, 0x5b, 0xf9, 0x21};
 
+// BIP32 master key of the same mnemonic with REFERENCE_PASSPHRASE, i.e. the
+// seed a device unlocked with that passphrase holds:
+//   seed = PBKDF2-HMAC-SHA512(mnemonic, "mnemonic" || passphrase, 2048, 64)
+const char REFERENCE_PASSPHRASE[] = "Ledger 25th word!";
+const unsigned char REFERENCE_PASSPHRASE_ROOT_KEY[BIP32_ROOT_KEY_SIZE] = {
+    0x2f, 0xdc, 0x0a, 0x3f, 0x0a, 0x77, 0x3a, 0x16, 0xac, 0x2d, 0x35,
+    0x6b, 0x70, 0xd8, 0x8f, 0xba, 0x43, 0x7c, 0x4e, 0x54, 0x3b, 0x11,
+    0xc9, 0x2d, 0xc2, 0xe3, 0x72, 0x9f, 0x5b, 0x85, 0x38, 0x5d, 0x9d,
+    0x27, 0x5b, 0x11, 0x39, 0xe0, 0xa2, 0x40, 0x1b, 0xad, 0x49, 0x78,
+    0x21, 0x58, 0xbb, 0x47, 0x5f, 0x43, 0x3c, 0xad, 0x69, 0xdd, 0x32,
+    0x5c, 0x1d, 0x8a, 0xed, 0xfe, 0x12, 0xc8, 0x3f, 0x1e};
+
+// Master key returned by os_derive_bip32_no_throw(), the device active seed
+static const unsigned char* device_root_key = REFERENCE_ROOT_KEY;
+
+void mock_set_device_root_key(const unsigned char* root_key) {
+    device_root_key = root_key;
+}
+
 // Only the master key of the reference seed is modelled, which is all
 // compare_recovery_phrase() asks for (empty path). Anything else fails rather
 // than returning CX_OK with an untouched output buffer.
@@ -42,7 +61,7 @@ int os_derive_bip32_no_throw(cx_curve_t curve, const unsigned int* path,
         chain_code == NULL) {
         return CX_INVALID_PARAMETER;
     }
-    memcpy(raw_privkey, REFERENCE_ROOT_KEY, 32);
-    memcpy(chain_code, REFERENCE_ROOT_KEY + 32, 32);
+    memcpy(raw_privkey, device_root_key, 32);
+    memcpy(chain_code, device_root_key + 32, 32);
     return CX_OK;
 }

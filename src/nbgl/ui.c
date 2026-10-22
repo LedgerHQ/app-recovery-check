@@ -23,6 +23,10 @@ static char wordCandidates[(MAX_WORD_LENGTH + 1) * NB_MAX_SUGGESTION_BUTTONS] =
 // Suggestion button texts
 static const char* buttonTexts[NB_MAX_SUGGESTION_BUTTONS] = {0};
 
+// BIP39 passphrase entry, only kept in RAM
+static char passphraseToEnter[MAX_PASSPHRASE_LENGTH + 1] = {0};
+static bool passphraseEnabled = false;
+
 // Buttons tokens
 enum {
     BACK_BUTTON_TOKEN = FIRST_USER_TOKEN,
@@ -30,6 +34,7 @@ enum {
     BUTTON_18_TOKEN,
     BUTTON_24_TOKEN,
     KBD_TEXT_TOKEN,
+    PASSPHRASE_SWITCH_TOKEN,
     FIRST_SUGGESTION_TOKEN,
 };
 
@@ -53,6 +58,7 @@ static const char* possible_results[2] = {
 static const nbgl_icon_details_t* icons[2] = {&ICON_FAIL, &ICON_SUCCESS};
 
 static void display_keyboard_page(void);
+static void display_passphrase_keyboard_page(void);
 static void display_home_page(void);
 static void display_result_page(const bool result);
 
@@ -71,6 +77,25 @@ static const nbgl_contentInfoList_t infoList = {
 
 static nbgl_homeAction_t action = {0};
 
+// Settings
+static void settings_callback(int token, uint8_t index, int page);
+
+// filled at runtime, see display_home_page()
+static nbgl_contentSwitch_t passphraseSwitch = {0};
+
+static const nbgl_content_t settingContentsList = {
+    .type = SWITCHES_LIST,
+    .content.switchesList.switches = &passphraseSwitch,
+    .content.switchesList.nbSwitches = 1,
+    .contentActionCallback = settings_callback,
+};
+
+static const nbgl_genericContents_t settingContents = {
+    .callbackCallNeeded = false,
+    .contentsList = &settingContentsList,
+    .nbContents = 1,
+};
+
 /*
  * Utils
  */
@@ -85,6 +110,7 @@ static nbgl_homeAction_t action = {0};
  */
 static void reset_keyboard_buffers(void) {
     explicit_bzero(textToEnter, sizeof(textToEnter));
+    explicit_bzero(passphraseToEnter, sizeof(passphraseToEnter));
     explicit_bzero(wordCandidates, sizeof(wordCandidates));
     memset(buttonTexts, 0, sizeof(buttonTexts));
 }
@@ -182,7 +208,9 @@ static void keyboard_dispatcher(const int token, uint8_t index) {
                strlen(buttonTexts[buttonIndex]));
         add_word_in_mnemonic(buttonTexts[buttonIndex],
                              strlen(buttonTexts[buttonIndex]));
-        if (is_mnemonic_complete()) {
+        if (is_mnemonic_complete() && passphraseEnabled) {
+            display_passphrase_keyboard_page();
+        } else if (is_mnemonic_complete()) {
             display_result_page(check_mnemonic());
         } else {
             display_keyboard_page();
@@ -284,11 +312,92 @@ static void display_keyboard_page(void) {
 }
 
 /**
+ * @brief Passphrase keyboard confirmation callback
+ *
+ */
+static void passphrase_keyboard_confirm(void) {
+    const bool valid = set_mnemonic_passphrase(
+        passphraseToEnter, strnlen(passphraseToEnter, MAX_PASSPHRASE_LENGTH));
+    reset_keyboard_buffers();
+    display_result_page(valid && check_mnemonic());
+}
+
+/**
+ * @brief Passphrase keyboard back callback, goes back to the last word
+ *
+ */
+static void passphrase_keyboard_close(void) {
+    reset_keyboard_buffers();
+    remove_word_from_mnemonic();
+    display_keyboard_page();
+}
+
+/**
+ * @brief Display the passphrase entry page
+ *
+ */
+static void display_passphrase_keyboard_page(void) {
+    nbgl_keyboardParams_t keyboardParams = {
+        .type = KEYBOARD_WITH_BUTTON,
+#ifdef SCREEN_SIZE_WALLET
+        .title = "Enter the passphrase set on this Ledger device",
+        .mode = MODE_LETTERS,
+        .casing = LOWER_CASE,
+#ifndef SCREEN_NOT_OBFUSCATED
+        .obfuscated = true,
+#endif
+        .confirmationParams.buttonText = "Confirm",
+#else
+        .title = "Enter passphrase",
+        .mode = MODE_NONE,
+#endif
+        .entryBuffer = passphraseToEnter,
+        .entryMaxLen = MAX_PASSPHRASE_LENGTH,
+        .lettersOnly = false,
+        .confirmationParams.onButtonCallback = &passphrase_keyboard_confirm,
+    };
+    reset_keyboard_buffers();
+
+    nbgl_useCaseKeyboard(&keyboardParams, &passphrase_keyboard_close);
+}
+
+/**
+ * @brief Settings callback
+ *
+ * @param[in] token of the touched setting
+ * @param[in] index new state of the switch (unused, the state is toggled)
+ * @param[in] page settings page index
+ *
+ */
+static void settings_callback(int token, uint8_t index, int page) {
+    UNUSED(index);
+    UNUSED(page);
+    if (token == PASSPHRASE_SWITCH_TOKEN) {
+        passphraseEnabled = !passphraseEnabled;
+        passphraseSwitch.initState = passphraseEnabled ? ON_STATE : OFF_STATE;
+    }
+}
+
+/**
  * @brief Display the App Home page
  *
  */
 static void display_home_page(void) {
     reset_globals();
+
+    passphraseSwitch = (nbgl_contentSwitch_t){
+        .text = "Passphrase",
+#ifdef SCREEN_SIZE_WALLET
+        .subText = "Also enter a passphrase after the Recovery Phrase",
+#else
+        .subText = "Also enter a passphrase",
+#endif
+        .initState = passphraseEnabled ? ON_STATE : OFF_STATE,
+        .token = PASSPHRASE_SWITCH_TOKEN,
+#ifdef HAVE_PIEZO_SOUND
+        .tuneId = TUNE_TAP_CASUAL,
+#endif
+    };
 
     action.callback = (nbgl_callback_t)passphrase_length_page;
     action.text = "Select the number of words written on your Recovery Sheet";
@@ -301,7 +410,7 @@ static void display_home_page(void) {
 #else
         "Check your Recovery Phrase",
 #endif
-        INIT_HOME_PAGE, NULL, &infoList, &action, app_exit);
+        INIT_HOME_PAGE, &settingContents, &infoList, &action, app_exit);
 }
 
 /**

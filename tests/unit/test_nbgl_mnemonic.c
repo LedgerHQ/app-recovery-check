@@ -8,11 +8,31 @@
 // clang-format on
 
 #include "nbgl/mnemonic.h"
+#include "os.h"
+
+// Default Speculos mnemonic
+static const char* const SPECULOS_MNEMONIC[] = {
+    "glory", "promote",  "mansion", "idle",    "axis",  "finger",
+    "extra", "february", "uncover", "one",     "trip",  "resource",
+    "lawn",  "turtle",   "enact",   "monster", "seven", "myth",
+    "punch", "hobby",    "comfort", "wild",    "raise", "skin"};
 
 static int setup(void** state __attribute__((unused))) {
     // resets the whole buffer with initial values
     reset_mnemonic();
+    mock_set_device_root_key(REFERENCE_ROOT_KEY);
     return 0;
+}
+
+static void add_speculos_mnemonic(void) {
+    const size_t mnemonic_size =
+        sizeof(SPECULOS_MNEMONIC) / sizeof(SPECULOS_MNEMONIC[0]);
+    set_mnemonic_final_size(mnemonic_size);
+    for (size_t i = 0; i < mnemonic_size; i++) {
+        assert_int_equal(add_word_in_mnemonic(SPECULOS_MNEMONIC[i],
+                                              strlen(SPECULOS_MNEMONIC[i])),
+                         i + 1);
+    }
 }
 
 static void test_mnemonic_init(void** state __attribute__((unused))) {
@@ -154,6 +174,70 @@ static void test_check_mnemonic_not_device_seed(void** state
     assert_string_equal(get_mnemonic(), "");
 }
 
+static void test_check_mnemonic_passphrase_ok(void** state
+                                              __attribute__((unused))) {
+    mock_set_device_root_key(REFERENCE_PASSPHRASE_ROOT_KEY);
+    add_speculos_mnemonic();
+    assert_true(set_mnemonic_passphrase(REFERENCE_PASSPHRASE,
+                                        strlen(REFERENCE_PASSPHRASE)));
+
+    assert_true(check_mnemonic());
+    // the passphrase is wiped along with the mnemonic
+    assert_int_equal(get_mnemonic_passphrase_length(), 0);
+    assert_string_equal(get_mnemonic(), "");
+}
+
+static void test_check_mnemonic_passphrase_missing(void** state
+                                                   __attribute__((unused))) {
+    // device unlocked with a passphrase, words checked without it
+    mock_set_device_root_key(REFERENCE_PASSPHRASE_ROOT_KEY);
+    add_speculos_mnemonic();
+
+    assert_false(check_mnemonic());
+}
+
+static void test_check_mnemonic_passphrase_wrong(void** state
+                                                 __attribute__((unused))) {
+    const char passphrase[] = "ledger 25th word!";
+    mock_set_device_root_key(REFERENCE_PASSPHRASE_ROOT_KEY);
+    add_speculos_mnemonic();
+    assert_true(set_mnemonic_passphrase(passphrase, strlen(passphrase)));
+
+    assert_false(check_mnemonic());
+    assert_int_equal(get_mnemonic_passphrase_length(), 0);
+}
+
+static void test_check_mnemonic_passphrase_unexpected(void** state
+                                                      __attribute__((unused))) {
+    // device holding the plain seed, words checked with a passphrase
+    add_speculos_mnemonic();
+    assert_true(set_mnemonic_passphrase(REFERENCE_PASSPHRASE,
+                                        strlen(REFERENCE_PASSPHRASE)));
+
+    assert_false(check_mnemonic());
+}
+
+static void test_check_mnemonic_passphrase_empty(void** state
+                                                 __attribute__((unused))) {
+    // an empty passphrase is the plain BIP39 seed
+    add_speculos_mnemonic();
+    assert_true(set_mnemonic_passphrase("", 0));
+
+    assert_true(check_mnemonic());
+}
+
+static void test_set_mnemonic_passphrase_too_long(void** state
+                                                  __attribute__((unused))) {
+    char passphrase[MAX_PASSPHRASE_LENGTH + 1];
+    memset(passphrase, 'a', sizeof(passphrase));
+
+    assert_true(set_mnemonic_passphrase(passphrase, MAX_PASSPHRASE_LENGTH));
+    assert_int_equal(get_mnemonic_passphrase_length(), MAX_PASSPHRASE_LENGTH);
+
+    assert_false(set_mnemonic_passphrase(passphrase, sizeof(passphrase)));
+    assert_int_equal(get_mnemonic_passphrase_length(), 0);
+}
+
 int main() {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test_setup_teardown(test_mnemonic_init, setup, NULL),
@@ -168,6 +252,18 @@ int main() {
         cmocka_unit_test_setup_teardown(test_check_mnemonic_nok2, setup, NULL),
         cmocka_unit_test_setup_teardown(test_check_mnemonic_ok, setup, NULL),
         cmocka_unit_test_setup_teardown(test_check_mnemonic_not_device_seed,
+                                        setup, NULL),
+        cmocka_unit_test_setup_teardown(test_check_mnemonic_passphrase_ok,
+                                        setup, NULL),
+        cmocka_unit_test_setup_teardown(test_check_mnemonic_passphrase_missing,
+                                        setup, NULL),
+        cmocka_unit_test_setup_teardown(test_check_mnemonic_passphrase_wrong,
+                                        setup, NULL),
+        cmocka_unit_test_setup_teardown(
+            test_check_mnemonic_passphrase_unexpected, setup, NULL),
+        cmocka_unit_test_setup_teardown(test_check_mnemonic_passphrase_empty,
+                                        setup, NULL),
+        cmocka_unit_test_setup_teardown(test_set_mnemonic_passphrase_too_long,
                                         setup, NULL),
     };
     return cmocka_run_group_tests(tests, NULL, NULL);

@@ -19,6 +19,14 @@ _FULL_ALPHABET = "abcdefghijklmnopqrstuvwxyz"
 # nbgl_layout.h — else branch (non-touch / nano)
 _NB_MAX_SUGGESTION_BUTTONS_NANO = 8
 
+# Nano full keyboard (MODE_NONE): a mode-choice screen (lower, upper, digits) comes first; each
+# mode ring ends with backspace ('\b'), validate ('\n') and back to mode choice ('\r').
+_FULL_KEYBOARD_MAPS = (
+    "abcdefghijklmnopqrstuvwxyz\b\n\r",
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ\b\n\r",
+    "0123456789 '\"`&/?!:;.,~*$=+-[](){}^<>\\_#@|%\b\n\r",
+)
+
 
 def _available_letters(prefix: str) -> str:
     """Return sorted string of letters available on the nano keyboard for the given prefix.
@@ -53,10 +61,14 @@ class CustomNavInsID(Enum):
     TOUCH = auto()
     # home screen
     HOME_TO_SETTINGS = auto()
+    HOME_TO_INFO = auto()
     HOME_TO_QUIT = auto()
     HOME_TO_CHECK = auto()
     # settings
     SETTINGS_TO_HOME = auto()
+    SETTINGS_NEXT = auto()
+    INFO_TO_HOME = auto()
+    SETTINGS_TOGGLE_PASSPHRASE = auto()
     # Recovery phrase length choice
     LENGTH_CHOOSE_24 = auto()
     LENGTH_CHOOSE_18 = auto()
@@ -69,6 +81,10 @@ class CustomNavInsID(Enum):
     KEYBOARD_TO_PREVIOUS = auto()
     KEYBOARD_WRITE = auto()
     KEYBOARD_SELECT_SUGGESTION = auto()
+    # BIP39 passphrase keyboard, displayed after the last word when enabled in settings
+    PASSPHRASE_WRITE = auto()
+    PASSPHRASE_CONFIRM = auto()
+    PASSPHRASE_TO_PREVIOUS = auto()
     # result screen, one action: going back to home screen
     RESULT_TO_HOME = auto()
 
@@ -86,6 +102,9 @@ class TouchNavigator(Navigator):
             CustomNavInsID.HOME_TO_QUIT: self.screen.home.quit,
             CustomNavInsID.HOME_TO_CHECK: self.screen.home.action,
             CustomNavInsID.SETTINGS_TO_HOME: self.screen.settings.single_page_exit,
+            CustomNavInsID.SETTINGS_NEXT: self.screen.settings.next,
+            # the passphrase switch is the first row, where the first length choice also lies
+            CustomNavInsID.SETTINGS_TOGGLE_PASSPHRASE: partial(self.screen.choice_list.choose, 1, device),
             CustomNavInsID.LENGTH_CHOOSE_12: partial(self.screen.choice_list.choose, 1, device),
             CustomNavInsID.LENGTH_CHOOSE_18: partial(self.screen.choice_list.choose, 2, device),
             CustomNavInsID.LENGTH_CHOOSE_24: partial(self.screen.choice_list.choose, 3, device),
@@ -93,9 +112,17 @@ class TouchNavigator(Navigator):
             CustomNavInsID.KEYBOARD_TO_PREVIOUS: self.screen.navigation.tap,
             CustomNavInsID.KEYBOARD_WRITE: self._write,
             CustomNavInsID.KEYBOARD_SELECT_SUGGESTION: self.screen.suggestions.choose,
+            CustomNavInsID.PASSPHRASE_WRITE: self._write_passphrase,
+            CustomNavInsID.PASSPHRASE_CONFIRM: partial(self.screen.keyboard_confirm.tap, device),
+            CustomNavInsID.PASSPHRASE_TO_PREVIOUS: self.screen.navigation.tap,
             CustomNavInsID.RESULT_TO_HOME: self.screen.dismiss.tap,
         }
         super().__init__(backend, device, callbacks, golden_run=golden_run)
+
+    def _write_passphrase(self, characters: str):
+        # lower case letters only
+        self.screen.full_keyboard.write(characters)
+        sleep(1)
 
     def _write(self, characters: str):
         # keyboard write is not an exact science on Ragger for now. The instruction together with
@@ -114,6 +141,8 @@ class NanoNavigator(Navigator):
         self._intended_chars: str | None = None  # characters passed to _write
         self._on_length_page = False  # True when the length-selection page is active
         self._word_count = 0  # words confirmed so far in the current keyboard session
+        self._kbd_mode: int | None = None  # full keyboard mode, None on the mode-choice screen
+        self._kbd_index = 0  # full keyboard cursor in the current ring
 
         callbacks = {
             NavInsID.WAIT: sleep,
@@ -124,6 +153,9 @@ class NanoNavigator(Navigator):
             CustomNavInsID.HOME_TO_QUIT: self._home_to_quit,
             # settings screen
             CustomNavInsID.SETTINGS_TO_HOME: self._settings_to_home,
+            CustomNavInsID.HOME_TO_INFO: self._home_to_info,
+            CustomNavInsID.INFO_TO_HOME: self._info_to_home,
+            CustomNavInsID.SETTINGS_TOGGLE_PASSPHRASE: self._backend.both_click,
             # length selection (nbgl_useCaseNavigableContent BARS_LIST): each bar is a page,
             # last page is "Back"; bars are in order: 12, 18, 24 (pages 0, 1, 2)
             CustomNavInsID.LENGTH_NEXT: self._length_next,
@@ -137,6 +169,10 @@ class NanoNavigator(Navigator):
             CustomNavInsID.KEYBOARD_TO_PREVIOUS: self._keyboard_to_previous,
             CustomNavInsID.KEYBOARD_WRITE: self._write,
             CustomNavInsID.KEYBOARD_SELECT_SUGGESTION: self._select_suggestion,
+            # passphrase keyboard (nbgl_useCaseKeyboard, MODE_NONE)
+            CustomNavInsID.PASSPHRASE_WRITE: self._write_passphrase,
+            CustomNavInsID.PASSPHRASE_CONFIRM: self._confirm_passphrase,
+            CustomNavInsID.PASSPHRASE_TO_PREVIOUS: self._passphrase_to_previous,
             # result screen (nbgl_useCaseAction): BOTH_CLICK returns to home
             CustomNavInsID.RESULT_TO_HOME: self._result_to_home,
         }
@@ -174,8 +210,20 @@ class NanoNavigator(Navigator):
                 self._backend.right_click()
         self._backend.both_click()
 
-    def _settings_to_home(self):
-        # Navigate to "Back" page in settings and confirm
+    def _home_to_info(self):
+        # "App info" page is three RIGHTs from the home page
+        for _ in range(3):
+            self._backend.right_click()
+        self._backend.both_click()
+
+    def _info_to_home(self):
+        # "Back" returns to the "App info" home page (page 3): go back to page 0
+        self._navigate_to_back()
+        for _ in range(3):
+            self._backend.left_click()
+
+    def _navigate_to_back(self):
+        # Navigate to "Back" page and confirm
         for _ in range(10):
             try:
                 self._backend.wait_for_text_on_screen("Back", timeout=0.5)
@@ -183,6 +231,12 @@ class NanoNavigator(Navigator):
             except Exception:
                 self._backend.right_click()
         self._backend.both_click()
+
+    def _settings_to_home(self):
+        self._navigate_to_back()
+        # "Back" returns to the "App settings" home page (page 2): go back to page 0
+        self._backend.left_click()
+        self._backend.left_click()
 
     def _length_next(self):
         # Advance one bar forward on the length-selection page (RIGHT_CLICK = next page).
@@ -293,6 +347,57 @@ class NanoNavigator(Navigator):
             self._backend.right_click()
         self._backend.both_click()
         self._word_count += 1
+
+    def _kbd_navigate_to(self, target_index: int, ring_size: int) -> None:
+        right_steps = (target_index - self._kbd_index) % ring_size
+        left_steps = (self._kbd_index - target_index) % ring_size
+        if right_steps <= left_steps:
+            for _ in range(right_steps):
+                self._backend.right_click()
+        else:
+            for _ in range(left_steps):
+                self._backend.left_click()
+        self._kbd_index = target_index
+
+    def _kbd_ensure_mode(self, target_mode: int) -> None:
+        if self._kbd_mode == target_mode:
+            return
+        if self._kbd_mode is not None:
+            # '\r' goes back to the mode-choice screen
+            keys = _FULL_KEYBOARD_MAPS[self._kbd_mode]
+            self._kbd_navigate_to(len(keys) - 1, ring_size=len(keys))
+            self._backend.both_click()
+            self._kbd_index = 0
+        self._kbd_navigate_to(target_mode, ring_size=len(_FULL_KEYBOARD_MAPS))
+        self._backend.both_click()
+        self._kbd_mode = target_mode
+        self._kbd_index = 0
+
+    def _kbd_press(self, key: str, default_mode: int = 0) -> None:
+        mode = next((m for m, keys in enumerate(_FULL_KEYBOARD_MAPS) if key in keys[:-3]), None)
+        self._kbd_ensure_mode(default_mode if mode is None else mode)
+        keys = _FULL_KEYBOARD_MAPS[self._kbd_mode]
+        self._kbd_navigate_to(keys.index(key), ring_size=len(keys))
+        self._backend.both_click()
+
+    def _kbd_reset(self) -> None:
+        self._kbd_mode = None
+        self._kbd_index = 0
+
+    def _write_passphrase(self, characters: str) -> None:
+        for char in characters:
+            self._kbd_press(char)
+            sleep(0.1)
+
+    def _confirm_passphrase(self) -> None:
+        self._kbd_press("\n", default_mode=self._kbd_mode or 0)
+        self._kbd_reset()
+
+    def _passphrase_to_previous(self) -> None:
+        # backspace on an empty passphrase goes back to the last word
+        self._kbd_press("\b", default_mode=self._kbd_mode or 0)
+        self._kbd_reset()
+        self._word_count -= 1
 
     def _result_to_home(self) -> None:
         # nbgl_useCaseAction: BOTH_CLICK triggers display_home_page
