@@ -34,6 +34,23 @@ set(UT_INCLUDE_DIRS
     ${UT_INCLUDE_DIRS_SDK}
 )
 
+# Mnemonic code with the real crypto, computed by fake_crypto.c behind the mocks
+set(MNEMONIC_SOURCES
+    ${APP_DIR}/nbgl/mnemonic.c
+    ${APP_DIR}/mnemonic_common/seed_bip39.c
+    ${APP_DIR}/mnemonic_common/seed_rom_variables.c
+    ${FAKES_DIR}/fake_crypto.c
+    ${FAKES_DIR}/fake_sdk.c
+)
+
+set(CRYPTO_MOCK_HEADERS
+    ${SDK_DIR}/lib_cxng/include/lcx_hmac.h
+    ${SDK_DIR}/lib_cxng/include/lcx_pbkdf2.h
+    ${SDK_DIR}/lib_cxng/include/lcx_sha256.h
+    ${SDK_DIR}/include/os_seed.h
+    ${SDK_DIR}/include/os_utils.h
+)
+
 set(UT_COMPILE_DEFS
     ${UT_COMPILE_DEFS_SDK}
     APPNAME="Recovery Check"
@@ -58,17 +75,31 @@ ledger_unit_tests_build_app_sources_as_lib(
 #######################################################################
 ledger_unit_tests_add_test(
     NAME         test_nbgl_mnemonic
-    SOURCES      ${APP_DIR}/nbgl/mnemonic.c
-                 ${APP_DIR}/mnemonic_common/seed_bip39.c
-                 ${APP_DIR}/mnemonic_common/seed_rom_variables.c
-                 ${FAKES_DIR}/fake_crypto.c
-                 ${FAKES_DIR}/fake_sdk.c
-    MOCK_HEADERS ${SDK_DIR}/lib_cxng/include/lcx_hmac.h
-                 ${SDK_DIR}/lib_cxng/include/lcx_pbkdf2.h
-                 ${SDK_DIR}/lib_cxng/include/lcx_sha256.h
-                 ${SDK_DIR}/include/os_seed.h
-                 ${SDK_DIR}/include/os_utils.h
+    SOURCES      ${MNEMONIC_SOURCES}
+    MOCK_HEADERS ${CRYPTO_MOCK_HEADERS}
     INCLUDE_DIRS ${UT_INCLUDE_DIRS}
     COMPILE_DEFS ${UT_COMPILE_DEFS}
 )
 target_link_libraries(test_nbgl_mnemonic PRIVATE sodium)
+
+ledger_unit_tests_add_test(
+    NAME         test_bip39
+    SOURCES      ${MNEMONIC_SOURCES}
+    MOCK_HEADERS ${CRYPTO_MOCK_HEADERS}
+    INCLUDE_DIRS ${UT_INCLUDE_DIRS}
+    COMPILE_DEFS ${UT_COMPILE_DEFS}
+)
+target_link_libraries(test_bip39 PRIVATE sodium)
+
+ledger_unit_tests_add_test(
+    NAME         test_ui
+    SOURCES      ${APP_DIR}/nbgl/ui.c
+                 ${MNEMONIC_SOURCES}
+                 ${FAKES_DIR}/fake_glyphs.c
+    MOCK_HEADERS ${CRYPTO_MOCK_HEADERS}
+                 ${SDK_DIR}/lib_nbgl/include/nbgl_use_case.h
+                 ${SDK_DIR}/lib_standard_app/main_std_app.h
+    INCLUDE_DIRS ${UT_INCLUDE_DIRS}
+    COMPILE_DEFS ${UT_COMPILE_DEFS}
+)
+target_link_libraries(test_ui PRIVATE sodium)

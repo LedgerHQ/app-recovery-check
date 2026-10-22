@@ -2,15 +2,9 @@
 
 #include "bip39.h"
 #include "cx.h"
+#include "nbgl_use_case.h"
 #include "os.h"
 #include "seed_rom_variables.h"
-
-#if defined(TEST)
-#define NB_MAX_SUGGESTION_BUTTONS 4
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
-#else
-#include "nbgl_use_case.h"
-#endif
 
 #define ALPHABET_LENGTH 27
 #ifdef SCREEN_SIZE_WALLET
