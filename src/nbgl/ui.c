@@ -272,7 +272,7 @@ static void keyboard_close(void) {
  *
  */
 static void display_keyboard_page(void) {
-    PRINTF("Starting entry of word #%d\n", get_current_word_number() + 1);
+    PRINTF("Starting entry of word #%d\n", (int)get_current_word_number() + 1);
     nbgl_kbdSuggestParams_t suggestParams = {
         .buttons = buttonTexts,
         .firstButtonToken = FIRST_SUGGESTION_TOKEN,
@@ -301,10 +301,10 @@ static void display_keyboard_page(void) {
 #ifdef SCREEN_SIZE_WALLET
     snprintf(headerText, HEADER_SIZE,
              "Enter word no. %d from your Recovery Sheet",
-             get_current_word_number() + 1);
+             (uint8_t)(get_current_word_number() + 1));
 #else
     snprintf(headerText, HEADER_SIZE, "Enter word #%d",
-             get_current_word_number() + 1);
+             (uint8_t)(get_current_word_number() + 1));
 #endif
     reset_keyboard_buffers();
 
