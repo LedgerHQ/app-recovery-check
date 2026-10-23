@@ -17,4 +17,5 @@ jobs:
       token: ${{ secrets.GITHUB_TOKEN }}
       codecov_token: ${{ secrets.CODECOV_TOKEN }}
     with:
+      use_cmake_ut_framework: true
       additional_packages: libsodium-dev

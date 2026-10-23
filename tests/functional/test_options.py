@@ -8,8 +8,17 @@ from .navigator import CustomNavInsID
 from .utils import format_instructions
 
 
-def test_check_info_then_leave(navigator: Navigator, default_screenshot_path: Path):
-    instructions = format_instructions([CustomNavInsID.HOME_TO_SETTINGS, CustomNavInsID.SETTINGS_TO_HOME])
+def test_check_info_then_leave(navigator: Navigator, default_screenshot_path: Path, device: Device):
+    # Nano: "App info" is a home page of its own. Touch: infos are on the second settings page.
+    if device.is_nano:
+        instructions = [CustomNavInsID.HOME_TO_INFO, CustomNavInsID.INFO_TO_HOME]
+    else:
+        instructions = [
+            CustomNavInsID.HOME_TO_SETTINGS,
+            CustomNavInsID.SETTINGS_NEXT,
+            CustomNavInsID.SETTINGS_TO_HOME,
+        ]
+    instructions = format_instructions(instructions)
     navigator.navigate_and_compare(
         default_screenshot_path,
         "check_info_then_leave",
@@ -75,6 +84,24 @@ def test_check_previous_word(navigator: Navigator, default_screenshot_path: Path
     navigator.navigate_and_compare(
         default_screenshot_path,
         "check_previous_word",
+        instructions,
+        screen_change_before_first_instruction=False,
+        screen_change_after_last_instruction=True,
+    )
+
+
+def test_toggle_passphrase_setting(navigator: Navigator, default_screenshot_path: Path):
+    instructions = format_instructions(
+        [
+            CustomNavInsID.HOME_TO_SETTINGS,
+            CustomNavInsID.SETTINGS_TOGGLE_PASSPHRASE,
+            CustomNavInsID.SETTINGS_TOGGLE_PASSPHRASE,
+            CustomNavInsID.SETTINGS_TO_HOME,
+        ]
+    )
+    navigator.navigate_and_compare(
+        default_screenshot_path,
+        "toggle_passphrase_setting",
         instructions,
         screen_change_before_first_instruction=False,
         screen_change_after_last_instruction=True,

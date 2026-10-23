@@ -16,6 +16,10 @@ typedef struct buffer {
     size_t word_lengths[MNEMONIC_SIZE_24];
     // expected number of word in the final mnemonic (12 or 18 or 24)
     size_t final_size;
+    // optional BIP39 passphrase (empty when not used)
+    char passphrase[MAX_PASSPHRASE_LENGTH];
+    // current length of the BIP39 passphrase
+    size_t passphrase_length;
 } mnemonic_buffer_t;
 
 static mnemonic_buffer_t mnemonic = {0};
@@ -41,6 +45,19 @@ size_t get_current_word_number() { return mnemonic.current_word_index + 1; }
 void reset_mnemonic() {
     explicit_bzero(&mnemonic, sizeof(mnemonic));
     mnemonic.current_word_index = (size_t)-1;
+}
+
+bool set_mnemonic_passphrase(const char* const buffer, const size_t size) {
+    explicit_bzero(mnemonic.passphrase, sizeof(mnemonic.passphrase));
+    mnemonic.passphrase_length = 0;
+    if (size > MAX_PASSPHRASE_LENGTH || (buffer == NULL && size != 0)) {
+        return false;
+    }
+    if (size > 0) {
+        memcpy(mnemonic.passphrase, buffer, size);
+    }
+    mnemonic.passphrase_length = size;
+    return true;
 }
 
 bool remove_word_from_mnemonic() {
@@ -94,8 +111,9 @@ bool check_mnemonic() {
         return false;
     }
 
-    const bool result =
-        compare_recovery_phrase((uint8_t*)mnemonic.buffer, mnemonic.length);
+    const bool result = compare_recovery_phrase(
+        (uint8_t*)mnemonic.buffer, mnemonic.length,
+        (const uint8_t*)mnemonic.passphrase, mnemonic.passphrase_length);
     reset_mnemonic();
 
     return result;
@@ -103,4 +121,6 @@ bool check_mnemonic() {
 
 #if defined(TEST)
 char* get_mnemonic() { return mnemonic.buffer; }
+
+size_t get_mnemonic_passphrase_length() { return mnemonic.passphrase_length; }
 #endif
