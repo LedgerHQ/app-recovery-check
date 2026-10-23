@@ -2,15 +2,9 @@
 
 #include "bip39.h"
 #include "cx.h"
+#include "nbgl_use_case.h"
 #include "os.h"
 #include "seed_rom_variables.h"
-
-#if defined(TEST)
-#define NB_MAX_SUGGESTION_BUTTONS 4
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
-#else
-#include "nbgl_use_case.h"
-#endif
 
 #define ALPHABET_LENGTH 27
 #ifdef SCREEN_SIZE_WALLET
@@ -32,14 +26,25 @@ unsigned int bolos_ux_mnemonic_to_seed_hash_length128(
 
 void bolos_ux_mnemonic_to_seed(unsigned char* mnemonic,
                                unsigned int mnemonicLength,
+                               const unsigned char* passphrase,
+                               unsigned int passphraseLength,
                                unsigned char* seed) {
-    unsigned char passphrase[BIP39_MNEMONIC_LENGTH + 4];
+    // BIP39 salt: "mnemonic" followed by the optional passphrase
+    unsigned char salt[BIP39_MNEMONIC_LENGTH + MAX_PASSPHRASE_LENGTH] = {0};
     mnemonicLength =
         bolos_ux_mnemonic_to_seed_hash_length128(mnemonic, mnemonicLength);
 
-    memcpy(passphrase, BIP39_MNEMONIC, BIP39_MNEMONIC_LENGTH);
-    cx_pbkdf2_sha512(mnemonic, mnemonicLength, passphrase,
-                     BIP39_MNEMONIC_LENGTH, BIP39_PBKDF2_ROUNDS, seed, 64);
+    if (passphrase == NULL || passphraseLength > MAX_PASSPHRASE_LENGTH) {
+        passphraseLength = 0;
+    }
+    memcpy(salt, BIP39_MNEMONIC, BIP39_MNEMONIC_LENGTH);
+    if (passphraseLength > 0) {
+        memcpy(salt + BIP39_MNEMONIC_LENGTH, passphrase, passphraseLength);
+    }
+    cx_pbkdf2_sha512(mnemonic, mnemonicLength, salt,
+                     BIP39_MNEMONIC_LENGTH + passphraseLength,
+                     BIP39_PBKDF2_ROUNDS, seed, 64);
+    explicit_bzero(salt, sizeof(salt));
 
     // what happen to the second block for a very short seed ?
 }
@@ -82,12 +87,12 @@ bool bolos_ux_mnemonic_check(unsigned char* mnemonic,
         }
         current_word_size++;
         for (k = 0; k < BIP39_WORDLIST_OFFSETS_LENGTH - 1; k++) {
-            if ((memcmp(current_word,
-                        BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[k],
-                        current_word_size) == 0) &&
-                ((unsigned int)(BIP39_WORDLIST_OFFSETS[k + 1] -
+            if (((unsigned int)(BIP39_WORDLIST_OFFSETS[k + 1] -
                                 BIP39_WORDLIST_OFFSETS[k]) ==
-                 current_word_size)) {
+                 current_word_size) &&
+                (memcmp(current_word,
+                        BIP39_WORDLIST + BIP39_WORDLIST_OFFSETS[k],
+                        current_word_size) == 0)) {
                 for (ki = 0; ki < 11; ki++) {
                     if (k & (1 << (10 - ki))) {
                         bits[bi / 8] |= 1 << (7 - (bi % 8));
@@ -227,7 +232,9 @@ unsigned int bolos_ux_bip39_get_word_next_letters_starting_with(
     return letter_count;
 }
 
-bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
+bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length,
+                             const uint8_t* passphrase,
+                             size_t passphrase_length) {
     // Every buffer below holds seed-derived material: no early return is
     // allowed once they are populated, all exits go through 'end'.
     uint8_t buffer[64] = {0};
@@ -241,7 +248,8 @@ bool compare_recovery_phrase(uint8_t* mnemonic, size_t mnemonic_length) {
     cx_err_t error = CX_INTERNAL_ERROR;
 
     // convert mnemonic to hex-seed
-    bolos_ux_mnemonic_to_seed(mnemonic, mnemonic_length, buffer);
+    bolos_ux_mnemonic_to_seed(mnemonic, mnemonic_length, passphrase,
+                              passphrase_length, buffer);
 
     // get rootkey from hex-seed
     CX_CHECK(

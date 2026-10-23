@@ -53,6 +53,12 @@ bool check_mnemonic(void);
 void reset_mnemonic(void);
 
 /*
+ * Sets the optional BIP39 passphrase used by check_mnemonic (size 0 clears it).
+ * Returns false, with the passphrase cleared, if it is too long
+ */
+bool set_mnemonic_passphrase(const char *const buffer, const size_t size);
+
+/*
  * Remove the latest word from the passphrase, returns true if there was at least one to remove,
  * else false (there was no word)
  */
@@ -65,4 +71,5 @@ size_t add_word_in_mnemonic(const char *const buffer, const size_t size);
 
 #if defined(TEST)
 char *get_mnemonic();
+size_t get_mnemonic_passphrase_length();
 #endif
